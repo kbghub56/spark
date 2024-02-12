@@ -2,13 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>SchemeUserState</key>
+	<key>Apple Scene Manifest</key>
 	<dict>
-		<key>spark.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>0</integer>
-		</dict>
+		<key>Enable Multiple Windows</key>
+		<true/>
+		<key>Scene Configuration</key>
+		<dict/>
 	</dict>
 </dict>
 </plist>

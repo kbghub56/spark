@@ -20,6 +20,9 @@
 		99086FBA2B79F4C000FC00B2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FB92B79F4C000FC00B2 /* AppDelegate.swift */; };
 		99086FBC2B79F5EA00FC00B2 /* EventInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FBB2B79F5EA00FC00B2 /* EventInputView.swift */; };
 		99086FBE2B79F7CE00FC00B2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99086FBD2B79F7CE00FC00B2 /* GoogleService-Info.plist */; };
+		99086FC12B7A087900FC00B2 /* MapViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */; };
+		99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FC32B7A112800FC00B2 /* LocationManager.swift */; };
+		99086FC62B7A15F200FC00B2 /* HomeMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FC52B7A15F200FC00B2 /* HomeMapView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +35,9 @@
 		99086FB92B79F4C000FC00B2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		99086FBB2B79F5EA00FC00B2 /* EventInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EventInputView.swift; path = spark/EventInputView.swift; sourceTree = SOURCE_ROOT; };
 		99086FBD2B79F7CE00FC00B2 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewRepresentable.swift; sourceTree = "<group>"; };
+		99086FC32B7A112800FC00B2 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		99086FC52B7A15F200FC00B2 /* HomeMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMapView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,11 +77,13 @@
 		99086F932B76E3BA00FC00B2 /* spark */ = {
 			isa = PBXGroup;
 			children = (
+				99086F942B76E3BA00FC00B2 /* sparkApp.swift */,
 				99086FB92B79F4C000FC00B2 /* AppDelegate.swift */,
 				99086FA82B77FBF300FC00B2 /* GoogleService-Info.plist */,
-				99086F942B76E3BA00FC00B2 /* sparkApp.swift */,
-				99086FA22B77681E00FC00B2 /* InputEvents */,
 				99086F962B76E3BA00FC00B2 /* ContentView.swift */,
+				99086FC22B7A111600FC00B2 /* Managers */,
+				99086FBF2B7A06CF00FC00B2 /* MapUI */,
+				99086FA22B77681E00FC00B2 /* InputEvents */,
 				99086F982B76E3BB00FC00B2 /* Assets.xcassets */,
 				99086F9A2B76E3BB00FC00B2 /* Preview Content */,
 			);
@@ -104,6 +112,23 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		99086FBF2B7A06CF00FC00B2 /* MapUI */ = {
+			isa = PBXGroup;
+			children = (
+				99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */,
+				99086FC52B7A15F200FC00B2 /* HomeMapView.swift */,
+			);
+			path = MapUI;
+			sourceTree = "<group>";
+		};
+		99086FC22B7A111600FC00B2 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				99086FC32B7A112800FC00B2 /* LocationManager.swift */,
+			);
+			path = Managers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -189,7 +214,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				99086FBC2B79F5EA00FC00B2 /* EventInputView.swift in Sources */,
+				99086FC62B7A15F200FC00B2 /* HomeMapView.swift in Sources */,
 				99086FBA2B79F4C000FC00B2 /* AppDelegate.swift in Sources */,
+				99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */,
+				99086FC12B7A087900FC00B2 /* MapViewRepresentable.swift in Sources */,
 				99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */,
 				99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */,
 			);
@@ -325,6 +353,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = spark/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -356,6 +385,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = spark/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

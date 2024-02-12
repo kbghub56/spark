@@ -14,6 +14,11 @@ struct ContentView: View {
                 NavigationLink(destination: EventInputView()) {
                     Text("Add New Event")
                 }
+                Spacer(minLength: 5)
+                NavigationLink(destination: HomeMapView()) {
+                    Text("View Map UI")
+                }
+                
             }
             .navigationBarTitle("Home", displayMode: .inline)
         }

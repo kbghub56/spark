@@ -9,13 +9,14 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Spark")
+        NavigationView {
+            VStack {
+                NavigationLink(destination: EventInputView()) {
+                    Text("Add New Event")
+                }
+            }
+            .navigationBarTitle("Home", displayMode: .inline)
         }
-        .padding()
     }
 }
 

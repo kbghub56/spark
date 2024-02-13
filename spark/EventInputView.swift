@@ -8,6 +8,7 @@
 import SwiftUI
 import Firebase
 import FirebaseDatabase
+import CoreLocation
 
 struct EventInputView: View {
     @State private var title: String = ""
@@ -16,6 +17,8 @@ struct EventInputView: View {
     @State private var endDate: Date = Date()
     @State private var location: String = "" // This will hold the final location string
     @StateObject var viewModel = LocationSearchViewModel()
+    @Environment(\.presentationMode) var presentationMode
+
     
     var ref: DatabaseReference = Database.database().reference()
     
@@ -57,22 +60,37 @@ struct EventInputView: View {
     }
 
     func addEvent() {
-        let eventData: [String: Any] = [
-            "title": title,
-            "description": description,
-            "startDate": startDate.timeIntervalSince1970,
-            "endDate": endDate.timeIntervalSince1970,
-            "location": location // Final location string
-        ]
-
-        let eventRef = ref.child("events").childByAutoId()
-        eventRef.setValue(eventData) { error, _ in
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(location) { (placemarks, error) in
             if let error = error {
-                print("Error adding event: \(error)")
+                print("Geocoding error: \(error)")
+                return
+            }
+
+            if let placemark = placemarks?.first, let coordinate = placemark.location?.coordinate {
+                let eventData: [String: Any] = [
+                    "title": self.title,
+                    "description": self.description,
+                    "startDate": self.startDate.timeIntervalSince1970,
+                    "endDate": self.endDate.timeIntervalSince1970,
+                    "latitude": coordinate.latitude,
+                    "longitude": coordinate.longitude
+                ]
+
+                let eventRef = self.ref.child("events").childByAutoId()
+                eventRef.setValue(eventData) { error, _ in
+                    if let error = error {
+                        print("Error adding event: \(error)")
+                    } else {
+                        print("Event added successfully")
+                        // Optionally, navigate back to the map view or indicate success to the user
+                    }
+                }
             } else {
-                print("Event added successfully")
+                print("No valid coordinates found for the address")
             }
         }
+        presentationMode.wrappedValue.dismiss()
     }
 }
 

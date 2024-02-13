@@ -7,15 +7,29 @@
 
 import SwiftUI
 
-struct HomeMapView: View{
-    var body: some View{
-        MapViewRepresentable()
-            .ignoresSafeArea()
+struct HomeMapView: View {
+    @StateObject var eventsViewModel = EventsViewModel()
+    @State private var showingEventInputView = false
+
+    var body: some View {
+        NavigationView {
+            MapViewRepresentable(eventsViewModel: eventsViewModel)
+                .ignoresSafeArea()
+                .navigationBarTitle("", displayMode: .inline)
+                .navigationBarItems(trailing: Button(action: {
+                    showingEventInputView = true
+                }) {
+                    Image(systemName: "plus")
+                })
+                .sheet(isPresented: $showingEventInputView) {
+                    EventInputView()
+                }
+        }
     }
 }
 
-struct HomeMapView_Previews: PreviewProvider{
-    static var previews: some View{
+struct HomeMapView_Previews: PreviewProvider {
+    static var previews: some View {
         HomeMapView()
     }
 }

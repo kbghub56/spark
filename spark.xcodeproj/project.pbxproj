@@ -23,6 +23,9 @@
 		99086FC12B7A087900FC00B2 /* MapViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */; };
 		99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FC32B7A112800FC00B2 /* LocationManager.swift */; };
 		99086FC62B7A15F200FC00B2 /* HomeMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FC52B7A15F200FC00B2 /* HomeMapView.swift */; };
+		99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FC72B7A23EF00FC00B2 /* SearchCompleterDelegate.swift */; };
+		99086FCB2B7B4A2000FC00B2 /* LocationSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FCA2B7B4A2000FC00B2 /* LocationSearchViewModel.swift */; };
+		99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FCC2B7B548600FC00B2 /* LocationResultCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +41,9 @@
 		99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewRepresentable.swift; sourceTree = "<group>"; };
 		99086FC32B7A112800FC00B2 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		99086FC52B7A15F200FC00B2 /* HomeMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeMapView.swift; sourceTree = "<group>"; };
+		99086FC72B7A23EF00FC00B2 /* SearchCompleterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCompleterDelegate.swift; sourceTree = "<group>"; };
+		99086FCA2B7B4A2000FC00B2 /* LocationSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel.swift; sourceTree = "<group>"; };
+		99086FCC2B7B548600FC00B2 /* LocationResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationResultCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +90,7 @@
 				99086FC22B7A111600FC00B2 /* Managers */,
 				99086FBF2B7A06CF00FC00B2 /* MapUI */,
 				99086FA22B77681E00FC00B2 /* InputEvents */,
+				99086FC92B7B49FD00FC00B2 /* LocationSearch */,
 				99086F982B76E3BB00FC00B2 /* Assets.xcassets */,
 				99086F9A2B76E3BB00FC00B2 /* Preview Content */,
 			);
@@ -102,6 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				99086FBB2B79F5EA00FC00B2 /* EventInputView.swift */,
+				99086FC72B7A23EF00FC00B2 /* SearchCompleterDelegate.swift */,
 				99086FBD2B79F7CE00FC00B2 /* GoogleService-Info.plist */,
 			);
 			path = InputEvents;
@@ -129,6 +137,15 @@
 				99086FC32B7A112800FC00B2 /* LocationManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		99086FC92B7B49FD00FC00B2 /* LocationSearch */ = {
+			isa = PBXGroup;
+			children = (
+				99086FCA2B7B4A2000FC00B2 /* LocationSearchViewModel.swift */,
+				99086FCC2B7B548600FC00B2 /* LocationResultCell.swift */,
+			);
+			path = LocationSearch;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -213,13 +230,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99086FCB2B7B4A2000FC00B2 /* LocationSearchViewModel.swift in Sources */,
 				99086FBC2B79F5EA00FC00B2 /* EventInputView.swift in Sources */,
 				99086FC62B7A15F200FC00B2 /* HomeMapView.swift in Sources */,
 				99086FBA2B79F4C000FC00B2 /* AppDelegate.swift in Sources */,
 				99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */,
+				99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */,
 				99086FC12B7A087900FC00B2 /* MapViewRepresentable.swift in Sources */,
 				99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */,
 				99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */,
+				99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

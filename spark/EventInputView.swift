@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Firebase
-import FirebaseFirestore
 import FirebaseDatabase
 
 struct EventInputView: View {
@@ -15,13 +14,10 @@ struct EventInputView: View {
     @State private var description: String = ""
     @State private var startDate: Date = Date()
     @State private var endDate: Date = Date()
+    @State private var location: String = "" // This will hold the final location string
+    @StateObject var viewModel = LocationSearchViewModel()
     
-    // Create a reference to your database
-    var ref: DatabaseReference!
-
-    init() {
-        ref = Database.database().reference()
-    }
+    var ref: DatabaseReference = Database.database().reference()
     
     var body: some View {
         Form {
@@ -30,9 +26,28 @@ struct EventInputView: View {
                 TextField("Description", text: $description)
                 DatePicker("Start Date", selection: $startDate, displayedComponents: [.date, .hourAndMinute])
                 DatePicker("End Date", selection: $endDate, displayedComponents: [.date, .hourAndMinute])
-                //Add in location feature
             }
-            
+            // Only one section for Location
+            Section(header: Text("Location")) {
+                TextField("Location", text: $viewModel.queryFragment)
+                // Conditional ScrollView to show results only when there are any
+                if !viewModel.results.isEmpty {
+                   ScrollView {
+                       VStack(alignment: .leading) {
+                           ForEach(viewModel.results, id: \.self) { result in
+                               LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
+                                   .onTapGesture {
+                                       // Update location with the selected result
+                                       self.location = result.subtitle
+                                       viewModel.queryFragment = result.title
+                                       viewModel.clearResults()
+                                   }
+                           }
+                       }
+                   }
+                   .frame(maxHeight: 200) // Limit the height of the ScrollView
+                }
+            }
             Button(action: addEvent) {
                 Text("Add Event")
                     .frame(maxWidth: .infinity)
@@ -40,24 +55,22 @@ struct EventInputView: View {
         }
         .navigationBarTitle("Add New Event", displayMode: .inline)
     }
-    
-    func addEvent() {
-        // Use the 'ref' to write data to your Realtime Database
-        let eventRef = ref.child("events").childByAutoId() // Creates a new child with a unique key
 
+    func addEvent() {
         let eventData: [String: Any] = [
             "title": title,
             "description": description,
-            "startDate": startDate.timeIntervalSince1970, // Convert Date to TimeInterval for Firebase
-            "endDate": endDate.timeIntervalSince1970
+            "startDate": startDate.timeIntervalSince1970,
+            "endDate": endDate.timeIntervalSince1970,
+            "location": location // Final location string
         ]
 
+        let eventRef = ref.child("events").childByAutoId()
         eventRef.setValue(eventData) { error, _ in
             if let error = error {
                 print("Error adding event: \(error)")
             } else {
                 print("Event added successfully")
-                // Handle UI updates or feedback here
             }
         }
     }
@@ -68,4 +81,3 @@ struct EventInputView_Previews: PreviewProvider {
         EventInputView()
     }
 }
-

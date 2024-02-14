@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeMapView: View {
     @StateObject var eventsViewModel = EventsViewModel()
     @State private var showingEventInputView = false
+    @EnvironmentObject var authViewModel: AuthViewModel
 
     var body: some View {
         NavigationView {
@@ -26,6 +27,13 @@ struct HomeMapView: View {
                 }
         }
     }
+    
+    var logoutButton: some View {
+            Button("Log Out") {
+                authViewModel.logOut()
+            }
+        }
+    
 }
 
 struct HomeMapView_Previews: PreviewProvider {

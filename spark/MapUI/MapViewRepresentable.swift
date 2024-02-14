@@ -58,5 +58,10 @@ extension MapViewRepresentable {
 
             return annotationView
         }
+        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+            let region = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
+            mapView.setRegion(region, animated: true)
+        }
+
     }
 }

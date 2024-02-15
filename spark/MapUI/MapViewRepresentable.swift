@@ -34,10 +34,11 @@ struct MapViewRepresentable: UIViewRepresentable {
 
 extension MapViewRepresentable {
     class MapCoordinator: NSObject, MKMapViewDelegate {
-        var parent: MapViewRepresentable
+        let parent: MapViewRepresentable
 
         init(_ parent: MapViewRepresentable) {
             self.parent = parent
+            super.init()
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {

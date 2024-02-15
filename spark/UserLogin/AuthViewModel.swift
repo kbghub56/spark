@@ -14,6 +14,7 @@ class AuthViewModel: ObservableObject {
 
     init() {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            print("Auth state changed: now \(user != nil ? "signed in" : "not signed in")")
             self?.isUserAuthenticated = user != nil
         }
     }

@@ -11,7 +11,13 @@ struct HomeMapView: View {
     @StateObject var eventsViewModel = EventsViewModel()
     @State private var showingEventInputView = false
     @EnvironmentObject var authViewModel: AuthViewModel
-
+    
+    var logoutButton: some View {
+        Button("Log Out") {
+            authViewModel.logOut()
+        }
+    }
+    
     var body: some View {
         NavigationView {
             MapViewRepresentable(eventsViewModel: eventsViewModel)
@@ -27,12 +33,6 @@ struct HomeMapView: View {
                 }
         }
     }
-    
-    var logoutButton: some View {
-            Button("Log Out") {
-                authViewModel.logOut()
-            }
-        }
     
 }
 

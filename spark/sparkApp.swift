@@ -20,3 +20,4 @@ struct SparkApp: App {
         }
     }
 }
+

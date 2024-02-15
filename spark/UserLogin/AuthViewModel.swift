@@ -13,9 +13,16 @@ class AuthViewModel: ObservableObject {
     @Published var isUserAuthenticated: Bool = Auth.auth().currentUser != nil
 
     init() {
+        let currentUser = Auth.auth().currentUser
+        print("Current user at init: \(currentUser?.email ?? "none")")
+        self.isUserAuthenticated = currentUser != nil
+        
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            print("Auth state changed: now \(user != nil ? "signed in" : "not signed in")")
-            self?.isUserAuthenticated = user != nil
+            print("Auth state changed: now \(user != nil ? "signed in as \(user?.email ?? "")" : "not signed in")")
+
+            DispatchQueue.main.async {
+                self?.isUserAuthenticated = user != nil
+            }
         }
     }
 

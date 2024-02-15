@@ -22,11 +22,21 @@ struct HomeMapView: View {
         NavigationView {
             MapViewRepresentable(eventsViewModel: eventsViewModel)
                 .ignoresSafeArea()
-                .navigationBarTitle("", displayMode: .inline)
-                .navigationBarItems(trailing: Button(action: {
-                    showingEventInputView = true
-                }) {
-                    Image(systemName: "plus")
+                .navigationBarTitle("Spark", displayMode: .inline)
+                .navigationBarItems(trailing: HStack {
+                    // Add event button (if you have one)
+                    Button(action: {
+                        showingEventInputView = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                    // Sign out button
+                    Button(action: {
+                        authViewModel.logOut()
+                    }) {
+                        Image(systemName: "arrow.backward.circle")
+                            .imageScale(.large)
+                    }
                 })
                 .sheet(isPresented: $showingEventInputView) {
                     EventInputView()

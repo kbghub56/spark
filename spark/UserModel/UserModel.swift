@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct User: Identifiable, Codable {
-    let id: String // Firestore document ID, which is the user's UID
-    let userName: String
-    let email: String
-}
+    var id: String // Use 'var' to make it mutable
+    var userName: String
+    var email: String
 
+    // Optionally, add an initializer if needed
+    init(id: String, userName: String, email: String) {
+        self.id = id
+        self.userName = userName
+        self.email = email
+    }
+}

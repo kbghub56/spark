@@ -41,17 +41,27 @@ class AuthViewModel: ObservableObject {
 
 //extension for following/unfollowing users
 extension AuthViewModel {
-    func followUser(userIdToFollow: String, completion: @escaping (Error?) -> Void) {
-        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+    func followUser(userIdToFollow: String, userNameToFollow: String, completion: @escaping (Error?) -> Void) {
+        guard let currentUserId = Auth.auth().currentUser?.uid, let currentUser = Auth.auth().currentUser else { return }
         
         let db = Firestore.firestore()
-        db.collection("Users").document(currentUserId)
-            .collection("following").document(userIdToFollow).setData([:], completion: completion)
+        let followData = ["userName": userNameToFollow] // Data to store in the following subcollection
         
-        // Optionally, add the current user to the other user's followers collection
-        db.collection("Users").document(userIdToFollow)
-            .collection("followers").document(currentUserId).setData([:], completion: completion)
+        db.collection("Users").document(currentUserId)
+            .collection("following").document(userIdToFollow).setData(followData) { error in
+                if let error = error {
+                    completion(error)
+                    return
+                }
+                
+                // Now add the current user to the other user's followers collection
+                let followerData = ["userName": currentUser.displayName ?? "Unknown User"] // Use the display name or another identifier
+                
+                db.collection("Users").document(userIdToFollow)
+                    .collection("followers").document(currentUserId).setData(followerData, completion: completion)
+            }
     }
+
 
     func unfollowUser(userIdToUnfollow: String, completion: @escaping (Error?) -> Void) {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
@@ -77,6 +87,40 @@ extension AuthViewModel {
                     try? $0.data(as: User.self)
                 }
                 completion(users, nil)
+            }
+        }
+    }
+    
+    // Search for a user by their email
+    func searchUserByEmail(email: String, completion: @escaping (User?, Error?) -> Void) {
+        let db = Firestore.firestore()
+        db.collection("Users").whereField("email", isEqualTo: email).getDocuments { snapshot, error in
+            if let error = error {
+                completion(nil, error)
+            } else {
+                let user = snapshot?.documents.compactMap { document -> User? in
+                    var user = try? document.data(as: User.self)
+                    user?.id = document.documentID  // This should work now that 'id' is mutable
+                    return user
+                }.first
+                completion(user, nil)
+            }
+        }
+    }
+    
+    // Check if the current user is following another user
+    func isUserFollowing(userIdToCheck: String, completion: @escaping (Bool, Error?) -> Void) {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        
+        let db = Firestore.firestore()
+        let followingDocRef = db.collection("Users").document(currentUserId)
+                                .collection("following").document(userIdToCheck)
+        
+        followingDocRef.getDocument { document, error in
+            if let error = error {
+                completion(false, error)
+            } else {
+                completion(document?.exists ?? false, nil)
             }
         }
     }

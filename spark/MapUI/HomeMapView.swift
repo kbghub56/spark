@@ -37,10 +37,40 @@ struct HomeMapView: View {
                         Image(systemName: "arrow.backward.circle")
                             .imageScale(.large)
                     }
+                    followButton
+                    unfollowButton
                 })
                 .sheet(isPresented: $showingEventInputView) {
                     EventInputView()
                 }
+        }
+    }
+    
+    var followButton: some View {
+        Button("Follow") {
+            // Assuming you have the ID of the user to follow
+            let userIdToFollow = "user_id_to_follow"
+            authViewModel.followUser(userIdToFollow: userIdToFollow) { error in
+                if let error = error {
+                    print("Failed to follow user: \(error)")
+                } else {
+                    print("Followed user successfully.")
+                }
+            }
+        }
+    }
+
+    var unfollowButton: some View {
+        Button("Unfollow") {
+            // Assuming you have the ID of the user to unfollow
+            let userIdToUnfollow = "user_id_to_unfollow"
+            authViewModel.unfollowUser(userIdToUnfollow: userIdToUnfollow) { error in
+                if let error = error {
+                    print("Failed to unfollow user: \(error)")
+                } else {
+                    print("Unfollowed user successfully.")
+                }
+            }
         }
     }
     

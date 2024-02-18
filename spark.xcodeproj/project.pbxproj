@@ -31,6 +31,7 @@
 		99086FD72B7C98B000FC00B2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 99086FD62B7C98B000FC00B2 /* FirebaseAuth */; };
 		99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */; };
 		99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */; };
+		9993E3D22B81E84D007443BE /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D12B81E84D007443BE /* UserModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,7 @@
 		99086FD42B7C984500FC00B2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		9993E3D12B81E84D007443BE /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 				99086F942B76E3BA00FC00B2 /* sparkApp.swift */,
 				99086FB92B79F4C000FC00B2 /* AppDelegate.swift */,
 				99086FA82B77FBF300FC00B2 /* GoogleService-Info.plist */,
+				9993E3D02B81E82B007443BE /* UserModel */,
 				99086F962B76E3BA00FC00B2 /* ContentView.swift */,
 				99086FD32B7C982600FC00B2 /* UserLogin */,
 				99086FC22B7A111600FC00B2 /* Managers */,
@@ -176,6 +179,14 @@
 				99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */,
 			);
 			path = UserLogin;
+			sourceTree = "<group>";
+		};
+		9993E3D02B81E82B007443BE /* UserModel */ = {
+			isa = PBXGroup;
+			children = (
+				9993E3D12B81E84D007443BE /* UserModel.swift */,
+			);
+			path = UserModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -274,6 +285,7 @@
 				99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */,
 				99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */,
 				99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */,
+				9993E3D22B81E84D007443BE /* UserModel.swift in Sources */,
 				99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

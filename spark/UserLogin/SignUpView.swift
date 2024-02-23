@@ -14,7 +14,7 @@ struct SignUpView: View {
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
     @State private var errorMessage: String?
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var authViewModel: AuthViewModel  // Ensure AuthViewModel is provided as an environment object
     
     var body: some View {
         VStack {
@@ -38,14 +38,14 @@ struct SignUpView: View {
             }
             
             Button("Sign Up") {
-                signUpUser(email: email, password: password, confirmPassword: confirmPassword)
+                signUp()
             }
             .padding()
         }
         .padding()
     }
     
-    func signUpUser(email: String, password: String, confirmPassword: String) {
+    func signUp() {
         guard !email.isEmpty, !password.isEmpty else {
             self.errorMessage = "Please fill in all fields."
             return
@@ -59,21 +59,7 @@ struct SignUpView: View {
             return
         }
         
-        // Create a new user with Firebase Authentication
-        Auth.auth().createUser(withEmail: email, password: password) {authResult, error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
-                }
-            } else {
-                // User signed up successfully
-                // You may want to perform a login immediately after sign up
-                DispatchQueue.main.async {
-                    self.authViewModel.isUserAuthenticated = true
-                }
-            }
-        }
+        // Call signUpUser from AuthViewModel
+        authViewModel.signUpUser(email: email, password: password)
     }
 }
-
-

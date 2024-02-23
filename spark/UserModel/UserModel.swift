@@ -7,15 +7,25 @@
 
 import SwiftUI
 
-struct User: Identifiable, Codable {
-    var id: String // Use 'var' to make it mutable
-    var userName: String
+struct User: Codable {
+    var userName: String?
     var email: String
+    var uniqueUserID: String
+    var friends: [String]
 
-    // Optionally, add an initializer if needed
-    init(id: String, userName: String, email: String) {
-        self.id = id
-        self.userName = userName
-        self.email = email
+    enum CodingKeys: String, CodingKey {
+        case userName
+        case email
+        case uniqueUserID
+        case friends
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        userName = try container.decodeIfPresent(String.self, forKey: .userName)
+        email = try container.decode(String.self, forKey: .email)
+        uniqueUserID = try container.decode(String.self, forKey: .uniqueUserID)
+        friends = try container.decode([String].self, forKey: .friends)
+    }
+
 }

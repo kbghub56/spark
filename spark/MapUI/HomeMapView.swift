@@ -7,18 +7,14 @@
 
 import SwiftUI
 
+
 struct HomeMapView: View {
     @StateObject var eventsViewModel = EventsViewModel()
     @State private var showingEventInputView = false
+    @State private var showingSearchView = false  // New state variable for showing SearchView
+    @State private var showingFollowRequestsView = false
     @EnvironmentObject var authViewModel: AuthViewModel
-    @State private var userEmailToSearch = ""
-    @State private var isFollowing = false
-    
-    var logoutButton: some View {
-        Button("Log Out") {
-            authViewModel.logOut()
-        }
-    }
+    @EnvironmentObject var userManager: UserManager
     
     var body: some View {
         NavigationView {
@@ -26,22 +22,12 @@ struct HomeMapView: View {
                 .ignoresSafeArea()
                 .navigationBarTitle("Spark", displayMode: .inline)
                 .navigationBarItems(trailing: HStack {
-                    // Add event button (if you have one)
-                    Button(action: {
-                        showingEventInputView = true
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                    // Sign out button
-                    Button(action: {
-                        authViewModel.logOut()
-                    }) {
-                        Image(systemName: "arrow.backward.circle")
-                            .imageScale(.large)
-                    }
+                    addButton
+                    logoutButton
                     followButton
                     unfollowButton
                     searchAndFollowButton
+                    manageFollowRequestsButton
                 })
                 .sheet(isPresented: $showingEventInputView) {
                     EventInputView()
@@ -49,65 +35,62 @@ struct HomeMapView: View {
         }
     }
     
-    var followButton: some View {
-        Button("Follow") {
-            // Assuming you have the ID of the user to follow
-            let userIdToFollow = "user_id_to_follow"
-            let userNameToFollow = "User Name to Follow"
-            authViewModel.followUser(userIdToFollow: userIdToFollow, userNameToFollow: userNameToFollow) { error in
-                if let error = error {
-                    print("Failed to follow user: \(error)")
-                } else {
-                    print("Followed user successfully.")
-                }
-            }
+    var addButton: some View {
+        Button(action: {
+            showingEventInputView = true
+        }) {
+            Image(systemName: "plus")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .padding(.horizontal)
+                .offset(x: -20)
         }
     }
-
+    
+    var logoutButton: some View {
+        Button(action: {
+            authViewModel.logOut()
+        }) {
+            Image(systemName: "arrow.backward.circle")
+                .imageScale(.large)
+        }
+    }
+    
+    var followButton: some View {
+        Button("Follow") {
+            // Implementation for following a user
+        }
+    }
+    
     var unfollowButton: some View {
         Button("Unfollow") {
             // Assuming you have the ID of the user to unfollow
             let userIdToUnfollow = "user_id_to_unfollow"
-            authViewModel.unfollowUser(userIdToUnfollow: userIdToUnfollow) { error in
-                if let error = error {
-                    print("Failed to unfollow user: \(error)")
-                } else {
-                    print("Unfollowed user successfully.")
-                }
-            }
+            userManager.unfollowUser(currentUserID: userIdToUnfollow, targetUserID: userIdToUnfollow)
         }
     }
     
     var searchAndFollowButton: some View {
-        VStack {
-            TextField("Enter user email to search", text: $userEmailToSearch)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-            Button("Search and Follow/Unfollow") {
-                authViewModel.searchUserByEmail(email: userEmailToSearch) { user, error in
-                    if let user = user {
-                        // User found, now check if the current user is following them
-                        authViewModel.isUserFollowing(userIdToCheck: user.id) { isFollowing, error in
-                            self.isFollowing = isFollowing
-                            if isFollowing {
-                                // Unfollow if already following
-                                authViewModel.unfollowUser(userIdToUnfollow: user.id) { error in
-                                    // Handle the result of unfollow action
-                                }
-                            } else {
-                                // Follow if not already following
-                                authViewModel.followUser(userIdToFollow: user.id, userNameToFollow: user.userName) { error in
-                                    // Handle the result of follow action
-                                }
-                            }
-                        }
-                    } else {
-                        print("ERROR")
-                    }
-                }
-            }
+        Button("S&F") {
+            showingSearchView = true
+        }
+        .sheet(isPresented: $showingSearchView) {
+            SearchView()
+                .environmentObject(userManager)
         }
     }
     
+    var manageFollowRequestsButton: some View {
+        Button("FR") {
+            showingFollowRequestsView = true
+        }
+        .sheet(isPresented: $showingFollowRequestsView) {
+            FollowRequestView()
+                .environmentObject(userManager)
+        }
+    }
+
 }
 
 struct HomeMapView_Previews: PreviewProvider {

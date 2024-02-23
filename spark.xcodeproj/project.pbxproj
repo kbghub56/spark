@@ -32,6 +32,10 @@
 		99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */; };
 		99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */; };
 		9993E3D22B81E84D007443BE /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D12B81E84D007443BE /* UserModel.swift */; };
+		9993E3D42B85C2AB007443BE /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D32B85C2AB007443BE /* UserManager.swift */; };
+		9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D62B86FC5F007443BE /* SearchFriendView.swift */; };
+		9993E3DB2B87500D007443BE /* FollowRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3DA2B87500D007443BE /* FollowRequest.swift */; };
+		9993E3DE2B8750A1007443BE /* FollowRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3DD2B8750A1007443BE /* FollowRequestView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +59,10 @@
 		99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		9993E3D12B81E84D007443BE /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		9993E3D32B85C2AB007443BE /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
+		9993E3D62B86FC5F007443BE /* SearchFriendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFriendView.swift; sourceTree = "<group>"; };
+		9993E3DA2B87500D007443BE /* FollowRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowRequest.swift; sourceTree = "<group>"; };
+		9993E3DD2B8750A1007443BE /* FollowRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowRequestView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +103,8 @@
 		99086F932B76E3BA00FC00B2 /* spark */ = {
 			isa = PBXGroup;
 			children = (
+				9993E3DC2B87506B007443BE /* FollowRequestView */,
+				9993E3D52B86FC41007443BE /* SearchForFriends */,
 				99086F942B76E3BA00FC00B2 /* sparkApp.swift */,
 				99086FB92B79F4C000FC00B2 /* AppDelegate.swift */,
 				99086FA82B77FBF300FC00B2 /* GoogleService-Info.plist */,
@@ -185,8 +195,26 @@
 			isa = PBXGroup;
 			children = (
 				9993E3D12B81E84D007443BE /* UserModel.swift */,
+				9993E3D32B85C2AB007443BE /* UserManager.swift */,
 			);
 			path = UserModel;
+			sourceTree = "<group>";
+		};
+		9993E3D52B86FC41007443BE /* SearchForFriends */ = {
+			isa = PBXGroup;
+			children = (
+				9993E3D62B86FC5F007443BE /* SearchFriendView.swift */,
+			);
+			path = SearchForFriends;
+			sourceTree = "<group>";
+		};
+		9993E3DC2B87506B007443BE /* FollowRequestView */ = {
+			isa = PBXGroup;
+			children = (
+				9993E3DA2B87500D007443BE /* FollowRequest.swift */,
+				9993E3DD2B8750A1007443BE /* FollowRequestView.swift */,
+			);
+			path = FollowRequestView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -278,9 +306,13 @@
 				99086FC62B7A15F200FC00B2 /* HomeMapView.swift in Sources */,
 				99086FBA2B79F4C000FC00B2 /* AppDelegate.swift in Sources */,
 				99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */,
+				9993E3D42B85C2AB007443BE /* UserManager.swift in Sources */,
 				99086FD52B7C984500FC00B2 /* LoginView.swift in Sources */,
+				9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */,
 				99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */,
+				9993E3DB2B87500D007443BE /* FollowRequest.swift in Sources */,
 				99086FC12B7A087900FC00B2 /* MapViewRepresentable.swift in Sources */,
+				9993E3DE2B8750A1007443BE /* FollowRequestView.swift in Sources */,
 				99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */,
 				99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */,
 				99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */,

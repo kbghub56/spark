@@ -41,86 +41,67 @@ class AuthViewModel: ObservableObject {
 
 //extension for following/unfollowing users
 extension AuthViewModel {
-    func followUser(userIdToFollow: String, userNameToFollow: String, completion: @escaping (Error?) -> Void) {
-        guard let currentUserId = Auth.auth().currentUser?.uid, let currentUser = Auth.auth().currentUser else { return }
-        
-        let db = Firestore.firestore()
-        let followData = ["userName": userNameToFollow] // Data to store in the following subcollection
-        
-        db.collection("Users").document(currentUserId)
-            .collection("following").document(userIdToFollow).setData(followData) { error in
+    func signUpUser(email: String, password: String) {
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            guard let user = authResult?.user, error == nil else {
+                print("Error signing up: \(error!.localizedDescription)")
+                return
+            }
+            // Proceed to generate a unique user ID
+            self.assignUniqueUserID(for: user)
+        }
+    }
+    
+    
+    func assignUniqueUserID(for user: FirebaseAuth.User) {
+        generateUniqueID { uniqueID in
+            guard let uniqueID = uniqueID else {
+                // Handle the case where a unique ID could not be generated
+                return
+            }
+            
+            // Match the field names with your User model
+            let userData: [String: Any] = [
+                "email": user.email ?? "",  // Handle optional email
+                "userName": "",  // Decide how you want to handle the userName
+                "uniqueUserID": uniqueID,
+                "friends": []
+            ]
+
+            let db = Firestore.firestore()
+            db.collection("users").document(user.uid).setData(userData) { error in
                 if let error = error {
-                    completion(error)
-                    return
+                    print("Error saving user data: \(error.localizedDescription)")
+                } else {
+                    print("User data saved successfully.")
                 }
-                
-                // Now add the current user to the other user's followers collection
-                let followerData = ["userName": currentUser.displayName ?? "Unknown User"] // Use the display name or another identifier
-                
-                db.collection("Users").document(userIdToFollow)
-                    .collection("followers").document(currentUserId).setData(followerData, completion: completion)
-            }
-    }
-
-
-    func unfollowUser(userIdToUnfollow: String, completion: @escaping (Error?) -> Void) {
-        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
-        
-        let db = Firestore.firestore()
-        db.collection("Users").document(currentUserId)
-            .collection("following").document(userIdToUnfollow).delete(completion: completion)
-        
-        // Optionally, remove the current user from the other user's followers collection
-        db.collection("Users").document(userIdToUnfollow)
-            .collection("followers").document(currentUserId).delete(completion: completion)
-    }
-
-    func fetchFollowing(completion: @escaping ([User]?, Error?) -> Void) {
-        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
-        
-        let db = Firestore.firestore()
-        db.collection("Users").document(currentUserId).collection("following").getDocuments { snapshot, error in
-            if let error = error {
-                completion(nil, error)
-            } else {
-                let users = snapshot?.documents.compactMap {
-                    try? $0.data(as: User.self)
-                }
-                completion(users, nil)
             }
         }
     }
-    
-    // Search for a user by their email
-    func searchUserByEmail(email: String, completion: @escaping (User?, Error?) -> Void) {
-        let db = Firestore.firestore()
-        db.collection("Users").whereField("email", isEqualTo: email).getDocuments { snapshot, error in
-            if let error = error {
-                completion(nil, error)
+
+
+    func generateUniqueID(completion: @escaping (String?) -> Void) {
+        let uniqueID = String(format: "%09d", Int(arc4random_uniform(1_000_000_000)))
+        isIDUnique(uniqueID) { isUnique in
+            if isUnique {
+                completion(uniqueID)
             } else {
-                let user = snapshot?.documents.compactMap { document -> User? in
-                    var user = try? document.data(as: User.self)
-                    user?.id = document.documentID  // This should work now that 'id' is mutable
-                    return user
-                }.first
-                completion(user, nil)
+                // Recursively call generateUniqueID until a unique ID is found
+                self.generateUniqueID(completion: completion)
             }
         }
     }
-    
-    // Check if the current user is following another user
-    func isUserFollowing(userIdToCheck: String, completion: @escaping (Bool, Error?) -> Void) {
-        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
-        
+
+
+    func isIDUnique(_ id: String, completion: @escaping (Bool) -> Void) {
         let db = Firestore.firestore()
-        let followingDocRef = db.collection("Users").document(currentUserId)
-                                .collection("following").document(userIdToCheck)
-        
-        followingDocRef.getDocument { document, error in
+        db.collection("users").whereField("userID", isEqualTo: id).getDocuments { snapshot, error in
             if let error = error {
-                completion(false, error)
+                print("Error checking ID uniqueness: \(error.localizedDescription)")
+                completion(false)
             } else {
-                completion(document?.exists ?? false, nil)
+                let isUnique = snapshot?.documents.isEmpty ?? false
+                completion(isUnique)
             }
         }
     }

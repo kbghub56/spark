@@ -14,25 +14,31 @@ import FirebaseFirestore
 
 class AuthViewModel: ObservableObject {
     @Published var isUserAuthenticated: Bool = Auth.auth().currentUser != nil
+    @Published var currentUserID: String? = Auth.auth().currentUser?.uid  // Add this line
 
     init() {
-        let currentUser = Auth.auth().currentUser
-        print("Current user at init: \(currentUser?.email ?? "none")")
-        self.isUserAuthenticated = currentUser != nil
-        
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            print("Auth state changed: now \(user != nil ? "signed in as \(user?.email ?? "")" : "not signed in")")
+        updateCurrentUser()
 
+        Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
-                self?.isUserAuthenticated = user != nil
+                self?.updateCurrentUser()
             }
         }
+    }
+
+    private func updateCurrentUser() {
+        let currentUser = Auth.auth().currentUser
+        self.isUserAuthenticated = currentUser != nil
+        self.currentUserID = currentUser?.uid  // Update the current user ID
+        print("Current user at init: \(currentUser?.email ?? "none")")
+        print("Auth state changed: now \(currentUser != nil ? "signed in as \(currentUser?.email ?? "")" : "not signed in")")
     }
 
     func logOut() {
         do {
             try Auth.auth().signOut()
             self.isUserAuthenticated = false
+            self.currentUserID = nil  // Clear the current user ID on logout
         } catch let signOutError as NSError {
             print("Error signing out: %@", signOutError)
         }

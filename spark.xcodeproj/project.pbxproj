@@ -36,6 +36,14 @@
 		9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D62B86FC5F007443BE /* SearchFriendView.swift */; };
 		9993E3DB2B87500D007443BE /* FollowRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3DA2B87500D007443BE /* FollowRequest.swift */; };
 		9993E3DE2B8750A1007443BE /* FollowRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3DD2B8750A1007443BE /* FollowRequestView.swift */; };
+		9993E3E02B8870E2007443BE /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3DF2B8870E2007443BE /* MapViewModel.swift */; };
+		9993E3E42B8AEEAF007443BE /* UITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3E32B8AEEAF007443BE /* UITest.swift */; };
+		9993E3E62B8AF4E5007443BE /* EventModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3E52B8AF4E5007443BE /* EventModel.swift */; };
+		9993E3E82B8B2D9D007443BE /* CoordinatorClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3E72B8B2D9D007443BE /* CoordinatorClass.swift */; };
+		9993E3EA2B8DC2CA007443BE /* addEventsRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3E92B8DC2CA007443BE /* addEventsRS.swift */; };
+		9993E3EC2B8DC601007443BE /* EventDateTimeViewModelRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3EB2B8DC601007443BE /* EventDateTimeViewModelRS.swift */; };
+		9993E3EE2B8DC9C2007443BE /* SetTimeRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3ED2B8DC9C2007443BE /* SetTimeRS.swift */; };
+		9993E3F02B8DD44E007443BE /* addEventsGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3EF2B8DD44E007443BE /* addEventsGPT.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +71,14 @@
 		9993E3D62B86FC5F007443BE /* SearchFriendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFriendView.swift; sourceTree = "<group>"; };
 		9993E3DA2B87500D007443BE /* FollowRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowRequest.swift; sourceTree = "<group>"; };
 		9993E3DD2B8750A1007443BE /* FollowRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowRequestView.swift; sourceTree = "<group>"; };
+		9993E3DF2B8870E2007443BE /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
+		9993E3E32B8AEEAF007443BE /* UITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITest.swift; sourceTree = "<group>"; };
+		9993E3E52B8AF4E5007443BE /* EventModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventModel.swift; sourceTree = "<group>"; };
+		9993E3E72B8B2D9D007443BE /* CoordinatorClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorClass.swift; sourceTree = "<group>"; };
+		9993E3E92B8DC2CA007443BE /* addEventsRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addEventsRS.swift; sourceTree = "<group>"; };
+		9993E3EB2B8DC601007443BE /* EventDateTimeViewModelRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDateTimeViewModelRS.swift; sourceTree = "<group>"; };
+		9993E3ED2B8DC9C2007443BE /* SetTimeRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetTimeRS.swift; sourceTree = "<group>"; };
+		9993E3EF2B8DD44E007443BE /* addEventsGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addEventsGPT.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +134,7 @@
 				99086FC92B7B49FD00FC00B2 /* LocationSearch */,
 				99086F982B76E3BB00FC00B2 /* Assets.xcassets */,
 				99086F9A2B76E3BB00FC00B2 /* Preview Content */,
+				9993E3E32B8AEEAF007443BE /* UITest.swift */,
 			);
 			path = spark;
 			sourceTree = "<group>";
@@ -136,6 +153,9 @@
 				99086FBB2B79F5EA00FC00B2 /* EventInputView.swift */,
 				99086FC72B7A23EF00FC00B2 /* SearchCompleterDelegate.swift */,
 				99086FBD2B79F7CE00FC00B2 /* GoogleService-Info.plist */,
+				9993E3ED2B8DC9C2007443BE /* SetTimeRS.swift */,
+				9993E3E92B8DC2CA007443BE /* addEventsRS.swift */,
+				9993E3EF2B8DD44E007443BE /* addEventsGPT.swift */,
 			);
 			path = InputEventsUI;
 			sourceTree = "<group>";
@@ -151,7 +171,9 @@
 			isa = PBXGroup;
 			children = (
 				99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */,
+				9993E3E72B8B2D9D007443BE /* CoordinatorClass.swift */,
 				99086FC52B7A15F200FC00B2 /* HomeMapView.swift */,
+				9993E3DF2B8870E2007443BE /* MapViewModel.swift */,
 			);
 			path = MapUI;
 			sourceTree = "<group>";
@@ -177,6 +199,8 @@
 			isa = PBXGroup;
 			children = (
 				99086FD12B7B767000FC00B2 /* EventViewModel.swift */,
+				9993E3E52B8AF4E5007443BE /* EventModel.swift */,
+				9993E3EB2B8DC601007443BE /* EventDateTimeViewModelRS.swift */,
 			);
 			path = GrabEventData;
 			sourceTree = "<group>";
@@ -302,20 +326,28 @@
 			files = (
 				99086FCB2B7B4A2000FC00B2 /* LocationSearchViewModel.swift in Sources */,
 				99086FD22B7B767000FC00B2 /* EventViewModel.swift in Sources */,
+				9993E3EC2B8DC601007443BE /* EventDateTimeViewModelRS.swift in Sources */,
 				99086FBC2B79F5EA00FC00B2 /* EventInputView.swift in Sources */,
 				99086FC62B7A15F200FC00B2 /* HomeMapView.swift in Sources */,
 				99086FBA2B79F4C000FC00B2 /* AppDelegate.swift in Sources */,
 				99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */,
 				9993E3D42B85C2AB007443BE /* UserManager.swift in Sources */,
+				9993E3F02B8DD44E007443BE /* addEventsGPT.swift in Sources */,
 				99086FD52B7C984500FC00B2 /* LoginView.swift in Sources */,
+				9993E3E82B8B2D9D007443BE /* CoordinatorClass.swift in Sources */,
 				9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */,
 				99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */,
 				9993E3DB2B87500D007443BE /* FollowRequest.swift in Sources */,
+				9993E3E02B8870E2007443BE /* MapViewModel.swift in Sources */,
 				99086FC12B7A087900FC00B2 /* MapViewRepresentable.swift in Sources */,
 				9993E3DE2B8750A1007443BE /* FollowRequestView.swift in Sources */,
 				99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */,
+				9993E3EA2B8DC2CA007443BE /* addEventsRS.swift in Sources */,
+				9993E3E42B8AEEAF007443BE /* UITest.swift in Sources */,
 				99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */,
+				9993E3EE2B8DC9C2007443BE /* SetTimeRS.swift in Sources */,
 				99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */,
+				9993E3E62B8AF4E5007443BE /* EventModel.swift in Sources */,
 				99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */,
 				9993E3D22B81E84D007443BE /* UserModel.swift in Sources */,
 				99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */,

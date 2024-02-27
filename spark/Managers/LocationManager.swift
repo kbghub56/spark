@@ -6,6 +6,9 @@
 //
 
 import CoreLocation
+import Firebase
+import FirebaseAuth
+import FirebaseFirestore
 
 class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
@@ -22,9 +25,22 @@ class LocationManager: NSObject, ObservableObject {
 
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.first else { return }
-        DispatchQueue.main.async {
-            self.currentLocation = location
+        guard let location = locations.last else { return }
+        self.currentLocation = location // Update the current location
+        updateCurrentUserLocation(location: location) // Update Firestore
+    }
+
+    private func updateCurrentUserLocation(location: CLLocation) {
+        guard let currentUserID = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(currentUserID).updateData([
+            "latitude": location.coordinate.latitude,
+            "longitude": location.coordinate.longitude,
+            "locationLastUpdated": FieldValue.serverTimestamp()
+        ]) { error in
+            if let error = error {
+                print("Error updating user location: \(error.localizedDescription)")
+            }
         }
     }
 
@@ -41,4 +57,5 @@ extension LocationManager: CLLocationManagerDelegate {
             break
         }
     }
+    
 }

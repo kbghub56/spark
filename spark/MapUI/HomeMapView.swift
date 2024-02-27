@@ -8,32 +8,53 @@
 import SwiftUI
 
 
+
 struct HomeMapView: View {
     @StateObject var eventsViewModel = EventsViewModel()
     @State private var showingEventInputView = false
     @State private var showingSearchView = false  // New state variable for showing SearchView
     @State private var showingFollowRequestsView = false
+    @State private var selectedVisibilityFilter: Event.EventVisibility = .publicEvent
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var userManager: UserManager
+    @StateObject private var mapViewModel = MapViewModel()
+    @StateObject private var locationManager = LocationManager()  // Instance of LocationManager
+    @StateObject private var mapState = MapState()
+
     
     var body: some View {
         NavigationView {
-            MapViewRepresentable(eventsViewModel: eventsViewModel)
-                .ignoresSafeArea()
-                .navigationBarTitle("Spark", displayMode: .inline)
-                .navigationBarItems(trailing: HStack {
-                    addButton
-                    logoutButton
-                    followButton
-                    unfollowButton
-                    searchAndFollowButton
-                    manageFollowRequestsButton
-                })
-                .sheet(isPresented: $showingEventInputView) {
-                    EventInputView()
+                    MapViewRepresentable(eventsViewModel: eventsViewModel,
+                                         locationManager: locationManager,
+                                         mapState: mapState)
+                        .ignoresSafeArea()
+                        .navigationBarTitle("Spark", displayMode: .inline)
+                        .navigationBarItems(trailing: navigationBarItems)
+                        .sheet(isPresented: $showingEventInputView) {
+                            EventInputView()
+                        }
+                        .onAppear {
+                            print("SUP CUHSTER")
+                            mapViewModel.fetchAndListenForFriendsLocations()
+                            eventsViewModel.updateCurrentUserID(authViewModel.currentUserID)
+                            eventsViewModel.fetchEvents()
+                        }
                 }
-        }
     }
+    
+    var navigationBarItems: some View {
+            HStack {
+                addButton
+                logoutButton
+                followButton
+                unfollowButton
+                searchAndFollowButton
+                manageFollowRequestsButton
+            }
+        }
+
+    
+
     
     var addButton: some View {
         Button(action: {

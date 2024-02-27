@@ -9,6 +9,7 @@ import SwiftUI
 import Firebase
 import FirebaseDatabase
 import CoreLocation
+import FirebaseAuth
 
 struct EventInputView: View {
     @State private var title: String = ""
@@ -16,9 +17,11 @@ struct EventInputView: View {
     @State private var startDate: Date = Date()
     @State private var endDate: Date = Date()
     @State private var location: String = "" // This will hold the final location string
+    @State private var selectedVisibility: Event.EventVisibility = .publicEvent
     @StateObject var viewModel = LocationSearchViewModel()
     @Environment(\.presentationMode) var presentationMode
-
+    
+    
     
     var ref: DatabaseReference = Database.database().reference()
     
@@ -35,22 +38,32 @@ struct EventInputView: View {
                 TextField("Location", text: $viewModel.queryFragment)
                 // Conditional ScrollView to show results only when there are any
                 if !viewModel.results.isEmpty {
-                   ScrollView {
-                       VStack(alignment: .leading) {
-                           ForEach(viewModel.results, id: \.self) { result in
-                               LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
-                                   .onTapGesture {
-                                       // Update location with the selected result
-                                       self.location = result.subtitle
-                                       viewModel.queryFragment = result.title
-                                       viewModel.clearResults()
-                                   }
-                           }
-                       }
-                   }
-                   .frame(maxHeight: 200) // Limit the height of the ScrollView
+                    ScrollView {
+                        VStack(alignment: .leading) {
+                            ForEach(viewModel.results, id: \.self) { result in
+                                LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
+                                    .onTapGesture {
+                                        // Update location with the selected result
+                                        self.location = result.subtitle
+                                        viewModel.queryFragment = result.title
+                                        viewModel.clearResults()
+                                    }
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 200) // Limit the height of the ScrollView
                 }
             }
+            
+            
+            Section(header: Text("Visibility")) {
+                Picker("Visibility", selection: $selectedVisibility) {
+                    Text("Public").tag(Event.EventVisibility.publicEvent)
+                    Text("Friends").tag(Event.EventVisibility.friendsOnly)
+                    Text("Friends & Mutuals").tag(Event.EventVisibility.friendsAndMutuals)
+                }.pickerStyle(SegmentedPickerStyle())
+            }
+            
             Button(action: addEvent) {
                 Text("Add Event")
                     .frame(maxWidth: .infinity)
@@ -58,7 +71,7 @@ struct EventInputView: View {
         }
         .navigationBarTitle("Add New Event", displayMode: .inline)
     }
-
+    
     func addEvent() {
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(location) { (placemarks, error) in
@@ -66,17 +79,26 @@ struct EventInputView: View {
                 print("Geocoding error: \(error)")
                 return
             }
-
+            
             if let placemark = placemarks?.first, let coordinate = placemark.location?.coordinate {
+                // Retrieve the current Firebase user's ID to use as the organizer's ID
+                guard let organizerID = Auth.auth().currentUser?.uid else {
+                    print("Failed to retrieve organizer ID")
+                    return
+                }
+                
+                // Include the organizerID in the eventData dictionary
                 let eventData: [String: Any] = [
                     "title": self.title,
                     "description": self.description,
                     "startDate": self.startDate.timeIntervalSince1970,
                     "endDate": self.endDate.timeIntervalSince1970,
                     "latitude": coordinate.latitude,
-                    "longitude": coordinate.longitude
+                    "longitude": coordinate.longitude,
+                    "visibility": self.selectedVisibility.rawValue,
+                    "organizerID": organizerID // Add the organizer's ID here
                 ]
-
+                
                 let eventRef = self.ref.child("events").childByAutoId()
                 eventRef.setValue(eventData) { error, _ in
                     if let error = error {

@@ -15,6 +15,7 @@ import FirebaseFirestore
 class AuthViewModel: ObservableObject {
     @Published var isUserAuthenticated: Bool = Auth.auth().currentUser != nil
     @Published var currentUserID: String? = Auth.auth().currentUser?.uid  // Add this line
+  //  @Published var sessionTrigger: UUID = UUID()
 
     init() {
         updateCurrentUser()
@@ -39,6 +40,7 @@ class AuthViewModel: ObservableObject {
             try Auth.auth().signOut()
             self.isUserAuthenticated = false
             self.currentUserID = nil  // Clear the current user ID on logout
+          //  sessionTrigger = UUID() // Update the UUID on logout
         } catch let signOutError as NSError {
             print("Error signing out: %@", signOutError)
         }
@@ -47,19 +49,19 @@ class AuthViewModel: ObservableObject {
 
 //extension for following/unfollowing users
 extension AuthViewModel {
-    func signUpUser(email: String, password: String) {
+    func signUpUser(email: String, password: String, username: String) {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let user = authResult?.user, error == nil else {
                 print("Error signing up: \(error!.localizedDescription)")
                 return
             }
             // Proceed to generate a unique user ID
-            self.assignUniqueUserID(for: user)
+            self.assignUniqueUserID(for: user, username: username)
         }
     }
     
     
-    func assignUniqueUserID(for user: FirebaseAuth.User) {
+    func assignUniqueUserID(for user: FirebaseAuth.User, username: String) {
         generateUniqueID { uniqueID in
             guard let uniqueID = uniqueID else {
                 // Handle the case where a unique ID could not be generated
@@ -69,7 +71,7 @@ extension AuthViewModel {
             // Match the field names with your User model
             let userData: [String: Any] = [
                 "email": user.email ?? "",  // Handle optional email
-                "userName": "",  // Decide how you want to handle the userName
+                "userName": username,  // Decide how you want to handle the userName
                 "uniqueUserID": uniqueID,
                 "friends": []
             ]

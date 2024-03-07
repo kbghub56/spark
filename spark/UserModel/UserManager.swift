@@ -12,6 +12,15 @@ import FirebaseFirestore
 import FirebaseAuth
 
 class UserManager: ObservableObject {
+    @Published var currentUser: User?
+    
+    init() {
+            getCurrentUser { [weak self] user in
+                DispatchQueue.main.async {
+                    self?.currentUser = user
+            }
+        }
+    }
 
     func followUser(currentUserID: String, targetUserID: String) {
         let db = Firestore.firestore()
@@ -119,17 +128,23 @@ class UserManager: ObservableObject {
     
     func getCurrentUser(completion: @escaping (User?) -> Void) {
         guard let currentUserID = Auth.auth().currentUser?.uid else {
-            completion(nil)
+            DispatchQueue.main.async {
+                completion(nil)
+            }
             return
         }
 
         let db = Firestore.firestore()
         db.collection("users").document(currentUserID).getDocument { document, error in
             guard let document = document, document.exists, let user = try? document.data(as: User.self) else {
-                completion(nil)
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
                 return
             }
-            completion(user)
+            DispatchQueue.main.async {
+                completion(user)
+            }
         }
     }
     

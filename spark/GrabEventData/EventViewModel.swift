@@ -11,26 +11,78 @@ import CoreLocation
 import SwiftUI
 
 class EventsViewModel: ObservableObject {
-    @Published var events: [Event] = []
-    private(set) var currentUserID: String? // This will be set via the initializer
-    private var friendsList: [String] = [] // Assume this is populated accordingly
-
-    // Modify the initializer to have an optional currentUserID parameter
-    init(currentUserID: String? = nil) {
-        self.currentUserID = currentUserID
+    @Published var allEvents: [Event] = []
+    @Published var filteredEvents: [Event] = []
+    @Published var forFriendsAndMutualsState: Bool = false
+    
+    private var authViewModel: AuthViewModel
+    
+    init(authViewModel: AuthViewModel) {
+        self.authViewModel = authViewModel
         fetchEvents()
+        fetchFriends() // Fetch the friends list
+        fetchMutualFriends()
     }
 
+//    private(set) var currentUserID: String? // This will be set via the initializer
+    private var friendsList: [String] = [] // Assume this is populated accordingly
+    private var mutualFriendsList: Set<String> = []
+
+        // Call this method to fetch mutual friends
+    // Method to fetch mutual friends
+    func fetchFriends() {
+        guard let currentUserID = authViewModel.currentUserID else { return }
+
+        let db = Firestore.firestore()
+        db.collection("users").document(currentUserID).getDocument { [weak self] (document, error) in
+            guard let self = self, let document = document, error == nil else { return }
+            if let currentUserFriends = document.data()?["friends"] as? [String] {
+                DispatchQueue.main.async {
+                    self.friendsList = currentUserFriends
+                    // Once friendsList is updated, you might want to re-filter the events
+                    self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
+                }
+            }
+        }
+    }
+
+    
+    func fetchMutualFriends() {
+        guard let currentUserID = authViewModel.currentUserID else { return }
+
+        let db = Firestore.firestore()
+        db.collection("users").document(currentUserID).getDocument { [weak self] (document, error) in
+            guard let self = self, let document = document, error == nil else { return }
+            if let currentUserFriends = document.data()?["friends"] as? [String] {
+                self.fetchFriendsFriends(currentUserFriends: Set(currentUserFriends))
+            }
+        }
+    }
+
+    // Helper method to fetch each friend's friends and determine mutual friends
+    private func fetchFriendsFriends(currentUserFriends: Set<String>) {
+        let db = Firestore.firestore()
+
+        for friendID in currentUserFriends {
+            db.collection("users").document(friendID).getDocument { [weak self] (document, error) in
+                guard let self = self, let document = document, error == nil else { return }
+                if let friendFriends = document.data()?["friends"] as? [String] {
+                    let mutualFriends = Set(friendFriends).intersection(currentUserFriends)
+                    DispatchQueue.main.async {
+                        self.mutualFriendsList.formUnion(mutualFriends)
+                    }
+                }
+            }
+        }
+    }
+    
     func fetchEvents() {
         let ref = Database.database().reference(withPath: "events")
         ref.observe(.value, with: { [weak self] snapshot in
             guard let self = self else { return }
             var newEvents: [Event] = []
             
-            let group = DispatchGroup() // Create a DispatchGroup to track the completion of asynchronous tasks
-            print("working1")
             for child in snapshot.children {
-                print("supcuh")
                 if let snapshot = child as? DataSnapshot,
                    let dict = snapshot.value as? [String: Any],
                    let title = dict["title"] as? String,
@@ -40,110 +92,75 @@ class EventsViewModel: ObservableObject {
                    let latitude = dict["latitude"] as? Double,
                    let longitude = dict["longitude"] as? Double,
                    let visibility = dict["visibility"] as? String,
-                   let organizerID = dict["organizerID"] as? Optional ?? "defaultOrganizerID" {
+                   let organizerID = dict["organizerID"] as? String {  // Assuming organizerID is always present and is a String
                     
-                    print("working2")
                     let event = Event(id: snapshot.key, title: title, description: description, startDate: Date(timeIntervalSince1970: startDate), endDate: Date(timeIntervalSince1970: endDate), latitude: latitude, longitude: longitude, visibility: (Event.EventVisibility(rawValue: visibility) ?? .publicEvent).rawValue, organizerID: organizerID)
                     
-                    group.enter() // Enter the group before starting the asynchronous task
-                    self.shouldIncludeEvent(event) { includeEvent in
-                        if includeEvent {
-                            newEvents.append(event)
-                            print("added")
-                        }
-                         // Leave the group once the asynchronous task is complete
+                    // Now use the synchronous shouldIncludeEvent check
+                    if self.shouldIncludeEvent(event) {
+                        newEvents.append(event)
                     }
-                    group.leave()
                 }
             }
             
-            group.notify(queue: .main) { // This block is executed once all asynchronous tasks are complete
-                self.events = newEvents
+            DispatchQueue.main.async {
+                self.allEvents = newEvents
+                self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
             }
         })
     }
 
 
-    private func shouldIncludeEvent(_ event: Event, completion: @escaping (Bool) -> Void) {
-        guard self.currentUserID != nil else {
-            print("1")
-            completion(false)
-            return
-        }
-
-        // Public events are visible to everyone.
-        if event.visibility == .publicEvent {
-            print("2")
-            completion(true)
-            return
-        }
-
-        // For friends-only events, check if the organizer is a friend of the current user.
-        if event.visibility == .friendsOnly {
-            print("3")
-            completion(isFriend(event.organizerID))
-            return
-        }
-
-        // For events visible to friends and mutuals, check if the organizer is a friend.
-        if isFriend(event.organizerID) {
-            print("4")
-            completion(true)
-        } else if event.visibility == .friendsAndMutuals {
-            print("5")
-            // If the organizer is not a direct friend, check for mutual friendship.
-            isMutualFriend(event.organizerID) { isMutual in
-                completion(isMutual)
+    func filterEvents(forFriendsAndMutuals: Bool) {
+        self.forFriendsAndMutualsState = forFriendsAndMutuals // Update the internal state
+        
+        if forFriendsAndMutuals {
+            filteredEvents = allEvents.filter { event in
+                event.organizerID == authViewModel.currentUserID || isFriend(event.organizerID) || mutualFriendsList.contains(event.organizerID)
             }
+            print("FOR YOU")
+            //print(allEvents)
+            print(mutualFriendsList)
         } else {
-            print("6")
-            // If none of the above conditions are met, the event should not be included.
-            completion(false)
+            filteredEvents = allEvents
+            print("ALL")
         }
+    }
+
+
+
+    func shouldIncludeEvent(_ event: Event) -> Bool {
+        guard let currentUserID = authViewModel.currentUserID else { return false }
+
+       // Check if the event is posted by the current user
+       if event.organizerID == currentUserID {
+           return true
+       }
+
+        if event.visibility == .publicEvent || isFriend(event.organizerID) {
+            return true
+        } else if event.visibility == .friendsAndMutuals {
+            return isMutualFriend(event.organizerID)
+        }
+        return false
     }
 
 
     private func isFriend(_ userID: String) -> Bool {
-        print(friendsList.contains(userID))
         return friendsList.contains(userID)
     }
 
-    private func isMutualFriend(_ userID: String, completion: @escaping (Bool) -> Void) {
-        guard let currentUserID = self.currentUserID, !friendsList.isEmpty else {
-            completion(false)
-            return
-        }
-
-        let db = Firestore.firestore()
-        var checksRemaining = friendsList.count
-        var foundMutualFriend = false // Flag to indicate if a mutual friend has been found
-
-        for friendID in friendsList {
-            db.collection("users").document(friendID).getDocument { documentSnapshot, error in
-                checksRemaining -= 1
-
-                if foundMutualFriend { return } // Skip further processing if a mutual friend has already been found
-
-                if let document = documentSnapshot, error == nil,
-                   let friendFriendsList = document.data()?["friends"] as? [String], friendFriendsList.contains(userID) {
-                    foundMutualFriend = true
-                    completion(true)
-                    return
-                }
-
-                if checksRemaining == 0 && !foundMutualFriend {
-                    completion(false)
-                }
-            }
-        }
+    private func isMutualFriend(_ userID: String) -> Bool {
+        mutualFriendsList.contains(userID)
     }
     
-    func updateCurrentUserID(_ userID: String?) {
-        print(userID)
-            self.currentUserID = userID
-        print("UPDATED CURRENT USER ID")
-            //fetchEvents()  // Refetch events if needed
-        }
+//    func updateCurrentUserID(_ userID: String?) {
+//        print(userID)
+//            self.currentUserID = userID
+//        print("UPDATED CURRENT USER ID")
+//            //fetchEvents()  // Refetch events if needed
+//        }
 
 }
+        
 

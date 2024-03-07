@@ -24,11 +24,11 @@ struct MapViewRepresentable: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: MKMapView, context: Context) {
-        updateAnnotations(uiView)
+        updateAnnotations(uiView, with: eventsViewModel.filteredEvents)
         print("updating")
     }
     
-    func updateAnnotations(_ uiView: MKMapView) {
+    func updateAnnotations(_ uiView: MKMapView, with events: [Event]) {
         // First, remove existing annotations to start fresh
         uiView.removeAnnotations(uiView.annotations)
 
@@ -39,19 +39,28 @@ struct MapViewRepresentable: UIViewRepresentable {
             annotation.coordinate = location.coordinate
             uiView.addAnnotation(annotation)
         }
-
-        // Add annotations for events
-        for event in eventsViewModel.events {
+        
+        // Add annotations based on filtered events
+        for event in events { // Use filteredEvents instead of allEvents
             let annotation = MKPointAnnotation()
             annotation.title = event.title
             annotation.subtitle = event.description
             annotation.coordinate = CLLocationCoordinate2D(latitude: event.latitude, longitude: event.longitude)
             uiView.addAnnotation(annotation)
         }
+
+//        // Add annotations for events
+//        for event in eventsViewModel.allEvents {
+//            let annotation = MKPointAnnotation()
+//            annotation.title = event.title
+//            annotation.subtitle = event.description
+//            annotation.coordinate = CLLocationCoordinate2D(latitude: event.latitude, longitude: event.longitude)
+//            uiView.addAnnotation(annotation)
+//        }
     }
     
     func fetchFriendsLocationsIfNeeded() {
-        guard mapState.friendsLocationsCache.isEmpty, let currentUserID = Auth.auth().currentUser?.uid else { return }
+        guard let currentUserID = Auth.auth().currentUser?.uid else { return }
         
         let db = Firestore.firestore()
         db.collection("users").document(currentUserID).getDocument { (document, error) in
@@ -64,10 +73,12 @@ struct MapViewRepresentable: UIViewRepresentable {
                            let longitude = friendData["longitude"] as? Double {
                             let location = CLLocation(latitude: latitude, longitude: longitude)
                             DispatchQueue.main.async {
-                                    self.mapState.friendsLocationsCache[friendID] = location  // Update the cache through the `MapState` instance
-                                    // Update annotations after updating the cache
-                                    self.updateAnnotations(self.mapView)
-                                }
+                                // Update the cache with the latest location for each friend
+                                self.mapState.friendsLocationsCache[friendID] = location
+                                
+                                // Update the mapView annotations to reflect the latest friends' locations and filtered events
+                                self.updateAnnotations(self.mapView, with: self.eventsViewModel.filteredEvents)
+                            }
                         }
                     }
                 }
@@ -76,6 +87,7 @@ struct MapViewRepresentable: UIViewRepresentable {
             }
         }
     }
+
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)

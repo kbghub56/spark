@@ -31,8 +31,8 @@ struct SetTime: View {
                             // End Date Picker
                             DatePicker(
                                 "End:",
-                                selection: $endDate,
-                                in: viewModel.startTime...,
+                                selection: $viewModel.endTime,
+                                in: Date()...,
                                 displayedComponents: [.date, .hourAndMinute]
                             )
                             .datePickerStyle(DefaultDatePickerStyle()) // Default style for compact appearance

@@ -9,7 +9,7 @@ import SwiftUI
 import Firebase
 import FirebaseAuth
 
-struct LoginView: View {
+struct LoginView1: View {
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var errorMessage: String?
@@ -68,7 +68,7 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView1()
             .environmentObject(AuthViewModel())
     }
 }

@@ -9,15 +9,21 @@ import SwiftUI
 import Firebase
 import FirebaseAuth
 
-struct SignUpView: View {
+struct SignUpViewKB: View {
     @State private var email: String = ""
     @State private var password: String = ""
+    @State private var userName: String = ""
     @State private var confirmPassword: String = ""
     @State private var errorMessage: String?
     @EnvironmentObject var authViewModel: AuthViewModel  // Ensure AuthViewModel is provided as an environment object
     
     var body: some View {
         VStack {
+            TextField("User Name", text: $userName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+                .autocapitalization(.none)
+                .keyboardType(.emailAddress)
             TextField("Email", text: $email)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
@@ -60,6 +66,6 @@ struct SignUpView: View {
         }
         
         // Call signUpUser from AuthViewModel
-        authViewModel.signUpUser(email: email, password: password)
+        authViewModel.signUpUser(email: email, password: password, username: userName)
     }
 }

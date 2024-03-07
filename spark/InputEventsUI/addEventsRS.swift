@@ -1,4 +1,8 @@
 import SwiftUI
+import Firebase
+import FirebaseDatabase
+import CoreLocation
+import FirebaseAuth
 // DateFormatter extension remains unchanged
 extension DateFormatter {
     static let timeFormatter: DateFormatter = {
@@ -17,6 +21,9 @@ struct AddEvents: View {
     @State private var friendsAndMutualsText: String = "Friends and Mutuals Only"
     @State private var friendsOnlyText: String = "Friends Only"
     @ObservedObject var viewModel = EventDateTimeViewModel()
+    @StateObject var viewModelLoc = LocationSearchViewModel()
+    @Environment(\.presentationMode) var presentationMode
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -63,12 +70,9 @@ struct AddEvents: View {
                         .background(Color.gray)
                         .cornerRadius(10)
                         .foregroundColor(.white)
-                    TextField("Location", text: $location)
-                        .padding()
-                        .frame(width: 274, height: 50)
-                        .background(Color.gray)
-                        .cornerRadius(10)
-                        .foregroundColor(.white)
+                    locationSearchView().zIndex(1)
+                    
+                        
                     if viewModel.timeHasBeenSet {
                         VStack {
                             Text("Starts at \(viewModel.startTime, formatter: DateFormatter.timeFormatter)")
@@ -151,9 +155,8 @@ struct AddEvents: View {
                         .padding(.horizontal) // Optional, for padding on both sides if needed
                         .offset(x: 100)
                     }
-                    Button(action: {
-                        // Action for the Done button
-                    }) {
+                    
+                    Button(action: addEvent) {
                         Text("Done")
                             .font(.headline.weight(.bold))
                             .foregroundColor(.black)
@@ -161,7 +164,9 @@ struct AddEvents: View {
                             .background(Color.white)
                             .cornerRadius(60)
                     }
+                    
                 }
+                
             }
             .offset(y: -70)
             .frame(width: 430, height: 932)
@@ -172,7 +177,95 @@ struct AddEvents: View {
             SetTime(viewModel: viewModel)
         }
     }
+    
+    // Location Search integrated within the EventDetailsView
+    @ViewBuilder
+    private func locationSearchView() -> some View {
+        TextField("Location", text: $viewModelLoc.queryFragment)
+            .padding()
+            .frame(width: 274, height: 50)
+            .background(Color.gray)
+            .cornerRadius(10)
+            .foregroundColor(.white)
+            .overlay(
+                // Conditional overlay for search results
+                Group {
+                    if !viewModelLoc.results.isEmpty {
+                        ScrollView{
+                            VStack(alignment: .leading) {
+                                ForEach(viewModelLoc.results, id: \.self) { result in
+                                    LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.vertical, 4)
+                                        .onTapGesture {
+                                            // Update location with the selected result and clear results
+                                            self.location = result.subtitle
+                                            viewModelLoc.queryFragment = result.title
+                                            viewModelLoc.clearResults()
+                                        }
+                                }
+                            }
+                        }
+                        .padding(.vertical)
+                        .background(Color(.systemBackground)) // Use an appropriate background color
+                        .cornerRadius(10)
+                        .shadow(radius: 5) // Optional shadow for better visibility
+                        .frame(width: 274, height: 300) // Match the width of the TextField
+                        
+                        // Position the results just below the TextField
+                        .offset(y: 45)
+                        .zIndex(1)
+                    }
+                },
+                alignment: .topLeading // Align the overlay to the top leading edge of the TextField
+            )
+    }
+    
+    private func addEvent() {
+            let geocoder = CLGeocoder()
+            geocoder.geocodeAddressString(location) { (placemarks, error) in
+                if let error = error {
+                    print("Geocoding error: \(error)")
+                    return
+                }
+
+                if let placemark = placemarks?.first, let coordinate = placemark.location?.coordinate {
+                    guard let organizerID = Auth.auth().currentUser?.uid else {
+                        print("Failed to retrieve organizer ID")
+                        return
+                    }
+
+                    let eventData: [String: Any] = [
+                        "title": eventName,
+                        "description": eventDescription,
+                        "startDate": viewModel.startTime.timeIntervalSince1970,
+                        "endDate": viewModel.endTime.timeIntervalSince1970,
+                        "latitude": coordinate.latitude,
+                        "longitude": coordinate.longitude,
+                        "visibility": selection ?? "Everyone", // Default to "Everyone" if no selection
+                        "organizerID": organizerID
+                    ]
+
+                    let ref = Database.database().reference() // Adjust this line based on your Firebase setup
+                    let eventRef = ref.child("events").childByAutoId()
+                    eventRef.setValue(eventData) { error, _ in
+                        if let error = error {
+                            print("Error adding event: \(error)")
+                        } else {
+                            print("Event added successfully")
+                            presentationMode.wrappedValue.dismiss() // Dismiss the view on success
+                        }
+                    }
+                } else {
+                    print("No valid coordinates found for the address")
+                }
+            }
+        }
+
 }
+
+
+
 struct AddEvents_Previews: PreviewProvider {
     static var previews: some View {
         AddEvents()

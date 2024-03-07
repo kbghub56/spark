@@ -17,7 +17,7 @@ struct AddEvents1: View {
     @State private var startDate: Date = Date()
     @State private var endDate: Date = Date()
     @State private var selectedVisibility: Event.EventVisibility = .publicEvent
-    @ObservedObject var viewModel = EventDateTimeViewModel()
+    @StateObject var viewModel = LocationSearchViewModel()
     @Environment(\.presentationMode) var presentationMode
     
     var ref: DatabaseReference = Database.database().reference()
@@ -34,7 +34,24 @@ struct AddEvents1: View {
                     }
                     
                     Section(header: Text("Location")) {
-                        TextField("Location", text: $location)
+                        TextField("Location", text: $viewModel.queryFragment)
+                        // Conditional ScrollView to show results only when there are any
+                        if !viewModel.results.isEmpty {
+                            ScrollView {
+                                VStack(alignment: .leading) {
+                                    ForEach(viewModel.results, id: \.self) { result in
+                                        LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
+                                            .onTapGesture {
+                                                // Update location with the selected result
+                                                self.location = result.subtitle
+                                                viewModel.queryFragment = result.title
+                                                viewModel.clearResults()
+                                            }
+                                    }
+                                }
+                            }
+                      //      .frame(maxHeight: 200) // Limit the height of the ScrollView
+                        }
                     }
                     
                     Section(header: Text("Visibility")) {

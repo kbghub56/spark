@@ -96,7 +96,9 @@ struct EventInputView: View {
                     "latitude": coordinate.latitude,
                     "longitude": coordinate.longitude,
                     "visibility": self.selectedVisibility.rawValue,
-                    "organizerID": organizerID // Add the organizer's ID here
+                    "organizerID": organizerID, // Add the organizer's ID here
+                    "likes": 5,  // Initialize likes count
+                    "likedBy": []  // Initialize empty array for user IDs who liked the event
                 ]
                 
                 let eventRef = self.ref.child("events").childByAutoId()

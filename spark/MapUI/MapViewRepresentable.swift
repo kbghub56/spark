@@ -29,35 +29,22 @@ struct MapViewRepresentable: UIViewRepresentable {
     }
     
     func updateAnnotations(_ uiView: MKMapView, with events: [Event]) {
-        // First, remove existing annotations to start fresh
-        uiView.removeAnnotations(uiView.annotations)
-
-        // Add annotations for friends using the cache
-        for (friendID, location) in friendsLocationsCache {
-            let annotation = MKPointAnnotation()
-            annotation.title = friendID // Update to use friend's name if available
-            annotation.coordinate = location.coordinate
-            uiView.addAnnotation(annotation)
+        let currentAnnotations = uiView.annotations.compactMap { $0 as? EventAnnotation }
+        let currentEventIDs = Set(currentAnnotations.map { $0.id })
+        let newEventIDs = Set(events.map { $0.id })
+        
+        // Remove annotations for events that are no longer present
+        for annotation in currentAnnotations where !newEventIDs.contains(annotation.id) {
+            uiView.removeAnnotation(annotation)
         }
         
-        // Add annotations based on filtered events
-        for event in events { // Use filteredEvents instead of allEvents
-            let annotation = MKPointAnnotation()
-            annotation.title = event.title
-            annotation.subtitle = event.description
-            annotation.coordinate = CLLocationCoordinate2D(latitude: event.latitude, longitude: event.longitude)
+        // Add annotations for new events
+        for event in events where !currentEventIDs.contains(event.id) {
+            let annotation = EventAnnotation(event: event)
             uiView.addAnnotation(annotation)
         }
-
-//        // Add annotations for events
-//        for event in eventsViewModel.allEvents {
-//            let annotation = MKPointAnnotation()
-//            annotation.title = event.title
-//            annotation.subtitle = event.description
-//            annotation.coordinate = CLLocationCoordinate2D(latitude: event.latitude, longitude: event.longitude)
-//            uiView.addAnnotation(annotation)
-//        }
     }
+
     
     func fetchFriendsLocationsIfNeeded() {
         guard let currentUserID = Auth.auth().currentUser?.uid else { return }
@@ -99,7 +86,8 @@ class MapState: ObservableObject {
 }
 
     
- 
+
+
 ////        //IMPORTANT FOR ZOOM IN WHEN YOU LOG ON
 ////        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
 ////                    let region = MKCoordinateRegion(

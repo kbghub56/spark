@@ -57,6 +57,7 @@
 		99FFE2D32B99824000070686 /* LoginRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D22B99824000070686 /* LoginRS.swift */; };
 		99FFE2D52B9989F600070686 /* WhenLocationOff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D42B9989F600070686 /* WhenLocationOff.swift */; };
 		99FFE2D72B998E8E00070686 /* LandingPageRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D62B998E8E00070686 /* LandingPageRS.swift */; };
+		99FFE2DB2B9E69E800070686 /* EventAnnotationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2DA2B9E69E800070686 /* EventAnnotationModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -105,6 +106,7 @@
 		99FFE2D22B99824000070686 /* LoginRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRS.swift; sourceTree = "<group>"; };
 		99FFE2D42B9989F600070686 /* WhenLocationOff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenLocationOff.swift; sourceTree = "<group>"; };
 		99FFE2D62B998E8E00070686 /* LandingPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingPageRS.swift; sourceTree = "<group>"; };
+		99FFE2DA2B9E69E800070686 /* EventAnnotationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAnnotationModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -197,6 +199,7 @@
 			isa = PBXGroup;
 			children = (
 				99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */,
+				99FFE2DA2B9E69E800070686 /* EventAnnotationModel.swift */,
 				9935AB202B8EF402003994AE /* MainPageRS.swift */,
 				9993E3E72B8B2D9D007443BE /* CoordinatorClass.swift */,
 				99086FC52B7A15F200FC00B2 /* HomeMapView.swift */,
@@ -384,6 +387,7 @@
 				99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */,
 				99FFE2D32B99824000070686 /* LoginRS.swift in Sources */,
 				9993E3DB2B87500D007443BE /* FollowRequest.swift in Sources */,
+				99FFE2DB2B9E69E800070686 /* EventAnnotationModel.swift in Sources */,
 				9935AB1E2B8EF14A003994AE /* UserLoginGPT.swift in Sources */,
 				9993E3E02B8870E2007443BE /* MapViewModel.swift in Sources */,
 				99086FC12B7A087900FC00B2 /* MapViewRepresentable.swift in Sources */,

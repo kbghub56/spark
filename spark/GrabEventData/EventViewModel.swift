@@ -154,6 +154,66 @@ class EventsViewModel: ObservableObject {
         mutualFriendsList.contains(userID)
     }
     
+    func likeEvent(eventID: String, currentUserID: String) {
+        let eventRef = Database.database().reference(withPath: "events/\(eventID)")
+        
+        eventRef.runTransactionBlock({ (currentData: MutableData) -> TransactionResult in
+            if var event = currentData.value as? [String: AnyObject],
+               var likedBy = event["likedBy"] as? [String],
+               let likes = event["likes"] as? Int {
+                
+                if !likedBy.contains(currentUserID) {
+                    likedBy.append(currentUserID)  // Add current user to likedBy array
+                    event["likes"] = likes + 1 as AnyObject?  // Increment likes
+                    event["likedBy"] = likedBy as AnyObject?  // Update likedBy array
+                    
+                    // Set the updated event data
+                    currentData.value = event
+                    
+                    return TransactionResult.success(withValue: currentData)
+                } else {
+                    // If the user has already liked the event, don't change the data
+                    return TransactionResult.success(withValue: currentData)
+                }
+            }
+            return TransactionResult.success(withValue: currentData)
+        }) { error, committed, snapshot in
+            if let error = error {
+                print("Error updating likes: \(error.localizedDescription)")
+            }
+        }
+    }
+
+
+    
+    func fetchEventsLikedByFriends() {
+        guard let currentUserID = authViewModel.currentUserID else { return }
+
+        // Fetch the current user's friends list
+        let userRef = Firestore.firestore().collection("users").document(currentUserID)
+        userRef.getDocument { (document, error) in
+            if let document = document, let data = document.data(), let friends = data["friends"] as? [String] {
+                // Fetch events liked by friends
+                let eventsRef = Firestore.firestore().collection("events")
+                eventsRef.whereField("likedBy", arrayContainsAny: friends).getDocuments { (querySnapshot, error) in
+                    if let querySnapshot = querySnapshot {
+                        var likedEvents: [Event] = []
+                        for document in querySnapshot.documents {
+                            // Construct Event object from document
+                            // Add it to likedEvents array
+                        }
+                        // Sort likedEvents based on the likes count
+                        likedEvents.sort(by: { $0.likes > $1.likes })
+                        
+                        // Update your view model/event list with likedEvents
+                    }
+                }
+            }
+        }
+    }
+
+
+    
 //    func updateCurrentUserID(_ userID: String?) {
 //        print(userID)
 //            self.currentUserID = userID

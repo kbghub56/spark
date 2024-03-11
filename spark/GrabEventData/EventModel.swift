@@ -15,6 +15,8 @@ struct Event: Identifiable {
     let endDate: Date
     let latitude: Double
     let longitude: Double
+    var likes: Int // Variable to store the count of likes
+    var likedBy: [String] // Array to store user IDs of those who liked the event
     let visibility: EventVisibility
     let organizerID: String
 
@@ -24,7 +26,7 @@ struct Event: Identifiable {
         case friendsAndMutuals = "friendsAndMutuals"
     }
 
-    init(id: String, title: String, description: String, startDate: Date, endDate: Date, latitude: Double, longitude: Double, visibility: String, organizerID: String) {
+    init(id: String, title: String, description: String, startDate: Date, endDate: Date, latitude: Double, longitude: Double, visibility: String, organizerID: String, likes: Int = 0, likedBy: [String] = []) {
         self.id = id
         self.title = title
         self.description = description
@@ -32,6 +34,8 @@ struct Event: Identifiable {
         self.endDate = endDate
         self.latitude = latitude
         self.longitude = longitude
+        self.likes = likes
+        self.likedBy = likedBy
         self.visibility = EventVisibility(rawValue: visibility) ?? .publicEvent
         self.organizerID = organizerID
     }

@@ -243,7 +243,9 @@ struct AddEvents: View {
                         "latitude": coordinate.latitude,
                         "longitude": coordinate.longitude,
                         "visibility": selection ?? "Everyone", // Default to "Everyone" if no selection
-                        "organizerID": organizerID
+                        "organizerID": organizerID,
+                        "likes": 0,  // Initialize likes count
+                        "likedBy": [""]  // Initialize empty array for user IDs who liked the event
                     ]
 
                     let ref = Database.database().reference() // Adjust this line based on your Firebase setup

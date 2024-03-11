@@ -27,6 +27,7 @@ class EventsViewModel: ObservableObject {
 //    private(set) var currentUserID: String? // This will be set via the initializer
     private var friendsList: [String] = [] // Assume this is populated accordingly
     private var mutualFriendsList: Set<String> = []
+    @Published var rankedEventsByFriendsLikes: [Event] = []
 
         // Call this method to fetch mutual friends
     // Method to fetch mutual friends
@@ -109,6 +110,7 @@ class EventsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self.allEvents = newEvents
                 self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
+                self.rankEvents()
             }
         })
     }
@@ -187,6 +189,9 @@ class EventsViewModel: ObservableObject {
             if let error = error {
                 print("Error updating likes: \(error.localizedDescription)")
             }
+            else{
+                self.rankEvents()
+            }
         }
     }
 
@@ -216,6 +221,35 @@ class EventsViewModel: ObservableObject {
                     }
                 }
             }
+        }
+    }
+    
+    func calculateLikesFromFriends(for event: Event) -> Int {
+        let friendsLikes = event.likedBy.filter { friendsList.contains($0) }.count
+        return friendsLikes
+    }
+
+    
+    func rankEvents() {
+        // Assume that we have a friendsList which contains the IDs of current user's friends
+        let friendsEvents = allEvents.filter { event in
+            return event.likedBy.contains(where: { friendsList.contains($0) })
+        }
+
+        // Now rank these events based on the number of likes from friends
+        let ranked = friendsEvents.sorted {
+            let likesFromFriendsFirst = $0.likedBy.filter { friendsList.contains($0) }.count
+            let likesFromFriendsSecond = $1.likedBy.filter { friendsList.contains($0) }.count
+            return likesFromFriendsFirst > likesFromFriendsSecond
+        }
+        
+        print("----")
+        print(ranked)
+        print("-----")
+
+        // Finally, update the published property
+        DispatchQueue.main.async {
+            self.rankedEventsByFriendsLikes = ranked
         }
     }
 

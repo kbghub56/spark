@@ -25,7 +25,7 @@ class EventsViewModel: ObservableObject {
     }
 
 //    private(set) var currentUserID: String? // This will be set via the initializer
-    private var friendsList: [String] = [] // Assume this is populated accordingly
+    var friendsList: [String] = [] // Assume this is populated accordingly
     private var mutualFriendsList: Set<String> = []
     @Published var rankedEventsByFriendsLikes: [Event] = []
 
@@ -190,7 +190,7 @@ class EventsViewModel: ObservableObject {
                 print("Error updating likes: \(error.localizedDescription)")
             }
             else{
-                self.rankEvents()
+                //self.rankEvents()
             }
         }
     }
@@ -230,28 +230,35 @@ class EventsViewModel: ObservableObject {
     }
 
     
+    // This function should be called after events and friends lists are fetched
     func rankEvents() {
-        // Assume that we have a friendsList which contains the IDs of current user's friends
-        let friendsEvents = allEvents.filter { event in
-            return event.likedBy.contains(where: { friendsList.contains($0) })
-        }
-
-        // Now rank these events based on the number of likes from friends
-        let ranked = friendsEvents.sorted {
-            let likesFromFriendsFirst = $0.likedBy.filter { friendsList.contains($0) }.count
-            let likesFromFriendsSecond = $1.likedBy.filter { friendsList.contains($0) }.count
-            return likesFromFriendsFirst > likesFromFriendsSecond
+        let eventsWithLikesFromFriends = allEvents.map { event -> (event: Event, likesFromFriends: Int) in
+            let count = event.likedBy.filter { self.friendsList.contains($0) }.count
+            return (event, count)
         }
         
-        print("----")
-        print(ranked)
-        print("-----")
-
-        // Finally, update the published property
+        // Sort by the number of likes from friends, and if equal, sort by event title or any other property
+        let sortedEvents = eventsWithLikesFromFriends.sorted { first, second in
+            if first.likesFromFriends == second.likesFromFriends {
+                return first.event.title < second.event.title // Or any other secondary property
+            }
+            return first.likesFromFriends > second.likesFromFriends
+        }.map { $0.event }
+        
+        print("RANKINGEVENTSFF")
+        
         DispatchQueue.main.async {
-            self.rankedEventsByFriendsLikes = ranked
+            self.rankedEventsByFriendsLikes = sortedEvents
         }
     }
+    
+    var sortedEventsByLikesFromFriends: [Event] {
+            allEvents.sorted {
+                let firstLikes = $0.likedBy.filter { friendsList.contains($0) }.count
+                let secondLikes = $1.likedBy.filter { friendsList.contains($0) }.count
+                return firstLikes == secondLikes ? $0.title < $1.title : firstLikes > secondLikes
+            }
+        }
 
 
     

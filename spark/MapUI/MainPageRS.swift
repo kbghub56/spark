@@ -46,7 +46,11 @@ struct HomeMapView: View {
             circleButton
 
             if showExpandedBlackScreen {
-                expandedBlackScreenView
+                ZStack{
+                    expandedBlackScreenView
+//                    RankedEventsListView()
+//                                    .environmentObject(eventsViewModel)
+                }
             } else {
                 // Default view when not expanded
                 RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y: 400).onTapGesture {
@@ -134,23 +138,45 @@ struct HomeMapView: View {
     var expandedBlackScreenView: some View {
         VStack {
             HStack(spacing: 20) {
-                Text("Friends").font(.system(size: 22, weight: selectedTab == 0 ? .bold : .regular)).foregroundColor(selectedTab == 0 ? .white : .gray).padding().onTapGesture {
-                    withAnimation {
-                        selectedTab = 0
+                Text("Friends").font(.system(size: 22, weight: selectedTab == 0 ? .bold : .regular))
+                    .foregroundColor(selectedTab == 0 ? .white : .gray).padding()
+                    .onTapGesture {
+                        withAnimation {
+                            selectedTab = 0
+                        }
                     }
-                }
                 Spacer()
-                Text("Events").font(.system(size: 22, weight: selectedTab == 1 ? .bold : .regular)).foregroundColor(selectedTab == 1 ? .white : .gray).padding().onTapGesture {
-                    withAnimation {
-                        selectedTab = 1
+                Text("Events").font(.system(size: 22, weight: selectedTab == 1 ? .bold : .regular))
+                    .foregroundColor(selectedTab == 1 ? .white : .gray).padding()
+                    .onTapGesture {
+                        withAnimation {
+                            selectedTab = 1
+                        }
                     }
-                }
             }.padding(.horizontal, 60)
+
+            // This will show the RankedEventsListView when the Events tab is selected
+            if selectedTab == 1 {
+                RankedEventsListView()
+                    .environmentObject(eventsViewModel) // Make sure to pass the necessary environment objects
+                    .padding(.horizontal) // Add padding if necessary
+                    .background(Color.black.opacity(0.7)) // Semi-transparent black background
+                    .cornerRadius(10)
+                    .padding(.top) // Add padding at the top if necessary
+            }
+
+            // The tab view is here for user interaction with the tabs
             TabView(selection: $selectedTab) {
                 FriendsView().tag(0)
                 EventsView().tag(1)
-            }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-        }.frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 3 / 4).background(Color.black).cornerRadius(50).transition(.move(edge: .bottom)).gesture(
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        }
+        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 3 / 4)
+        .background(Color.black)
+        .cornerRadius(50)
+        .transition(.move(edge: .bottom))
+        .gesture(
             DragGesture().onEnded { value in
                 if value.translation.width < 0 {
                     withAnimation {
@@ -162,8 +188,10 @@ struct HomeMapView: View {
                     }
                 }
             }
-        ).onTapGesture {}
+        )
+        .onTapGesture { }
     }
+
   
 }
 struct FriendsView: View {
@@ -371,4 +399,35 @@ struct HomeMapView_Preview: PreviewProvider {
         HomeMapView()
     }
 }
+
+struct RankedEventsListView: View {
+    @EnvironmentObject var eventsViewModel: EventsViewModel
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 10) { // Adjust the spacing between items
+                ForEach(eventsViewModel.sortedEventsByLikesFromFriends, id: \.id) { event in
+                    HStack {
+                        Text(event.title)
+                            .bold()
+                            .font(.title3) // Increase the font size for the title
+                            .foregroundColor(.white)
+                            .padding(.leading, 20) // Add padding to the leading edge
+                        Spacer()
+                        Text("\(event.likedBy.filter { eventsViewModel.friendsList.contains($0) }.count) likes")
+                            .font(.body) // Increase the font size for the likes
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 20) // Add padding to the trailing edge
+                    }
+                    .padding(.vertical, 5) // Adjust vertical padding for each item
+                }
+            }
+        }
+        .frame(maxHeight: .infinity) // Remove fixed height to allow dynamic content height
+        .background(Color.black.opacity(0.7)) // Set background color with opacity to blend with the expanded black screen
+        .cornerRadius(30) // Match the corner radius with the expanded black screen if needed
+        .padding(.horizontal, 10) // Add padding to the sides if you want more space from the edges
+    }
+}
+
 

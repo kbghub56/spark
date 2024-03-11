@@ -7,6 +7,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     @ObservedObject var eventsViewModel: EventsViewModel
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var mapState: MapState
+    var authViewModel: AuthViewModel
 
     var mapView = MKMapView()
     var friendsLocationsCache: [String: CLLocation] = [:]
@@ -77,7 +78,7 @@ struct MapViewRepresentable: UIViewRepresentable {
 
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        Coordinator(parent: self, authViewModel: authViewModel)
     }
 }
     

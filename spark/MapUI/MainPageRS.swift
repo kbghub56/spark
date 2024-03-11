@@ -39,7 +39,7 @@ struct HomeMapView: View {
 
     var body: some View {
         ZStack {
-            MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState)
+            MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel)
                 .edgesIgnoringSafeArea(.all)
 
             toggleSection

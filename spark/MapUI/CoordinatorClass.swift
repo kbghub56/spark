@@ -14,11 +14,13 @@ import FirebaseAuth
 
 class Coordinator: NSObject, MKMapViewDelegate {
     var parent: MapViewRepresentable
+    var authViewModel: AuthViewModel
 
-    init(_ parent: MapViewRepresentable) {
+    init(parent: MapViewRepresentable, authViewModel: AuthViewModel) {
         self.parent = parent
+        self.authViewModel = authViewModel
     }
-
+    
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation {
                 return nil
@@ -59,6 +61,10 @@ class Coordinator: NSObject, MKMapViewDelegate {
         
         if let eventAnnotation = annotation as? EventAnnotation {
             let likeButton = LikeButton(type: .custom)
+                // Set the initial like state based on whether the current user has liked the event
+            if let currentUserID = authViewModel.currentUserID {
+                likeButton.isLiked = eventAnnotation.likedBy.contains(currentUserID)
+            }
             likeButton.setImage(UIImage(systemName: "heart"), for: .normal)  // Example using SF Symbols
             likeButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
             likeButton.eventID = eventAnnotation.id
@@ -82,22 +88,31 @@ class Coordinator: NSObject, MKMapViewDelegate {
         print("Annotation selected: \(String(describing: view.annotation?.title))")
     }
     
-    @objc func handleLikeButtonTap(_ sender: UIButton) {
+    @objc func handleLikeButtonTap(_ sender: LikeButton) {
         guard let currentUserID = Auth.auth().currentUser?.uid else {
             print("Current user ID not found")
             return
         }
 
-        if let likeButton = sender as? LikeButton, let eventID = likeButton.eventID {
-            print("Liking event with ID: \(eventID)")
-            parent.eventsViewModel.likeEvent(eventID: eventID, currentUserID: currentUserID)
+        if let eventID = sender.eventID {
+            print("Toggling like for event with ID: \(eventID)")
+            sender.isLiked.toggle()  // Toggle the like state
+            parent.eventsViewModel.likeEvent(eventID: eventID, currentUserID: currentUserID, isLiked: sender.isLiked)
         } else {
             print("Could not retrieve eventID from button")
         }
     }
 
+
 }
 
 class LikeButton: UIButton {
     var eventID: String?
+    var isLiked: Bool = false {
+        didSet {
+            self.setImage(UIImage(systemName: isLiked ? "heart.fill" : "heart"), for: .normal)
+            self.tintColor = isLiked ? .red : .gray
+        }
+    }
 }
+

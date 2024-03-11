@@ -92,9 +92,12 @@ class EventsViewModel: ObservableObject {
                    let latitude = dict["latitude"] as? Double,
                    let longitude = dict["longitude"] as? Double,
                    let visibility = dict["visibility"] as? String,
-                   let organizerID = dict["organizerID"] as? String {  // Assuming organizerID is always present and is a String
+                   let organizerID = dict["organizerID"] as? String {
                     
-                    let event = Event(id: snapshot.key, title: title, description: description, startDate: Date(timeIntervalSince1970: startDate), endDate: Date(timeIntervalSince1970: endDate), latitude: latitude, longitude: longitude, visibility: (Event.EventVisibility(rawValue: visibility) ?? .publicEvent).rawValue, organizerID: organizerID)
+                    // Ensure the likedBy array is included when you fetch your events
+                    let likedBy = dict["likedBy"] as? [String] ?? []
+                    
+                    let event = Event(id: snapshot.key, title: title, description: description, startDate: Date(timeIntervalSince1970: startDate), endDate: Date(timeIntervalSince1970: endDate), latitude: latitude, longitude: longitude, visibility: visibility, organizerID: organizerID, likedBy: likedBy)
                     
                     // Now use the synchronous shouldIncludeEvent check
                     if self.shouldIncludeEvent(event) {
@@ -154,7 +157,7 @@ class EventsViewModel: ObservableObject {
         mutualFriendsList.contains(userID)
     }
     
-    func likeEvent(eventID: String, currentUserID: String) {
+    func likeEvent(eventID: String, currentUserID: String, isLiked: Bool) {
         let eventRef = Database.database().reference(withPath: "events/\(eventID)")
         
         eventRef.runTransactionBlock({ (currentData: MutableData) -> TransactionResult in
@@ -162,19 +165,22 @@ class EventsViewModel: ObservableObject {
                var likedBy = event["likedBy"] as? [String],
                let likes = event["likes"] as? Int {
                 
-                if !likedBy.contains(currentUserID) {
-                    likedBy.append(currentUserID)  // Add current user to likedBy array
-                    event["likes"] = likes + 1 as AnyObject?  // Increment likes
-                    event["likedBy"] = likedBy as AnyObject?  // Update likedBy array
-                    
-                    // Set the updated event data
-                    currentData.value = event
-                    
-                    return TransactionResult.success(withValue: currentData)
+                if isLiked {
+                    if !likedBy.contains(currentUserID) {
+                        likedBy.append(currentUserID)
+                        event["likes"] = likes + 1 as AnyObject?
+                    }
                 } else {
-                    // If the user has already liked the event, don't change the data
-                    return TransactionResult.success(withValue: currentData)
+                    if let index = likedBy.firstIndex(of: currentUserID) {
+                        likedBy.remove(at: index)
+                        event["likes"] = max(likes - 1, 0) as AnyObject?
+                    }
                 }
+                
+                event["likedBy"] = likedBy as AnyObject?
+                currentData.value = event
+                
+                return TransactionResult.success(withValue: currentData)
             }
             return TransactionResult.success(withValue: currentData)
         }) { error, committed, snapshot in
@@ -183,6 +189,7 @@ class EventsViewModel: ObservableObject {
             }
         }
     }
+
 
 
     

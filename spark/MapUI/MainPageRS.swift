@@ -402,7 +402,7 @@ struct HomeMapView_Preview: PreviewProvider {
 
 struct RankedEventsListView: View {
     @EnvironmentObject var eventsViewModel: EventsViewModel
-
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 10) { // Adjust the spacing between items

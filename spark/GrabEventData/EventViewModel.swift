@@ -40,6 +40,7 @@ class EventsViewModel: ObservableObject {
             if let currentUserFriends = document.data()?["friends"] as? [String] {
                 DispatchQueue.main.async {
                     self.friendsList = currentUserFriends
+
                     // Once friendsList is updated, you might want to re-filter the events
                     self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
                 }
@@ -58,6 +59,8 @@ class EventsViewModel: ObservableObject {
                 self.fetchFriendsFriends(currentUserFriends: Set(currentUserFriends))
             }
         }
+        print("MUTUALS: \(self.mutualFriendsList)")
+        
     }
 
     // Helper method to fetch each friend's friends and determine mutual friends
@@ -110,7 +113,7 @@ class EventsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self.allEvents = newEvents
                 self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
-                self.rankEvents()
+                //self.rankEvents()
             }
         })
     }
@@ -124,8 +127,9 @@ class EventsViewModel: ObservableObject {
                 event.organizerID == authViewModel.currentUserID || isFriend(event.organizerID) || mutualFriendsList.contains(event.organizerID)
             }
             print("FOR YOU")
-            //print(allEvents)
-            print(mutualFriendsList)
+            print(allEvents)
+            print("MF: \(mutualFriendsList)")
+            print("F: \(friendsList)")
         } else {
             filteredEvents = allEvents
             print("ALL")
@@ -198,31 +202,32 @@ class EventsViewModel: ObservableObject {
 
 
     
-    func fetchEventsLikedByFriends() {
-        guard let currentUserID = authViewModel.currentUserID else { return }
-
-        // Fetch the current user's friends list
-        let userRef = Firestore.firestore().collection("users").document(currentUserID)
-        userRef.getDocument { (document, error) in
-            if let document = document, let data = document.data(), let friends = data["friends"] as? [String] {
-                // Fetch events liked by friends
-                let eventsRef = Firestore.firestore().collection("events")
-                eventsRef.whereField("likedBy", arrayContainsAny: friends).getDocuments { (querySnapshot, error) in
-                    if let querySnapshot = querySnapshot {
-                        var likedEvents: [Event] = []
-                        for document in querySnapshot.documents {
-                            // Construct Event object from document
-                            // Add it to likedEvents array
-                        }
-                        // Sort likedEvents based on the likes count
-                        likedEvents.sort(by: { $0.likes > $1.likes })
-                        
-                        // Update your view model/event list with likedEvents
-                    }
-                }
-            }
-        }
-    }
+//    func fetchEventsLikedByFriends() {
+//        guard let currentUserID = authViewModel.currentUserID else { return }
+//
+//        // Fetch the current user's friends list
+//        let userRef = Firestore.firestore().collection("users").document(currentUserID)
+//        userRef.getDocument { (document, error) in
+//            if let document = document, let data = document.data(), let friends = data["friends"] as? [String] {
+//                print("FRIENDS LIST: \(friends)")
+//                // Fetch events liked by friends
+//                let eventsRef = Firestore.firestore().collection("events")
+//                eventsRef.whereField("likedBy", arrayContainsAny: friends).getDocuments { (querySnapshot, error) in
+//                    if let querySnapshot = querySnapshot {
+//                        var likedEvents: [Event] = []
+//                        for document in querySnapshot.documents {
+//                            // Construct Event object from document
+//                            // Add it to likedEvents array
+//                        }
+//                        // Sort likedEvents based on the likes count
+//                        likedEvents.sort(by: { $0.likes > $1.likes })
+//
+//                        // Update your view model/event list with likedEvents
+//                    }
+//                }
+//            }
+//        }
+//    }
     
     func calculateLikesFromFriends(for event: Event) -> Int {
         let friendsLikes = event.likedBy.filter { friendsList.contains($0) }.count
@@ -231,26 +236,27 @@ class EventsViewModel: ObservableObject {
 
     
     // This function should be called after events and friends lists are fetched
-    func rankEvents() {
-        let eventsWithLikesFromFriends = allEvents.map { event -> (event: Event, likesFromFriends: Int) in
-            let count = event.likedBy.filter { self.friendsList.contains($0) }.count
-            return (event, count)
-        }
-        
-        // Sort by the number of likes from friends, and if equal, sort by event title or any other property
-        let sortedEvents = eventsWithLikesFromFriends.sorted { first, second in
-            if first.likesFromFriends == second.likesFromFriends {
-                return first.event.title < second.event.title // Or any other secondary property
-            }
-            return first.likesFromFriends > second.likesFromFriends
-        }.map { $0.event }
-        
-        print("RANKINGEVENTSFF")
-        
-        DispatchQueue.main.async {
-            self.rankedEventsByFriendsLikes = sortedEvents
-        }
-    }
+//    func rankEvents() {
+//        let eventsWithLikesFromFriends = allEvents.map { event -> (event: Event, likesFromFriends: Int) in
+//            let count = event.likedBy.filter { self.friendsList.contains($0) }.count
+//            return (event, count)
+//        }
+//
+//        // Sort by the number of likes from friends, and if equal, sort by event title or any other property
+//        let sortedEvents = eventsWithLikesFromFriends.sorted { first, second in
+//            if first.likesFromFriends == second.likesFromFriends {
+//                return first.event.title < second.event.title // Or any other secondary property
+//            }
+//            return first.likesFromFriends > second.likesFromFriends
+//        }.map { $0.event }
+//
+//        print("SODHIOISDOSIDHOSDIHOSDHOIH: \(friendsList)")
+//        print("RANKINGEVENTSFF")
+//
+//        DispatchQueue.main.async {
+//            self.rankedEventsByFriendsLikes = sortedEvents
+//        }
+//    }
     
     var sortedEventsByLikesFromFriends: [Event] {
             allEvents.sorted {
@@ -259,6 +265,7 @@ class EventsViewModel: ObservableObject {
                 return firstLikes == secondLikes ? $0.title < $1.title : firstLikes > secondLikes
             }
         }
+    
 
 
     

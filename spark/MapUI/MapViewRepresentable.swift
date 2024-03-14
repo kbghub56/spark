@@ -28,6 +28,7 @@ struct MapViewRepresentable: UIViewRepresentable {
         updateAnnotations(uiView, with: eventsViewModel.filteredEvents)
         print("updating")
     }
+
     
     func updateAnnotations(_ uiView: MKMapView, with events: [Event]) {
         let currentAnnotations = uiView.annotations.compactMap { $0 as? EventAnnotation }

@@ -10,6 +10,7 @@ import Foundation
 import Firebase
 import FirebaseFirestore
 import FirebaseAuth
+import Combine
 
 class UserManager: ObservableObject {
     @Published var currentUser: User?
@@ -116,7 +117,6 @@ class UserManager: ObservableObject {
 
                 let requests = documents.map { doc -> FollowRequest in
                     let data = doc.data()
-                    print(userID)
                     return FollowRequest(id: doc.documentID,
                                          fromUserID: data["from"] as? String ?? "",
                                          toUserID: data["to"] as? String ?? "",
@@ -124,6 +124,7 @@ class UserManager: ObservableObject {
                 }
                 completion(requests)
             }
+   
     }
     
     func getCurrentUser(completion: @escaping (User?) -> Void) {
@@ -134,19 +135,32 @@ class UserManager: ObservableObject {
             return
         }
 
+        
         let db = Firestore.firestore()
         db.collection("users").document(currentUserID).getDocument { document, error in
-            guard let document = document, document.exists, let user = try? document.data(as: User.self) else {
+            if let document = document, document.exists {
+                do {
+                    let user = try document.data(as: User.self)
+                    DispatchQueue.main.async {
+                        self.currentUser = user // Set the currentUser with fetched user data
+                        print(self.currentUser)
+                        completion(user)
+                    }
+                } catch let error {
+                    print("Error decoding user: \(error)")
+                    DispatchQueue.main.async {
+                        completion(nil)
+                    }
+                }
+            } else {
+                print("Document does not exist or error: \(error?.localizedDescription ?? "Unknown error")")
                 DispatchQueue.main.async {
                     completion(nil)
                 }
-                return
-            }
-            DispatchQueue.main.async {
-                completion(user)
             }
         }
     }
+
     
     func addAsFriend(currentUserUniqueID: String, friendUniqueID: String) {
         let db = Firestore.firestore()
@@ -211,6 +225,4 @@ class UserManager: ObservableObject {
 
 
 }
-
-
 

@@ -14,14 +14,17 @@ class EventsViewModel: ObservableObject {
     @Published var allEvents: [Event] = []
     @Published var filteredEvents: [Event] = []
     @Published var forFriendsAndMutualsState: Bool = false
+    @Published var eventsForYou: [Event] = []
+
     
     private var authViewModel: AuthViewModel
     
     init(authViewModel: AuthViewModel) {
         self.authViewModel = authViewModel
         fetchEvents()
-        fetchFriends() // Fetch the friends list
-        fetchMutualFriends()
+        fetchFriends {
+            self.fetchMutualFriends()
+        }
     }
 
 //    private(set) var currentUserID: String? // This will be set via the initializer
@@ -31,7 +34,7 @@ class EventsViewModel: ObservableObject {
 
         // Call this method to fetch mutual friends
     // Method to fetch mutual friends
-    func fetchFriends() {
+    func fetchFriends(completion: @escaping () -> Void) {
         guard let currentUserID = authViewModel.currentUserID else { return }
 
         let db = Firestore.firestore()
@@ -40,28 +43,68 @@ class EventsViewModel: ObservableObject {
             if let currentUserFriends = document.data()?["friends"] as? [String] {
                 DispatchQueue.main.async {
                     self.friendsList = currentUserFriends
-
-                    // Once friendsList is updated, you might want to re-filter the events
-                    self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
+                    completion() // Call completion handler after updating the friends list
                 }
             }
         }
     }
 
+
     
     func fetchMutualFriends() {
-        guard let currentUserID = authViewModel.currentUserID else { return }
-
         let db = Firestore.firestore()
-        db.collection("users").document(currentUserID).getDocument { [weak self] (document, error) in
-            guard let self = self, let document = document, error == nil else { return }
-            if let currentUserFriends = document.data()?["friends"] as? [String] {
-                self.fetchFriendsFriends(currentUserFriends: Set(currentUserFriends))
+        var allPotentialMutuals = Set<String>() // To store all friends of friends
+
+        // Loop through each friend to get their friends
+        for friendID in friendsList {
+            db.collection("users").document(friendID).getDocument { [weak self] (document, error) in
+                guard let self = self, let document = document, error == nil, let friendFriends = document.data()?["friends"] as? [String] else { return }
+
+                let friendFriendsSet = Set(friendFriends).subtracting(self.friendsList) // Remove direct friends
+                allPotentialMutuals = allPotentialMutuals.union(friendFriendsSet) // Union with the set of potential mutuals
+
+                DispatchQueue.main.async {
+                            self.mutualFriendsList = allPotentialMutuals.subtracting(Set(self.friendsList))
+                            self.fetchEventsForYou() // Now call fetchEventsForYou here
+                        }
             }
         }
-        print("MUTUALS: \(self.mutualFriendsList)")
-        
     }
+    
+    func fetchEventsForYou() {
+        eventsForYou = allEvents.filter { event in
+            // Print statements for debugging
+            print("Checking event: \(event.title)")
+            
+            if event.organizerID == authViewModel.currentUserID {
+                print("Event added: User is the organizer.")
+                return true
+            }
+            
+            if isFriend(event.organizerID) {
+                print("Event added: Organizer is a direct friend.")
+                return true
+            }
+            
+            if isMutualFriend(event.organizerID) && (event.visibility == "Everyone" || event.visibility == "Friends and Mutuals Only") {
+                print("Event added: Organizer is a mutual friend with appropriate visibility.")
+                return true
+            }
+            else{
+                print(isMutualFriend(event.organizerID))
+                print(event.visibility)
+            }
+            
+            print("Event not added: Does not meet criteria.")
+            return false
+        }
+        
+        // Debugging print statement for the final list
+        print("Events For You: \(eventsForYou.map { $0.title })")
+    }
+
+
+
 
     // Helper method to fetch each friend's friends and determine mutual friends
     private func fetchFriendsFriends(currentUserFriends: Set<String>) {
@@ -107,34 +150,27 @@ class EventsViewModel: ObservableObject {
                     if self.shouldIncludeEvent(event) {
                         newEvents.append(event)
                     }
+                    print(event.visibility)
                 }
             }
             
             DispatchQueue.main.async {
                 self.allEvents = newEvents
+               // print(self.allEvents)
                 self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
-                //self.rankEvents()
             }
         })
     }
 
 
+
     func filterEvents(forFriendsAndMutuals: Bool) {
-        self.forFriendsAndMutualsState = forFriendsAndMutuals // Update the internal state
-        
-        if forFriendsAndMutuals {
-            filteredEvents = allEvents.filter { event in
-                event.organizerID == authViewModel.currentUserID || isFriend(event.organizerID) || mutualFriendsList.contains(event.organizerID)
-            }
-            print("FOR YOU")
-            print(allEvents)
-            print("MF: \(mutualFriendsList)")
-            print("F: \(friendsList)")
-        } else {
-            filteredEvents = allEvents
-            print("ALL")
+        self.forFriendsAndMutualsState = forFriendsAndMutuals
+        DispatchQueue.main.async {
+            self.filteredEvents = forFriendsAndMutuals ? self.eventsForYou : self.allEvents
         }
     }
+
 
 
 
@@ -146,9 +182,9 @@ class EventsViewModel: ObservableObject {
            return true
        }
 
-        if event.visibility == .publicEvent || isFriend(event.organizerID) {
+        if event.visibility == "Everyone" || isFriend(event.organizerID) {
             return true
-        } else if event.visibility == .friendsAndMutuals {
+        } else if event.visibility == "Friends and Mutuals Only" {
             return isMutualFriend(event.organizerID)
         }
         return false
@@ -200,34 +236,6 @@ class EventsViewModel: ObservableObject {
     }
 
 
-
-    
-//    func fetchEventsLikedByFriends() {
-//        guard let currentUserID = authViewModel.currentUserID else { return }
-//
-//        // Fetch the current user's friends list
-//        let userRef = Firestore.firestore().collection("users").document(currentUserID)
-//        userRef.getDocument { (document, error) in
-//            if let document = document, let data = document.data(), let friends = data["friends"] as? [String] {
-//                print("FRIENDS LIST: \(friends)")
-//                // Fetch events liked by friends
-//                let eventsRef = Firestore.firestore().collection("events")
-//                eventsRef.whereField("likedBy", arrayContainsAny: friends).getDocuments { (querySnapshot, error) in
-//                    if let querySnapshot = querySnapshot {
-//                        var likedEvents: [Event] = []
-//                        for document in querySnapshot.documents {
-//                            // Construct Event object from document
-//                            // Add it to likedEvents array
-//                        }
-//                        // Sort likedEvents based on the likes count
-//                        likedEvents.sort(by: { $0.likes > $1.likes })
-//
-//                        // Update your view model/event list with likedEvents
-//                    }
-//                }
-//            }
-//        }
-//    }
     
     func calculateLikesFromFriends(for event: Event) -> Int {
         let friendsLikes = event.likedBy.filter { friendsList.contains($0) }.count
@@ -235,28 +243,7 @@ class EventsViewModel: ObservableObject {
     }
 
     
-    // This function should be called after events and friends lists are fetched
-//    func rankEvents() {
-//        let eventsWithLikesFromFriends = allEvents.map { event -> (event: Event, likesFromFriends: Int) in
-//            let count = event.likedBy.filter { self.friendsList.contains($0) }.count
-//            return (event, count)
-//        }
-//
-//        // Sort by the number of likes from friends, and if equal, sort by event title or any other property
-//        let sortedEvents = eventsWithLikesFromFriends.sorted { first, second in
-//            if first.likesFromFriends == second.likesFromFriends {
-//                return first.event.title < second.event.title // Or any other secondary property
-//            }
-//            return first.likesFromFriends > second.likesFromFriends
-//        }.map { $0.event }
-//
-//        print("SODHIOISDOSIDHOSDIHOSDHOIH: \(friendsList)")
-//        print("RANKINGEVENTSFF")
-//
-//        DispatchQueue.main.async {
-//            self.rankedEventsByFriendsLikes = sortedEvents
-//        }
-//    }
+   
     
     var sortedEventsByLikesFromFriends: [Event] {
             allEvents.sorted {
@@ -266,15 +253,6 @@ class EventsViewModel: ObservableObject {
             }
         }
     
-
-
-    
-//    func updateCurrentUserID(_ userID: String?) {
-//        print(userID)
-//            self.currentUserID = userID
-//        print("UPDATED CURRENT USER ID")
-//            //fetchEvents()  // Refetch events if needed
-//        }
 
 }
         

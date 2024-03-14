@@ -17,7 +17,7 @@ struct Event: Identifiable {
     let longitude: Double
     var likes: Int // Variable to store the count of likes
     var likedBy: [String] // Array to store user IDs of those who liked the event
-    let visibility: EventVisibility
+    let visibility: String
     let organizerID: String
 
     enum EventVisibility: String {
@@ -36,7 +36,7 @@ struct Event: Identifiable {
         self.longitude = longitude
         self.likes = likes
         self.likedBy = likedBy
-        self.visibility = EventVisibility(rawValue: visibility) ?? .publicEvent
+        self.visibility = visibility
         self.organizerID = organizerID
     }
 }

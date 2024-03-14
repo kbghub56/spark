@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import Combine
 
 struct HomeMapView: View {
     @EnvironmentObject var eventsViewModel: EventsViewModel
@@ -67,11 +68,21 @@ struct HomeMapView: View {
                     .environmentObject(authViewModel)
             }
             
+            // Usage in HomeMapView
             if showingFollowRequestPopup && !followRequests.isEmpty {
-                FollowRequestPopup(request: followRequests[currentRequestIndex], followRequests: $followRequests, currentRequestIndex: $currentRequestIndex, showingFollowRequestPopup: $showingFollowRequestPopup)
-                    .environmentObject(userManager)
+                let request = followRequests[currentRequestIndex]
+                FollowRequestPopup(
+                    request: followRequests[currentRequestIndex],
+                    onAccept: {
+                        userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: true)
+                        moveToNextOrDismiss()
+                    },
+                    onReject: {
+                        userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: false)
+                        moveToNextOrDismiss()
+                    }
+                )
             }
-
 
 
         }
@@ -86,15 +97,19 @@ struct HomeMapView: View {
             }
         }
         .onAppear {
-            userManager.fetchFollowRequests(forUserID: userManager.currentUser?.uniqueUserID ?? "") { requests in
-                followRequests = requests
-                if followRequests.isEmpty {
-                    showingFollowRequestPopup = false
-                } else {
-                    showingFollowRequestPopup = true
+                    // This might be redundant if you're already setting the user in UserManager's init
+                    userManager.getCurrentUser { _ in }
                 }
-            }
-        }
+                .onReceive(userManager.$currentUser) { user in
+                    if let uniqueUserID = user?.uniqueUserID {
+                        userManager.fetchFollowRequests(forUserID: uniqueUserID) { requests in
+                            followRequests = requests
+                            print("FR: \(followRequests)")
+                            showingFollowRequestPopup = !requests.isEmpty
+                        }
+                        
+                    }
+                }
         .onChange(of: currentRequestIndex) { _ in
             if followRequests.isEmpty {
                 showingFollowRequestPopup = false
@@ -108,6 +123,22 @@ struct HomeMapView: View {
     private var isFollowRequestAvailable: Bool {
         currentRequestIndex < followRequests.count
     }
+    
+    // A new function in HomeMapView to encapsulate moving to the next request or dismissing the popup
+    private func moveToNextOrDismiss() {
+        if currentRequestIndex < followRequests.count - 1 {
+            // Move to the next request
+            DispatchQueue.main.async {
+                currentRequestIndex += 1
+            }
+        } else {
+            // No more requests, dismiss the popup
+            DispatchQueue.main.async {
+                showingFollowRequestPopup = false
+                currentRequestIndex = 0 // Reset for the next time requests are shown
+            }
+        }
+    }
 
     var toggleSection: some View {
         ZStack {
@@ -117,7 +148,6 @@ struct HomeMapView: View {
             Button(action: {
                 withAnimation {
                     isForYouSelected.toggle()
-                    eventsViewModel.forFriendsAndMutualsState = isForYouSelected
                     eventsViewModel.filterEvents(forFriendsAndMutuals: isForYouSelected) // Filter events based on toggle state
                 }
             }) {
@@ -320,10 +350,8 @@ struct SideMenu: View {
 struct FollowRequestPopup: View {
     @EnvironmentObject var userManager: UserManager
     var request: FollowRequest
-    @Binding var followRequests: [FollowRequest]
-    @Binding var currentRequestIndex: Int
-    @Binding var showingFollowRequestPopup: Bool
-
+    var onAccept: () -> Void // Closure called when accept is tapped
+    var onReject: () -> Void // Closure called when reject is tapped
 
     var body: some View {
         VStack {
@@ -337,16 +365,12 @@ struct FollowRequestPopup: View {
 
             HStack {
                 Button("Accept") {
-                    userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: true)
-                    followRequests.remove(at: currentRequestIndex)  // Remove the handled request
-                    moveToNextRequest()  // Adjust the index if needed
+                    onAccept() // Call the accept closure provided by the parent view
                 }
                 .buttonStyle(FollowRequestButtonStyle(backgroundColor: .black))
 
                 Button("Reject") {
-                    userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: false)
-                    followRequests.remove(at: currentRequestIndex)  // Remove the handled request
-                    moveToNextRequest()  // Adjust the index if needed
+                    onReject() // Call the reject closure provided by the parent view
                 }
                 .buttonStyle(FollowRequestButtonStyle(backgroundColor: .black))
             }
@@ -357,28 +381,8 @@ struct FollowRequestPopup: View {
         .shadow(radius: 10)
         .padding()
     }
-
-    private func moveToNextRequest() {
-        // Remove the handled request only if the index is valid
-        if currentRequestIndex >= 0 && currentRequestIndex < followRequests.count {
-            followRequests.remove(at: currentRequestIndex)
-        }
-
-        // No need to increment `currentRequestIndex` after removal since the next item shifts to the current index
-
-        // Check if we've run out of requests or need to wrap around
-        if currentRequestIndex >= followRequests.count {
-            currentRequestIndex = 0  // This could reset to show the first request again or you could hide the popup
-            if followRequests.isEmpty {
-                // If there are no follow requests left, hide the popup
-                showingFollowRequestPopup = false
-            }
-        }
-    }
-
-
-
 }
+
 
 
 struct FollowRequestButtonStyle: ButtonStyle {
@@ -428,6 +432,5 @@ struct RankedEventsListView: View {
         .cornerRadius(30) // Match the corner radius with the expanded black screen if needed
         .padding(.horizontal, 10) // Add padding to the sides if you want more space from the edges
     }
+    
 }
-
-

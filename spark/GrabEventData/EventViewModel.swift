@@ -9,6 +9,8 @@ import FirebaseDatabase
 import FirebaseFirestore
 import CoreLocation
 import SwiftUI
+import Combine
+
 
 class EventsViewModel: ObservableObject {
     @Published var allEvents: [Event] = []
@@ -18,14 +20,29 @@ class EventsViewModel: ObservableObject {
 
     
     private var authViewModel: AuthViewModel
-    
-    init(authViewModel: AuthViewModel) {
-        self.authViewModel = authViewModel
-        fetchEvents()
-        fetchFriends {
-            self.fetchMutualFriends()
+        private var cancellables = Set<AnyCancellable>()
+
+        init(authViewModel: AuthViewModel) {
+            self.authViewModel = authViewModel
+            setupSubscriptions()
         }
-    }
+
+        private func setupSubscriptions() {
+            authViewModel.$currentUserID
+                .compactMap { $0 }
+                .sink { [weak self] userID in
+                    self?.refreshData(for: userID)
+                }
+                .store(in: &cancellables)
+        }
+
+        private func refreshData(for userID: String) {
+            fetchFriends { [weak self] in
+                self?.fetchMutualFriends {
+                    self?.fetchEvents()
+                }
+            }
+        }
 
 //    private(set) var currentUserID: String? // This will be set via the initializer
     var friendsList: [String] = [] // Assume this is populated accordingly
@@ -51,30 +68,32 @@ class EventsViewModel: ObservableObject {
 
 
     
-    func fetchMutualFriends() {
+    func fetchMutualFriends(completion: @escaping () -> Void) {
         let db = Firestore.firestore()
-        var allPotentialMutuals = Set<String>() // To store all friends of friends
+        let group = DispatchGroup() // Create a DispatchGroup to manage asynchronous calls
 
-        // Loop through each friend to get their friends
         for friendID in friendsList {
+            group.enter() // Enter the group for each friend
             db.collection("users").document(friendID).getDocument { [weak self] (document, error) in
+                defer { group.leave() } // Ensure leave is called at the end of the block
                 guard let self = self, let document = document, error == nil, let friendFriends = document.data()?["friends"] as? [String] else { return }
 
                 let friendFriendsSet = Set(friendFriends).subtracting(self.friendsList) // Remove direct friends
-                allPotentialMutuals = allPotentialMutuals.union(friendFriendsSet) // Union with the set of potential mutuals
-
                 DispatchQueue.main.async {
-                            self.mutualFriendsList = allPotentialMutuals.subtracting(Set(self.friendsList))
-                            self.fetchEventsForYou() // Now call fetchEventsForYou here
-                        }
+                    self.mutualFriendsList.formUnion(friendFriendsSet) // Update mutual friends list
+                }
             }
         }
+
+        group.notify(queue: .main) { // This block is called when all group.enter() calls are matched by group.leave()
+            completion() // Notify that mutual friends list is fully updated
+        }
     }
+
     
     func fetchEventsForYou() {
         eventsForYou = allEvents.filter { event in
             // Print statements for debugging
-            print("Checking event: \(event.title)")
             
             if event.organizerID == authViewModel.currentUserID {
                 print("Event added: User is the organizer.")
@@ -150,14 +169,13 @@ class EventsViewModel: ObservableObject {
                     if self.shouldIncludeEvent(event) {
                         newEvents.append(event)
                     }
-                    print(event.visibility)
                 }
             }
             
             DispatchQueue.main.async {
                 self.allEvents = newEvents
-               // print(self.allEvents)
                 self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
+                self.fetchEventsForYou() // Call fetchEventsForYou here
             }
         })
     }
@@ -182,12 +200,18 @@ class EventsViewModel: ObservableObject {
            return true
        }
 
-        if event.visibility == "Everyone" || isFriend(event.organizerID) {
+        if event.visibility == "Everyone"{
             return true
-        } else if event.visibility == "Friends and Mutuals Only" {
+        }
+        else if isFriend(event.organizerID){
+            return true
+        }
+        else if event.visibility == "Friends and Mutuals Only" {
             return isMutualFriend(event.organizerID)
         }
-        return false
+        else{
+            return false
+        }
     }
 
 

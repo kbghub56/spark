@@ -17,6 +17,7 @@ struct HomeMapView: View {
     @EnvironmentObject var userManager: UserManager
     @State private var showingFollowRequestPopup = false
     
+    
     @State private var isForYouSelected = true
     @State private var showMenu = false
     @State private var showExpandedBlackScreen = false

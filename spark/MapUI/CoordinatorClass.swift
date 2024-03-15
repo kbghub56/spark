@@ -25,6 +25,21 @@ class Coordinator: NSObject, MKMapViewDelegate {
         if annotation is MKUserLocation {
                 return nil
             }
+        
+        if let friendAnnotation = annotation as? FriendAnnotation {
+                let identifier = "Friend"
+                var view: MKMarkerAnnotationView
+                if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+                    dequeuedView.annotation = friendAnnotation
+                    view = dequeuedView
+                } else {
+                    view = MKMarkerAnnotationView(annotation: friendAnnotation, reuseIdentifier: identifier)
+                    view.canShowCallout = true
+                }
+                view.markerTintColor = UIColor.blue // Set a custom color for friend annotations
+                return view
+            }
+
 
         let identifier = "annotation"
         var view: MKMarkerAnnotationView

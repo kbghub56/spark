@@ -16,6 +16,7 @@ class MapViewModel: ObservableObject {
     private let db = Firestore.firestore()
 
     func fetchAndListenForFriendsLocations() {
+
         guard let currentUserID = Auth.auth().currentUser?.uid else { return }
 
         db.collection("users").document(currentUserID).getDocument { [weak self] documentSnapshot, error in

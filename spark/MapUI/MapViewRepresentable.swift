@@ -50,23 +50,26 @@ struct MapViewRepresentable: UIViewRepresentable {
     
     func fetchFriendsLocationsIfNeeded() {
         guard let currentUserID = Auth.auth().currentUser?.uid else { return }
-        
+
         let db = Firestore.firestore()
         db.collection("users").document(currentUserID).getDocument { (document, error) in
             if let document = document, document.exists, let friends = document.data()?["friends"] as? [String] {
                 for friendID in friends {
-                    db.collection("users").document(friendID).getDocument { (friendDoc, error) in
+                    // Set up a listener for each friend's location
+                    db.collection("users").document(friendID).addSnapshotListener { (friendDoc, error) in
                         if let friendDoc = friendDoc, friendDoc.exists,
                            let friendData = friendDoc.data(),
                            let latitude = friendData["latitude"] as? Double,
                            let longitude = friendData["longitude"] as? Double {
-                            let location = CLLocation(latitude: latitude, longitude: longitude)
+                            let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
                             DispatchQueue.main.async {
-                                // Update the cache with the latest location for each friend
-                                self.mapState.friendsLocationsCache[friendID] = location
-                                
-                                // Update the mapView annotations to reflect the latest friends' locations and filtered events
-                                self.updateAnnotations(self.mapView, with: self.eventsViewModel.filteredEvents)
+                                // Update or create the annotation for this friend
+                                if let annotation = self.mapView.annotations.first(where: { ($0 as? FriendAnnotation)?.title == friendID }) as? FriendAnnotation {
+                                    annotation.coordinate = coordinate
+                                } else {
+                                    let annotation = FriendAnnotation(coordinate: coordinate, title: friendID, subtitle: nil)
+                                    self.mapView.addAnnotation(annotation)
+                                }
                             }
                         }
                     }
@@ -75,7 +78,11 @@ struct MapViewRepresentable: UIViewRepresentable {
                 print("Document does not exist or lacks 'friends' field.")
             }
         }
+
+
     }
+
+
 
     
     func makeCoordinator() -> Coordinator {
@@ -101,3 +108,16 @@ class MapState: ObservableObject {
 ////        }
 //    }
 //}
+
+
+class FriendAnnotation: NSObject, MKAnnotation {
+    var coordinate: CLLocationCoordinate2D
+    var title: String?
+    var subtitle: String?
+
+    init(coordinate: CLLocationCoordinate2D, title: String?, subtitle: String?) {
+        self.coordinate = coordinate
+        self.title = title
+        self.subtitle = subtitle
+    }
+}

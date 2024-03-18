@@ -34,8 +34,11 @@ struct WhenLocationOff: View {
                                 .font(.system(size: 50))
                                 .foregroundColor(.black)
                             Button(action: {
-                                // Action to enable location sharing
-                            }) {
+                                if let appSettings = URL(string: UIApplication.openSettingsURLString),
+                                   UIApplication.shared.canOpenURL(appSettings) {
+                                    UIApplication.shared.open(appSettings)
+                                }
+                            })  {
                                 Text("Enable location sharing")
                                     .font(.system(size: 24, weight: .bold))
                                     .foregroundColor(.black)

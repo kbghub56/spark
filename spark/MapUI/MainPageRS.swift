@@ -41,51 +41,55 @@ struct HomeMapView: View {
 
     var body: some View {
         ZStack {
-            MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel)
-                .edgesIgnoringSafeArea(.all)
-
-            toggleSection
-            circleButton
-
-            if showExpandedBlackScreen {
-                ZStack{
-                    expandedBlackScreenView
-//                    RankedEventsListView()
-//                                    .environmentObject(eventsViewModel)
-                }
-            } else {
-                // Default view when not expanded
-                RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y: 400).onTapGesture {
-                    withAnimation {
-                        showExpandedBlackScreen = true
+            if locationManager.isLocationSharingEnabled {
+                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager)
+                    .edgesIgnoringSafeArea(.all)
+                
+                toggleSection
+                circleButton
+                
+                if showExpandedBlackScreen {
+                    ZStack{
+                        expandedBlackScreenView
+                    }
+                } else {
+                    // Default view when not expanded
+                    RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y: 400).onTapGesture {
+                        withAnimation {
+                            showExpandedBlackScreen = true
+                        }
                     }
                 }
+                
+                if showMenu {
+                    SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, locationManager: locationManager)
+                        .transition(.move(edge: .trailing))
+                        .environmentObject(userManager)
+                        .environmentObject(authViewModel)
+                }
+                
+                // Usage in HomeMapView
+                if showingFollowRequestPopup && !followRequests.isEmpty {
+                    let request = followRequests[currentRequestIndex]
+                    FollowRequestPopup(
+                        request: followRequests[currentRequestIndex],
+                        onAccept: {
+                            userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: true)
+                            moveToNextOrDismiss()
+                        },
+                        onReject: {
+                            userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: false)
+                            moveToNextOrDismiss()
+                        }
+                    )
+                }
+                
+                
             }
-
-            if showMenu {
-                SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView)
-                    .transition(.move(edge: .trailing))
-                    .environmentObject(userManager)
-                    .environmentObject(authViewModel)
+            else{
+                WhenLocationOff()
             }
             
-            // Usage in HomeMapView
-            if showingFollowRequestPopup && !followRequests.isEmpty {
-                let request = followRequests[currentRequestIndex]
-                FollowRequestPopup(
-                    request: followRequests[currentRequestIndex],
-                    onAccept: {
-                        userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: true)
-                        moveToNextOrDismiss()
-                    },
-                    onReject: {
-                        userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: false)
-                        moveToNextOrDismiss()
-                    }
-                )
-            }
-
-
         }
         .onTapGesture {
             withAnimation {
@@ -101,16 +105,25 @@ struct HomeMapView: View {
                     // This might be redundant if you're already setting the user in UserManager's init
                     userManager.getCurrentUser { _ in }
                 }
-                .onReceive(userManager.$currentUser) { user in
-                    if let uniqueUserID = user?.uniqueUserID {
-                        userManager.fetchFollowRequests(forUserID: uniqueUserID) { requests in
-                            followRequests = requests
-                            print("FR: \(followRequests)")
-                            showingFollowRequestPopup = !requests.isEmpty
-                        }
-                        
-                    }
+        .onReceive(userManager.$currentUser) { user in
+            if let uniqueUserID = user?.uniqueUserID {
+                userManager.fetchFollowRequests(forUserID: uniqueUserID) { requests in
+                    followRequests = requests
+                    print("FR: \(followRequests)")
+                    showingFollowRequestPopup = !requests.isEmpty
                 }
+                
+            }
+        }
+        .onChange(of: showExpandedBlackScreen) { isOpen in
+            if isOpen {
+                // If the expanded view is open and there's a valid current location, update friends' distances
+                if let currentLocation = locationManager.currentLocation {
+                    userManager.updateFriendsDistances(currentLocation: currentLocation)
+                }
+            }
+        }
+
         .onChange(of: currentRequestIndex) { _ in
             if followRequests.isEmpty {
                 showingFollowRequestPopup = false
@@ -185,6 +198,15 @@ struct HomeMapView: View {
                         }
                     }
             }.padding(.horizontal, 60)
+            
+            if selectedTab == 0{
+                FriendsDistanceListView() // Add the FriendsDistanceListView here
+                                .environmentObject(userManager)
+                                .padding(.horizontal) // Add padding if necessary
+                                .background(Color.black.opacity(0.7)) // Semi-transparent black background
+                                .cornerRadius(10)
+                                .padding(.top) // Add padding at the top if necessary
+            }
 
             // This will show the RankedEventsListView when the Events tab is selected
             if selectedTab == 1 {
@@ -269,6 +291,7 @@ struct SideMenu: View {
     @Binding var showingLocationOffView: Bool
     @EnvironmentObject var userManager: UserManager
     @EnvironmentObject var authViewModel: AuthViewModel
+    var locationManager: LocationManager
     var body: some View {
         ZStack(alignment: .topTrailing) {
             Color.black.frame(width: UIScreen.main.bounds.width * 3 / 4, height: UIScreen.main.bounds.height).cornerRadius(35).offset(y: -12.5).overlay(
@@ -300,13 +323,15 @@ struct SideMenu: View {
                     Button(action: {
                         withAnimation {
                             isSwitchOn.toggle()
+                            locationManager.isLocationSharingEnabled = isSwitchOn
                             if !isSwitchOn {
-                                showingLocationOffView = true // Show WhenLocationOff view when the toggle is switched off
+                                showingLocationOffView = true // Present WhenLocationOff view
                             }
                         }
                     }) {
                         Circle().fill(Color.white).frame(width: 45, height: 45)
                     }.offset(x: isSwitchOn ? -25 : 25).offset(x:175, y: -200)
+
                     Button("Change") {}.foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(0.8).offset(x: 2.5, y: -325)
                     Button("Sign Out") {authViewModel.logOut()}.font(.system(size: 24).bold()).foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(1).offset(x: 75, y: 210).zIndex(1)
                     
@@ -435,3 +460,35 @@ struct RankedEventsListView: View {
     }
     
 }
+
+struct FriendsDistanceListView: View {
+    @EnvironmentObject var userManager: UserManager // To access friendsDistances
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 10) { // Adjust the spacing between items
+                ForEach(userManager.friendsDistances) { friendDistance in
+                    HStack {
+                        Text(friendDistance.email) // Display the friend's email as their identifier
+                            .bold()
+                            .font(.title3) // Increase the font size for the title
+                            .foregroundColor(.white)
+                            .padding(.leading, 20) // Add padding to the leading edge
+                        Spacer()
+                        Text(String(format: "%.2f miles", friendDistance.distance / 1609.34)) // Convert meters to miles and format the string
+                            .font(.body) // Increase the font size for the distance
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 20) // Add padding to the trailing edge
+                    }
+                    .padding(.vertical, 5) // Adjust vertical padding for each item
+                }
+            }
+        }
+        .frame(maxHeight: .infinity) // Remove fixed height to allow dynamic content height
+        .background(Color.black.opacity(0.7)) // Semi-transparent black background
+        .cornerRadius(30) // Match the corner radius with the expanded black screen if needed
+        .padding(.horizontal, 10) // Add padding to the sides if you want more space from the edges
+    }
+}
+
+

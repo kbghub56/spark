@@ -11,9 +11,11 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 import Combine
+import MapKit
 
 class UserManager: ObservableObject {
     @Published var currentUser: User?
+    @Published var friendsDistances: [FriendDistance] = []
     
     init() {
             getCurrentUser { [weak self] user in
@@ -222,7 +224,53 @@ class UserManager: ObservableObject {
             }
         }
     }
+    
+    func updateFriendsDistances(currentLocation: CLLocation) {
+        guard let currentUserID = Auth.auth().currentUser?.uid else {
+            print("Current user ID not found.")
+            return
+        }
+
+        let db = Firestore.firestore()
+        db.collection("users").document(currentUserID).getDocument { [weak self] (document, error) in
+            guard let self = self, let document = document, document.exists,
+                  let data = document.data(), let friends = data["friends"] as? [String] else {
+                print("Could not fetch friends for the current user: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+
+            self.friendsDistances.removeAll()  // Clear the existing distances
+
+            for friendID in friends {
+                db.collection("users").document(friendID).getDocument { (friendDoc, error) in
+                    guard let friendDoc = friendDoc, friendDoc.exists,
+                          let friendData = friendDoc.data(),
+                          let latitude = friendData["latitude"] as? Double,
+                          let longitude = friendData["longitude"] as? Double else {
+                        print("Could not fetch location for friendID \(friendID): \(error?.localizedDescription ?? "Unknown error")")
+                        return
+                    }
+
+                    let friendLocation = CLLocation(latitude: latitude, longitude: longitude)
+                    let distance = currentLocation.distance(from: friendLocation)  // Distance in meters
+
+                    DispatchQueue.main.async {
+                        let friendDistance = FriendDistance(id: friendID, email: friendData["email"] as? String ?? "Unknown", distance: distance)
+                        self.friendsDistances.append(friendDistance)
+                        self.friendsDistances.sort { $0.distance < $1.distance }  // Sort by distance
+                        print("FRIENDS DISTANCES : \(self.friendsDistances)")
+                    }
+                }
+            }
+        }
+    }
 
 
 }
 
+
+struct FriendDistance: Identifiable {
+    let id: String  // Friend's userID or a similar unique identifier
+    let email: String
+    let distance: CLLocationDistance  // Distance in meters
+}

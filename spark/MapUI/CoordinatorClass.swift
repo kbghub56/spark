@@ -23,74 +23,64 @@ class Coordinator: NSObject, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation {
-                return nil
-            }
-        
-        if let friendAnnotation = annotation as? FriendAnnotation {
-                let identifier = "Friend"
-                var view: MKMarkerAnnotationView
-                if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
-                    dequeuedView.annotation = friendAnnotation
-                    view = dequeuedView
-                } else {
-                    view = MKMarkerAnnotationView(annotation: friendAnnotation, reuseIdentifier: identifier)
-                    view.canShowCallout = true
-                }
-                view.markerTintColor = UIColor.blue // Set a custom color for friend annotations
-                return view
-            }
+            return nil
+        }
 
-
-        let identifier = "annotation"
         var view: MKMarkerAnnotationView
 
-        if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
-            dequeuedView.annotation = annotation
-            view = dequeuedView
-        } else {
-            view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            view.canShowCallout = true
-            view.calloutOffset = CGPoint(x: -5, y: 5)
-            
-            // Check if the annotation is an EventAnnotation
-            if annotation is EventAnnotation {
-                // Set up a "Like" button as the right callout accessory view
-                let likeButton = UIButton(type: .contactAdd) // Use your preferred button type or image
-                view.rightCalloutAccessoryView = likeButton
-            } else {
-                view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-            }
-        }
-
-        // Customize the annotation view based on the annotation title
-        if let title = annotation.title as? String, title.contains("Friend") {
-            view.markerTintColor = .green
-            view.glyphImage = UIImage(systemName: "person.fill")
-        } else if let title = annotation.title as? String, title.contains("Event") {
-            view.markerTintColor = .red
-            view.glyphImage = UIImage(systemName: "star.fill")
-        } else {
-            // Default color for any other annotations
-            view.markerTintColor = .purple
-        }
-        
         if let eventAnnotation = annotation as? EventAnnotation {
+            let identifier = "EventAnnotation"
+
+            if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+                dequeuedView.annotation = annotation
+                view = dequeuedView
+            } else {
+                view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                view.canShowCallout = true
+            }
+
+            // Customize the marker color based on event visibility
+            switch eventAnnotation.visibility {
+            case "Everyone":
+                view.markerTintColor = .systemGreen
+            case "Friends Only":
+                view.markerTintColor = .systemBlue
+            case "Friends and Mutuals Only":
+                view.markerTintColor = .systemOrange
+            default:
+                view.markerTintColor = .systemRed
+            }
+
+            // Setup like button for each event annotation
             let likeButton = LikeButton(type: .custom)
-                // Set the initial like state based on whether the current user has liked the event
             if let currentUserID = authViewModel.currentUserID {
                 likeButton.isLiked = eventAnnotation.likedBy.contains(currentUserID)
             }
-            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)  // Example using SF Symbols
+            likeButton.setImage(UIImage(systemName: "heart"), for: .normal) // Example using SF Symbols
             likeButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
             likeButton.eventID = eventAnnotation.id
             likeButton.addTarget(self, action: #selector(handleLikeButtonTap(_:)), for: .touchUpInside)
             view.rightCalloutAccessoryView = likeButton
+
+        } else if let friendAnnotation = annotation as? FriendAnnotation {
+            let identifier = "FriendAnnotation"
+
+            if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+                dequeuedView.annotation = friendAnnotation
+                view = dequeuedView
+            } else {
+                view = MKMarkerAnnotationView(annotation: friendAnnotation, reuseIdentifier: identifier)
+                view.canShowCallout = true
+            }
+            view.markerTintColor = .blue // Set a custom color for friend annotations
+        } else {
+            // Handle other types of annotations if necessary
+            return nil
         }
 
-
-        print("Y#Y#Y#Y#Y#Y")
         return view
     }
+
     
     
 

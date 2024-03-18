@@ -8,11 +8,13 @@ struct MapViewRepresentable: UIViewRepresentable {
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var mapState: MapState
     var authViewModel: AuthViewModel
+    var userManager: UserManager
 
     var mapView = MKMapView()
     var friendsLocationsCache: [String: CLLocation] = [:]
 
     func makeUIView(context: Context) -> MKMapView {
+        //locationManager.userManager = userManager
         mapView.delegate = context.coordinator
         mapView.isRotateEnabled = false
         mapView.showsUserLocation = true

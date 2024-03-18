@@ -23,6 +23,7 @@ struct SparkApp: App {
                 .environmentObject(userManager)
                 // Inject the existing authViewModel into eventsViewModel
                 .environmentObject(EventsViewModel(authViewModel: authViewModel))
+               // .environmentObject(locationManager)
         }
     }
 }

@@ -5,6 +5,13 @@
 //  Created by Kabir Borle on 2/12/24.
 //
 
+//
+//  LocationManager.swift
+//  spark
+//
+//  Created by Kabir Borle on 2/12/24.
+//
+
 import CoreLocation
 import Firebase
 import FirebaseAuth
@@ -12,15 +19,16 @@ import FirebaseFirestore
 
 class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
-    @Published var currentLocation: CLLocation?
+        @Published var currentLocation: CLLocation?
+        @Published var isLocationSharingEnabled = true // Add this line
 
-    override init() {
-        super.init()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
+        override init() {
+            super.init()
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.requestWhenInUseAuthorization()
+            locationManager.startUpdatingLocation()
+        }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
@@ -28,9 +36,12 @@ extension LocationManager: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         self.currentLocation = location // Update the current location
         updateCurrentUserLocation(location: location) // Update Firestore
+        // Notify UserManager to update friends distances
+        //userManager?.updateFriendsDistances(currentLocation: location)
     }
 
     private func updateCurrentUserLocation(location: CLLocation) {
+        print(isLocationSharingEnabled)
         guard let currentUserID = Auth.auth().currentUser?.uid else { return }
         let db = Firestore.firestore()
         db.collection("users").document(currentUserID).updateData([
@@ -57,5 +68,5 @@ extension LocationManager: CLLocationManagerDelegate {
             break
         }
     }
-    
+
 }

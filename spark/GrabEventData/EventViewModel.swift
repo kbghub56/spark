@@ -20,29 +20,29 @@ class EventsViewModel: ObservableObject {
 
     
     private var authViewModel: AuthViewModel
-        private var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
 
-        init(authViewModel: AuthViewModel) {
-            self.authViewModel = authViewModel
-            setupSubscriptions()
-        }
+    init(authViewModel: AuthViewModel) {
+        self.authViewModel = authViewModel
+        setupSubscriptions()
+    }
 
-        private func setupSubscriptions() {
-            authViewModel.$currentUserID
-                .compactMap { $0 }
-                .sink { [weak self] userID in
-                    self?.refreshData(for: userID)
-                }
-                .store(in: &cancellables)
-        }
+    private func setupSubscriptions() {
+        authViewModel.$currentUserID
+            .compactMap { $0 }
+            .sink { [weak self] userID in
+                self?.refreshData(for: userID)
+            }
+            .store(in: &cancellables)
+    }
 
-        private func refreshData(for userID: String) {
-            fetchFriends { [weak self] in
-                self?.fetchMutualFriends {
-                    self?.fetchEvents()
-                }
+    private func refreshData(for userID: String) {
+        fetchFriends { [weak self] in
+            self?.fetchMutualFriends {
+                self?.fetchEvents()
             }
         }
+    }
 
 //    private(set) var currentUserID: String? // This will be set via the initializer
     var friendsList: [String] = [] // Assume this is populated accordingly
@@ -276,6 +276,7 @@ class EventsViewModel: ObservableObject {
                 return firstLikes == secondLikes ? $0.title < $1.title : firstLikes > secondLikes
             }
         }
+    
     
 
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 import Firebase
 import FirebaseAuth
+import SCSDKLoginKit
 
 struct SignUpViewKB: View {
     @State private var email: String = ""
@@ -47,6 +48,11 @@ struct SignUpViewKB: View {
                 signUp()
             }
             .padding()
+            
+            Button("Login with Snapchat") {
+                        snapchatLogin()
+                    }
+                    .padding()
         }
         .padding()
     }
@@ -67,5 +73,19 @@ struct SignUpViewKB: View {
         
         // Call signUpUser from AuthViewModel
         authViewModel.signUpUser(email: email, password: password, username: userName)
+    }
+    
+    func snapchatLogin() {
+        // Ensure this is run on the main thread because it involves UI changes
+        DispatchQueue.main.async {
+            SCSDKLoginClient.login(from: nil) { success, error in
+                if success {
+                    print("Successfully logged in to Snapchat.")
+                    // You can proceed to fetch the user's Bitmoji here or defer it to another step
+                } else {
+                    print(error?.localizedDescription ?? "An error occurred during Snapchat login.")
+                }
+            }
+        }
     }
 }

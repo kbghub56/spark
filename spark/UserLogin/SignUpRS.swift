@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import SCSDKLoginKit
+
 struct SignUpView: View {
     @State private var userName: String = ""
     @State private var email: String = ""
@@ -13,6 +15,9 @@ struct SignUpView: View {
     @State private var confirmPassword: String = ""
     @State private var shouldNavigate: Bool = false
     @State private var errorMessage: String?
+    @State private var showingLogIn = false
+
+    @State private var isSnapchatLoggedIn: Bool = false
     @EnvironmentObject var authViewModel: AuthViewModel
     var body: some View {
         NavigationView {
@@ -69,8 +74,14 @@ struct SignUpView: View {
                     .offset(y: 125)
                     Spacer()
                     // Updated section with Button
+                    
+                    Button("Login with Snapchat") {
+                                snapchatLogin()
+                            }
+                    .padding()
+                    Spacer()
                     Button(action: {
-                        // Action for button tap
+                        showingLogIn = true 
                         print("Navigate to login screen")
                     }) {
                         Text("Already have an account?")
@@ -79,12 +90,17 @@ struct SignUpView: View {
                             .foregroundColor(.white)
                     }
                     .offset(y: -150)
+                    
                 }
                 .padding(.horizontal, 40)
                 .padding(.vertical, 20)
             }
             .frame(width: 430, height: 932)
             .background(.black)
+            .sheet(isPresented: $showingLogIn) {
+                LoginView()
+                    .environmentObject(authViewModel)
+            }
         }
     }
 //    private func allFieldsAreValid() -> Bool {
@@ -108,6 +124,21 @@ struct SignUpView: View {
         
         // Call signUpUser from AuthViewModel
         authViewModel.signUpUser(email: email, password: password, username: userName)
+    }
+    
+//   Define a function that starts the Snapchat login process
+    func snapchatLogin() {
+        // Ensure this is run on the main thread because it involves UI changes
+        DispatchQueue.main.async {
+            SCSDKLoginClient.login(from: nil) { success, error in
+                if success {
+                    print("Successfully logged in to Snapchat.")
+                    // You can proceed to fetch the user's Bitmoji here or defer it to another step
+                } else {
+                    print(error?.localizedDescription ?? "An error occurred during Snapchat login.")
+                }
+            }
+        }
     }
 }
 struct SignUpView_Previews: PreviewProvider {

@@ -176,9 +176,34 @@ struct HomeMapView: View {
                 showMenu = true
             }
         }) {
-            Circle().fill(Color.white).frame(width: 75, height: 75)
-        }.offset(x: 133.50, y: -378.50)
+            ZStack {
+                Circle().fill(Color.white) // White circle background
+                    .frame(width: 75, height: 75) // Size of the white circle
+
+                // Check if a Bitmoji URL exists and is valid
+                if let bitmojiUrl = authViewModel.snapchatBitmojiAvatarUrl, let url = URL(string: bitmojiUrl) {
+                    AsyncImage(url: url) { imagePhase in
+                        // Handle different states of the image loading process
+                        if let image = imagePhase.image {
+                            image.resizable() // Make the image resizable
+                                 .aspectRatio(contentMode: .fill) // Fill the content in its aspect ratio
+                                 .frame(width: 65, height: 65) // Slightly smaller than the white circle for padding
+                                 .clipShape(Circle()) // Clip the image to a circle
+                        } else if imagePhase.error != nil {
+                            Color.gray // Display a gray area in case of an error
+                        } else {
+                            ProgressView() // Show a progress indicator while loading
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: 75, height: 75) // Set the frame for the entire button
+        .offset(x: 133.50, y: -378.50) // Adjust the offset as needed
     }
+
+
+
     var expandedBlackScreenView: some View {
         VStack {
             HStack(spacing: 20) {
@@ -212,6 +237,7 @@ struct HomeMapView: View {
             if selectedTab == 1 {
                 RankedEventsListView()
                     .environmentObject(eventsViewModel) // Make sure to pass the necessary environment objects
+                    .environmentObject(locationManager)
                     .padding(.horizontal) // Add padding if necessary
                     .background(Color.black.opacity(0.7)) // Semi-transparent black background
                     .cornerRadius(10)
@@ -431,64 +457,294 @@ struct HomeMapView_Preview: PreviewProvider {
 }
 
 struct RankedEventsListView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var eventsViewModel: EventsViewModel
-    
+    @EnvironmentObject var locationManager: LocationManager
+
     var body: some View {
         ScrollView {
-            VStack(spacing: 10) { // Adjust the spacing between items
+            VStack(spacing: 0) {
                 ForEach(eventsViewModel.sortedEventsByLikesFromFriends, id: \.id) { event in
-                    HStack {
-                        Text(event.title)
-                            .bold()
-                            .font(.title3) // Increase the font size for the title
-                            .foregroundColor(.white)
-                            .padding(.leading, 20) // Add padding to the leading edge
-                        Spacer()
-                        Text("\(event.likedBy.filter { eventsViewModel.friendsList.contains($0) }.count) likes")
-                            .font(.body) // Increase the font size for the likes
-                            .foregroundColor(.gray)
-                            .padding(.trailing, 20) // Add padding to the trailing edge
+                    VStack { // Wrap in a VStack to include the Divider below each event
+                        HStack {
+                            // Placeholder circle
+                            // Replace the placeholder circle with conditional emojis
+                                if event.visibility == "Everyone" {
+                                    Text("🎉") // Emoji for Everyone
+                                        .font(.system(size: 50))
+                                        .padding(.leading, 10)// Adjust size as needed
+                                } else if event.visibility == "Friends and Mutuals Only" {
+                                    Text("🤗") // Emoji for Friends and Mutuals Only
+                                        .font(.system(size: 50))
+                                        .padding(.leading, 10)// Adjust size as needed
+                                } else if event.visibility == "Friends Only" {
+                                    Text("😁") // Emoji for Friends Only
+                                        .font(.system(size: 50))
+                                        .padding(.leading, 10)// Adjust size as needed
+                                } else {
+                                    Circle() // Fallback to the circle if none of the conditions match
+                                        .strokeBorder(Color.white, lineWidth: 2)
+                                        .background(Circle().fill(Color.gray.opacity(0.3)))
+                                        .frame(width: 60, height: 60)
+                                        .padding(.leading, 10)
+                                }
+                   //             .padding(.leading, 10)
+                                
+                            
+                            
+                            VStack(alignment: .leading, spacing: 4) { // Use alignment .leading
+                             
+                                Text(event.title)
+                                    .bold()
+                                    .font(.title3)
+                                    .foregroundColor(.white)
+                                    .offset(y:-9)
+            
+                                    
+                      
+                                
+                                Text(truncateLocation(event.locTitle, event.locSubtitle))
+                                                                    .font(.system(size: 12))
+                                                                    .foregroundColor(.white)
+                                                                    .offset(y: -9)
+                                // Display calculated distance
+                                Text(calculateDistanceToEvent(event: event))
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.white)
+                                    .offset(y: -9)
+                                Button(action: {
+                                    // Leave the action empty for now
+                                }) {
+                                    Text("See More")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(Color.blue) // Baby blue color
+                                }
+                                .buttonStyle(PlainButtonStyle()) // Use PlainButtonStyle to avoid any default button styling
+        //                        .padding(.bottom, 5) // Add some padding to space it out from the bottom edge
+                                .overlay(Rectangle().frame(height: 2).foregroundColor(Color.blue), alignment: .bottom) // Add underline effect
+                            }
+                            .padding(.leading, 10) // Apply padding to the VStack to position both texts
+                
+                            
+                            Spacer()
+ 
+                            VStack{
+                                HStack(spacing: 12) { // You can adjust the spacing as needed
+                                        // Heart button
+                                    Button(action: {
+                                            let currentUserID = self.authViewModel.currentUserID ?? ""
+                                            let isLiked = event.likedBy.contains(currentUserID)
+                                            
+                                            if isLiked {
+                                                eventsViewModel.unlikeEvent(eventID: event.id, currentUserID: currentUserID)
+                                            } else {
+                                                // Call likeEvent if the event is not currently liked
+                                                eventsViewModel.likeEvent(eventID: event.id, currentUserID: currentUserID, isLiked: true)
+                                            }
+                                        }) {
+                                            Image(systemName: event.likedBy.contains(authViewModel.currentUserID ?? "") ? "heart.fill" : "heart")
+                                                .font(.title)
+                                                .foregroundColor(event.likedBy.contains(authViewModel.currentUserID ?? "") ? .red : Color(.sRGB, red: 1, green: 1, blue: 1, opacity: 1.0)) // Red if liked, translucent if not
+                                        }
+                                        .padding(.top, 4)
+                                        .offset(y: -9)
+
+                                        // Share button
+                                        Button(action: {
+                                            // Share button action
+                                        }) {
+                                            Image(systemName: "square.and.arrow.up")
+                                                .font(.title)
+                                                .foregroundColor(.white) // Adjust color as needed
+                                        }
+                                        .padding(.trailing, 15) // Add padding to the right of the share button
+                                        .padding(.top, 1)
+                                        .offset(y: -9)
+                                    }
+                                    Spacer() // Pushes the content to the top of the VStack
+                                // Likes count text
+                                // HStack for Bitmojis of friends who liked the event
+                                HStack(spacing: 0){
+                                    
+                                    Text("liked")//.padding(.trailing, 25)
+                                        .font(.system(size: 12))
+                                        .padding(.trailing, 3)
+                                    
+                                    Image(systemName: "heart.fill")
+                                            .foregroundColor(.red) // Set the color to red
+                                            .font(.system(size: 12)) // Adjust the size as needed
+                                           // .padding(.trailing, 4) // Add some space between the heart and the Bitmojis
+                                    HStack(spacing: -10) {
+                                        
+                                        ForEach(event.likedBy.filter { eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }, id: \.self) { userId in
+                                            if let bitmojiUrl = authViewModel.friendsBitmojiUrls[userId], let url = URL(string: bitmojiUrl) {
+                                                AsyncImage(url: url) { phase in
+                                                    switch phase {
+                                                    case .success(let image):
+                                                        image.resizable()
+                                                            .aspectRatio(contentMode: .fill)
+                                                            .frame(width: 27, height: 27)
+                                                            .clipShape(Circle())
+                                                    case .failure(_):
+                                                        Circle().fill(Color.gray).frame(width: 27, height: 27)
+                                                    case .empty:
+                                                        ProgressView()
+                                                    @unknown default:
+                                                        EmptyView()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }//.padding(.leading, 17)
+                                    Text("&more")
+                                            .font(.system(size: 12))
+                                            // Adjust padding as needed to align with your design
+                                            .padding(.leading, 4)
+                                   
+                                }
+                            }
+                            
+                            
+                        }
+                        .padding(.vertical, 10)
+                        
+                       
+                       
+                        // Light rectangular border below each event
+                        Rectangle()
+                            .fill(Color.white.opacity(0.2)) // Light-colored line
+                            .frame(height: 1) // Just one pixel high to act as a line
+                            .edgesIgnoringSafeArea(.horizontal) // Extend to the screen edges if needed
+                            .padding(.bottom, 10)
                     }
-                    .padding(.vertical, 5) // Adjust vertical padding for each item
                 }
             }
         }
-        .frame(maxHeight: .infinity) // Remove fixed height to allow dynamic content height
-        .background(Color.black.opacity(0.7)) // Set background color with opacity to blend with the expanded black screen
-        .cornerRadius(30) // Match the corner radius with the expanded black screen if needed
-        .padding(.horizontal, 10) // Add padding to the sides if you want more space from the edges
+        .frame(maxHeight: .infinity)
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(30)
+        .padding(.horizontal, 15)
+ 
     }
     
+    // Function to truncate location title and subtitle
+    func truncateLocation(_ title: String, _ subtitle: String) -> String {
+        let combined = "\(title), \(subtitle)"
+        if combined.count > 17 {
+            let index = combined.index(combined.startIndex, offsetBy: 17)
+            return "\(combined[..<index])..."
+        } else {
+            return combined
+        }
+    }
+    
+    // Function to calculate the distance to the event and format the string
+    func calculateDistanceToEvent(event: Event) -> String {
+        guard let userLocation = locationManager.currentLocation else {
+            return "Distance unknown"
+        }
+
+        let eventLocation = CLLocation(latitude: event.latitude, longitude: event.longitude)
+        let distanceInMeters = userLocation.distance(from: eventLocation)
+        let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
+
+        if distanceInMiles < 1 {
+            return "< 1 mi away"
+        } else {
+            let roundedDistance = round(distanceInMiles)
+            return "\(Int(roundedDistance)) mi away"
+        }
+    }
 }
+
+
+struct FriendBitmojiView: View {
+    let bitmojiUrl: String
+
+    var body: some View {
+        if let url = URL(string: bitmojiUrl) {
+            AsyncImage(url: url) { image in
+                image.resizable()
+                     .aspectRatio(contentMode: .fill)
+                     .frame(width: 20, height: 20)
+                     .clipShape(Circle())
+            } placeholder: {
+                Circle().fill(Color.gray).frame(width: 20, height: 20)
+            }
+        }
+    }
+}
+
 
 struct FriendsDistanceListView: View {
-    @EnvironmentObject var userManager: UserManager // To access friendsDistances
+    @EnvironmentObject var userManager: UserManager
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 10) { // Adjust the spacing between items
+            VStack(spacing: 15) { // Adjusted spacing between rows
                 ForEach(userManager.friendsDistances) { friendDistance in
                     HStack {
-                        Text(friendDistance.email) // Display the friend's email as their identifier
-                            .bold()
-                            .font(.title3) // Increase the font size for the title
+                        if let bitmojiUrl = friendDistance.bitmojiUrl, let url = URL(string: bitmojiUrl) {
+                            AsyncImage(url: url) { image in
+                                image.resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                            } placeholder: {
+                                Circle().fill(Color.gray).frame(width: 30, height: 30)
+                            }
+                        }
+                        Text(friendDistance.userName)
                             .foregroundColor(.white)
-                            .padding(.leading, 20) // Add padding to the leading edge
+                            .padding(.leading, 10)
+                            .font(.system(size: 25)) // Font size for the username
+
                         Spacer()
-                        Text(String(format: "%.2f miles", friendDistance.distance / 1609.34)) // Convert meters to miles and format the string
-                            .font(.body) // Increase the font size for the distance
-                            .foregroundColor(.gray)
-                            .padding(.trailing, 20) // Add padding to the trailing edge
+
+                        VStack(alignment: .trailing) {
+                            // Distance display
+                            if friendDistance.distance / 1609.34 < 1 {
+                                Text("< 1 mi away")
+                                    .foregroundColor(.gray)
+                            } else {
+                                let miles = (friendDistance.distance / 1609.34).rounded()
+                                Text("\(Int(miles)) mi away")
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            // Activity status with adjusted font size
+                            let status = activityStatus(for: friendDistance.lastActive!)
+                            Text(status.text)
+                                .foregroundColor(status.color.opacity(status.opacity))
+                                .font(.system(size: 14)) // Increased font size for "Active/Away" captions
+                        }
                     }
-                    .padding(.vertical, 5) // Adjust vertical padding for each item
+                    .padding(.vertical, 10) // Adjusted vertical padding for each row to balance spacing
                 }
             }
+            .padding(.top, 10)
         }
-        .frame(maxHeight: .infinity) // Remove fixed height to allow dynamic content height
-        .background(Color.black.opacity(0.7)) // Semi-transparent black background
-        .cornerRadius(30) // Match the corner radius with the expanded black screen if needed
-        .padding(.horizontal, 10) // Add padding to the sides if you want more space from the edges
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(30)
+        .padding()
+    }
+
+    private func activityStatus(for lastActiveDate: Date) -> (text: String, color: Color, opacity: Double) {
+        let now = Date()
+        let twelveHoursAgo = now.addingTimeInterval(-43200)  // 12 hours = 43,200 seconds
+
+        if lastActiveDate > twelveHoursAgo {
+            // Muted green for "Active" status
+            let activeColor = Color(red: 137 / 255, green: 198 / 255, blue: 142 / 255)
+            return ("Active", activeColor, 0.7)
+        } else {
+            // Muted red for "Away" status
+            let awayColor = Color(red: 255 / 255, green: 150 / 255, blue: 150 / 255) // Lighter shade of red with higher opacity
+            return ("Away", awayColor, 0.6)
+        }
     }
 }
 
 
+
+//opacity(0.2/0.3)

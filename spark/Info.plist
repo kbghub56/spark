@@ -9,5 +9,35 @@
 		<key>Scene Configuration</key>
 		<dict/>
 	</dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.kbcodes.spark</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>sp44rk499y8y</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>snapchat</string>
+	</array>
+	<key>SCSDKClientId</key>
+	<string>e803bba0-c402-4a85-9fcd-0ae4f8475bfa</string>
+	<key>SCSDKRedirectUrl</key>
+	<string>sp44rk499y8y://myapp</string>
+	<key>SCSDKScopes</key>
+	<array>
+		<string>https://auth.snapchat.com/oauth2/api/user.bitmoji.avatar</string>
+		<string>https://auth.snapchat.com/oauth2/api/user.display_name</string>
+	</array>
 </dict>
 </plist>

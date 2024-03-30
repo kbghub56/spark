@@ -7,8 +7,10 @@
 
 import SwiftUI
 import SCSDKLoginKit
+import FirebaseFirestore
 
 struct SnapchatLoginView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var bitmojiUrl: String?
 
     var body: some View {
@@ -41,15 +43,18 @@ struct SnapchatLoginView: View {
     func fetchUserData() {
         let builder = SCSDKUserDataQueryBuilder()
             .withDisplayName()
-            .withBitmojiTwoDAvatarUrl() // Requesting Bitmoji avatar URL
+            .withBitmojiTwoDAvatarUrl()
+            .withBitmojiAvatarID()// Requesting Bitmoji avatar URL
         let userDataQuery = builder.build()
         
         SCSDKLoginClient.fetchUserData(with: userDataQuery, success: { (userData: SCSDKUserData?, partialError: Error?) in
-                if let userData = userData, let bitmojiAvatarURL = userData.bitmojiTwoDAvatarUrl {
-                    DispatchQueue.main.async { // Ensure you're on the main thread when updating UI
-                        self.bitmojiUrl = bitmojiAvatarURL
+            if let userData = userData, let bitmojiAvatarURL = userData.bitmojiTwoDAvatarUrl {
+                DispatchQueue.main.async {
+                        self.authViewModel.updateUserBitmojiUrl(bitmojiAvatarURL)
+                        print(userData.bitmojiAvatarID)
                     }
-                } else {
+                }
+            else {
                     print("No user data available")
                 }
             }, failure: { (error: Error?, isUserLoggedOut: Bool) in

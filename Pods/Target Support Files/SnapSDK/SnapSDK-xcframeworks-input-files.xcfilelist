@@ -1,0 +1,3 @@
+${PODS_ROOT}/Target Support Files/SnapSDK/SnapSDK-xcframeworks.sh
+${PODS_ROOT}/SnapSDK/SCSDKCoreKit.xcframework
+${PODS_ROOT}/SnapSDK/SCSDKLoginKit.xcframework

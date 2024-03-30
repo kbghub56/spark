@@ -158,12 +158,14 @@ class EventsViewModel: ObservableObject {
                    let latitude = dict["latitude"] as? Double,
                    let longitude = dict["longitude"] as? Double,
                    let visibility = dict["visibility"] as? String,
-                   let organizerID = dict["organizerID"] as? String {
+                   let organizerID = dict["organizerID"] as? String,
+                   let locateTitle = dict["locationTitle"] as? String,
+                   let locateSubtitle = dict["locationSubtitle"] as? String {
                     
                     // Ensure the likedBy array is included when you fetch your events
                     let likedBy = dict["likedBy"] as? [String] ?? []
                     
-                    let event = Event(id: snapshot.key, title: title, description: description, startDate: Date(timeIntervalSince1970: startDate), endDate: Date(timeIntervalSince1970: endDate), latitude: latitude, longitude: longitude, visibility: visibility, organizerID: organizerID, likedBy: likedBy)
+                    let event = Event(id: snapshot.key, title: title, description: description, startDate: Date(timeIntervalSince1970: startDate), endDate: Date(timeIntervalSince1970: endDate), latitude: latitude, longitude: longitude, visibility: visibility, organizerID: organizerID, likedBy: likedBy, locTitle: locateTitle, locSubtitle: locateSubtitle)
                     
                     // Now use the synchronous shouldIncludeEvent check
                     if self.shouldIncludeEvent(event) {
@@ -258,6 +260,38 @@ class EventsViewModel: ObservableObject {
             }
         }
     }
+    
+    func unlikeEvent(eventID: String, currentUserID: String) {
+        let eventRef = Database.database().reference(withPath: "events/\(eventID)")
+        
+        eventRef.runTransactionBlock({ (currentData: MutableData) -> TransactionResult in
+            if var event = currentData.value as? [String: AnyObject],
+               var likedBy = event["likedBy"] as? [String],
+               let likes = event["likes"] as? Int {
+                
+                // Check if the current user has already liked the event
+                if let index = likedBy.firstIndex(of: currentUserID) {
+                    // User found in the likedBy array, remove them
+                    likedBy.remove(at: index)
+                    // Decrement the likes count, ensuring it doesn't go below 0
+                    event["likes"] = max(likes - 1, 0) as AnyObject?
+                }
+                
+                // Update the likedBy array in the event
+                event["likedBy"] = likedBy as AnyObject?
+                currentData.value = event
+                
+                return TransactionResult.success(withValue: currentData)
+            }
+            return TransactionResult.success(withValue: currentData)
+        }) { error, committed, snapshot in
+            if let error = error {
+                print("Error unliking event: \(error.localizedDescription)")
+            }
+            // Additional actions after unliking, if necessary
+        }
+    }
+
 
 
     

@@ -15,6 +15,11 @@ import FirebaseFirestore
 class AuthViewModel: ObservableObject {
     @Published var isUserAuthenticated: Bool = Auth.auth().currentUser != nil
     @Published var currentUserID: String? = Auth.auth().currentUser?.uid  // Add this line
+    @Published var snapchatDisplayName: String?
+    @Published var snapchatBitmojiAvatarUrl: String?
+    @Published var friendsBitmojiUrls: [String: String] = [:]  // Dictionary to store friends' Bitmoji URLs
+
+
   //  @Published var sessionTrigger: UUID = UUID()
 
     init() {
@@ -31,6 +36,15 @@ class AuthViewModel: ObservableObject {
         let currentUser = Auth.auth().currentUser
         self.isUserAuthenticated = currentUser != nil
         self.currentUserID = currentUser?.uid  // Update the current user ID
+        if isUserAuthenticated {
+            // Fetch the Bitmoji URL if the user is authenticated
+            fetchUserDetails()
+        } else {
+            // Reset the Bitmoji URL if the user is not authenticated
+            self.snapchatBitmojiAvatarUrl = nil
+            self.friendsBitmojiUrls = [:]  // Reset on logout
+
+        }
         print("Current user at init: \(currentUser?.email ?? "none")")
         print("Auth state changed: now \(currentUser != nil ? "signed in as \(currentUser?.email ?? "")" : "not signed in")")
     }
@@ -113,6 +127,56 @@ extension AuthViewModel {
             }
         }
     }
+    
+    func updateUserBitmojiUrl(_ bitmojiUrl: String) {
+        guard let userId = currentUserID else { return }
+        let userDocRef = Firestore.firestore().collection("users").document(userId)
+        userDocRef.updateData(["bitmojiUrl": bitmojiUrl]) { error in
+            if let error = error {
+                print("Error updating document: \(error)")
+            } else {
+                self.snapchatBitmojiAvatarUrl = bitmojiUrl
+                print("Document successfully updated with Bitmoji URL")
+            }
+        }
+    }
+    
+    func fetchUserDetails() {
+            guard let userId = currentUserID else { return }
+            let userDocRef = Firestore.firestore().collection("users").document(userId)
+
+            userDocRef.getDocument { [weak self] (document, error) in
+                if let document = document, document.exists {
+                    self?.snapchatBitmojiAvatarUrl = document.data()?["bitmojiUrl"] as? String
+
+                    // Fetch friends' IDs
+                    if let friendsIds = document.data()?["friends"] as? [String] {
+                        self?.fetchFriendsBitmojiUrls(friendsIds: friendsIds)
+                    }
+                } else {
+                    print("Document does not exist or error fetching document: \(error?.localizedDescription ?? "Unknown error")")
+                }
+            }
+        }
+    
+    func fetchFriendsBitmojiUrls(friendsIds: [String]) {
+            let db = Firestore.firestore()
+
+            friendsIds.forEach { friendId in
+                let friendDocRef = db.collection("users").document(friendId)
+
+                friendDocRef.getDocument { [weak self] (document, error) in
+                    if let document = document, document.exists, let bitmojiUrl = document.data()?["bitmojiUrl"] as? String {
+                        DispatchQueue.main.async {
+                            self?.friendsBitmojiUrls[friendId] = bitmojiUrl
+                        }
+                    } else {
+                        print("Error fetching friend's Bitmoji URL: \(error?.localizedDescription ?? "Unknown error")")
+                    }
+                }
+            }
+        }
+
 }
 
 

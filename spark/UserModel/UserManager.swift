@@ -241,24 +241,43 @@ class UserManager: ObservableObject {
 
             self.friendsDistances.removeAll()  // Clear the existing distances
 
+            let group = DispatchGroup()  // Use a DispatchGroup to wait for all friend data to be fetched
+
             for friendID in friends {
+                group.enter()  // Enter the group for each friend
                 db.collection("users").document(friendID).getDocument { (friendDoc, error) in
+                    defer { group.leave() }  // Ensure the group is left even if there's an early return
+
                     guard let friendDoc = friendDoc, friendDoc.exists,
                           let friendData = friendDoc.data(),
                           let latitude = friendData["latitude"] as? Double,
-                          let longitude = friendData["longitude"] as? Double else {
+                          let longitude = friendData["longitude"] as? Double,
+                          let locationLastUpdated = friendData["locationLastUpdated"] as? Timestamp else {
                         print("Could not fetch location for friendID \(friendID): \(error?.localizedDescription ?? "Unknown error")")
                         return
                     }
 
                     let friendLocation = CLLocation(latitude: latitude, longitude: longitude)
                     let distance = currentLocation.distance(from: friendLocation)  // Distance in meters
+                    let bitmojiUrl = friendData["bitmojiUrl"] as? String
+                    let lastActive = locationLastUpdated.dateValue()  // Convert Timestamp to Date
 
-                    DispatchQueue.main.async {
-                        let friendDistance = FriendDistance(id: friendID, email: friendData["email"] as? String ?? "Unknown", distance: distance)
-                        self.friendsDistances.append(friendDistance)
-                        self.friendsDistances.sort { $0.distance < $1.distance }  // Sort by distance
-                        print("FRIENDS DISTANCES : \(self.friendsDistances)")
+                    let friendDistance = FriendDistance(id: friendID, email: friendData["email"] as? String ?? "Unknown", distance: distance, bitmojiUrl: bitmojiUrl, userName: friendData["userName"] as? String ?? "Unknown", lastActive: lastActive)
+                    self.friendsDistances.append(friendDistance)
+                }
+            }
+
+            group.notify(queue: .main) {
+                // Sort by last active within 8 hours, then by distance
+                self.friendsDistances.sort { friend1, friend2 in
+                    let eightHoursAgo = Date().addingTimeInterval(-8 * 60 * 60)  // Calculate the time 8 hours ago
+                    let friend1Active = friend1.lastActive! > eightHoursAgo
+                    let friend2Active = friend2.lastActive! > eightHoursAgo
+
+                    if friend1Active == friend2Active {
+                        return friend1.distance < friend2.distance  // If both are equally active, sort by distance
+                    } else {
+                        return friend1Active && !friend2Active  // Otherwise, prioritize the friend who was active within the last 8 hours
                     }
                 }
             }
@@ -273,4 +292,7 @@ struct FriendDistance: Identifiable {
     let id: String  // Friend's userID or a similar unique identifier
     let email: String
     let distance: CLLocationDistance  // Distance in meters
+    var bitmojiUrl: String?  // Optional Bitmoji URL
+    let userName: String
+    var lastActive: Date?  // Last active time
 }

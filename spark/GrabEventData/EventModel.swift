@@ -15,10 +15,13 @@ struct Event: Identifiable {
     let endDate: Date
     let latitude: Double
     let longitude: Double
+    let locTitle: String
+    let locSubtitle: String
     var likes: Int // Variable to store the count of likes
     var likedBy: [String] // Array to store user IDs of those who liked the event
     let visibility: String
     let organizerID: String
+    var friendBitmojiUrls: [String: String] = [:]
 
     enum EventVisibility: String {
         case publicEvent = "public"
@@ -26,7 +29,7 @@ struct Event: Identifiable {
         case friendsAndMutuals = "friendsAndMutuals"
     }
 
-    init(id: String, title: String, description: String, startDate: Date, endDate: Date, latitude: Double, longitude: Double, visibility: String, organizerID: String, likes: Int = 0, likedBy: [String] = []) {
+    init(id: String, title: String, description: String, startDate: Date, endDate: Date, latitude: Double, longitude: Double, visibility: String, organizerID: String, likes: Int = 0, likedBy: [String] = [], locTitle: String, locSubtitle: String) {
         self.id = id
         self.title = title
         self.description = description
@@ -34,6 +37,8 @@ struct Event: Identifiable {
         self.endDate = endDate
         self.latitude = latitude
         self.longitude = longitude
+        self.locTitle = locTitle
+        self.locSubtitle = locSubtitle
         self.likes = likes
         self.likedBy = likedBy
         self.visibility = visibility

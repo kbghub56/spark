@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B20BACB40479AE126693754 /* Pods_spark.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBD351C1A9B813254BCB2C25 /* Pods_spark.framework */; };
 		99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086F942B76E3BA00FC00B2 /* sparkApp.swift */; };
 		99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086F962B76E3BA00FC00B2 /* ContentView.swift */; };
 		99086F992B76E3BB00FC00B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99086F982B76E3BB00FC00B2 /* Assets.xcassets */; };
@@ -31,6 +32,7 @@
 		99086FD72B7C98B000FC00B2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 99086FD62B7C98B000FC00B2 /* FirebaseAuth */; };
 		99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */; };
 		99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */; };
+		9914F8C52BB5345F00F33482 /* ClickEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8C42BB5345F00F33482 /* ClickEvent.swift */; };
 		9935AB1C2B8EF0FB003994AE /* LocationSearchGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */; };
 		9935AB1E2B8EF14A003994AE /* UserLoginGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */; };
 		9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB202B8EF402003994AE /* MainPageRS.swift */; };
@@ -40,6 +42,7 @@
 		9959E5CD2B8EDFEC00D2A9DE /* InputEventsGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9959E5CC2B8EDFEC00D2A9DE /* InputEventsGPT.swift */; };
 		9959E5CF2B8EE04D00D2A9DE /* GrabEventDataGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9959E5CE2B8EE04D00D2A9DE /* GrabEventDataGPT.swift */; };
 		9959E5D12B8EE08400D2A9DE /* MapUIGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9959E5D02B8EE08400D2A9DE /* MapUIGPT.swift */; };
+		998817102BB160BF00DD44F8 /* SnapchatLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9988170F2BB160BF00DD44F8 /* SnapchatLoginView.swift */; };
 		9993E3D22B81E84D007443BE /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D12B81E84D007443BE /* UserModel.swift */; };
 		9993E3D42B85C2AB007443BE /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D32B85C2AB007443BE /* UserManager.swift */; };
 		9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D62B86FC5F007443BE /* SearchFriendView.swift */; };
@@ -61,6 +64,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		028364F744332DC5EA937FB6 /* Pods-spark.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spark.debug.xcconfig"; path = "Target Support Files/Pods-spark/Pods-spark.debug.xcconfig"; sourceTree = "<group>"; };
 		99086F912B76E3BA00FC00B2 /* spark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		99086F942B76E3BA00FC00B2 /* sparkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sparkApp.swift; sourceTree = "<group>"; };
 		99086F962B76E3BA00FC00B2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -80,6 +84,7 @@
 		99086FD42B7C984500FC00B2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		9914F8C42BB5345F00F33482 /* ClickEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickEvent.swift; sourceTree = "<group>"; };
 		9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchGPT.swift; sourceTree = "<group>"; };
 		9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginGPT.swift; sourceTree = "<group>"; };
 		9935AB202B8EF402003994AE /* MainPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPageRS.swift; sourceTree = "<group>"; };
@@ -89,6 +94,9 @@
 		9959E5CC2B8EDFEC00D2A9DE /* InputEventsGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEventsGPT.swift; sourceTree = "<group>"; };
 		9959E5CE2B8EE04D00D2A9DE /* GrabEventDataGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrabEventDataGPT.swift; sourceTree = "<group>"; };
 		9959E5D02B8EE08400D2A9DE /* MapUIGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapUIGPT.swift; sourceTree = "<group>"; };
+		9988170F2BB160BF00DD44F8 /* SnapchatLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatLoginView.swift; sourceTree = "<group>"; };
+		998912602BAEA0E60012439E /* SCSDKLoginKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SCSDKLoginKit.xcframework; path = Pods/SnapSDK/SCSDKLoginKit.xcframework; sourceTree = "<group>"; };
+		998912642BAEA0F00012439E /* SCSDKCoreKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SCSDKCoreKit.xcframework; path = Pods/SnapSDK/SCSDKCoreKit.xcframework; sourceTree = "<group>"; };
 		9993E3D12B81E84D007443BE /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		9993E3D32B85C2AB007443BE /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		9993E3D62B86FC5F007443BE /* SearchFriendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFriendView.swift; sourceTree = "<group>"; };
@@ -107,6 +115,8 @@
 		99FFE2D42B9989F600070686 /* WhenLocationOff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenLocationOff.swift; sourceTree = "<group>"; };
 		99FFE2D62B998E8E00070686 /* LandingPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingPageRS.swift; sourceTree = "<group>"; };
 		99FFE2DA2B9E69E800070686 /* EventAnnotationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAnnotationModel.swift; sourceTree = "<group>"; };
+		C93A2158E741FCD4D48C7802 /* Pods-spark.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spark.release.xcconfig"; path = "Target Support Files/Pods-spark/Pods-spark.release.xcconfig"; sourceTree = "<group>"; };
+		EBD351C1A9B813254BCB2C25 /* Pods_spark.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_spark.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,18 +131,29 @@
 				99086FAD2B78065B00FC00B2 /* FirebaseCrashlytics in Frameworks */,
 				99086FD72B7C98B000FC00B2 /* FirebaseAuth in Frameworks */,
 				99086FB82B79F32C00FC00B2 /* FirebaseFirestoreSwift in Frameworks */,
+				3B20BACB40479AE126693754 /* Pods_spark.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1DD41016B5C508F1006696E4 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				028364F744332DC5EA937FB6 /* Pods-spark.debug.xcconfig */,
+				C93A2158E741FCD4D48C7802 /* Pods-spark.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		99086F882B76E3BA00FC00B2 = {
 			isa = PBXGroup;
 			children = (
 				99086F932B76E3BA00FC00B2 /* spark */,
 				99086F922B76E3BA00FC00B2 /* Products */,
 				99086FB02B79E8D700FC00B2 /* Frameworks */,
+				1DD41016B5C508F1006696E4 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -147,10 +168,12 @@
 		99086F932B76E3BA00FC00B2 /* spark */ = {
 			isa = PBXGroup;
 			children = (
+				9914F8C32BB533EF00F33482 /* ViewEventData */,
 				9993E3DC2B87506B007443BE /* FollowRequestView */,
 				9993E3D52B86FC41007443BE /* SearchForFriends */,
 				99086F942B76E3BA00FC00B2 /* sparkApp.swift */,
 				99086FB92B79F4C000FC00B2 /* AppDelegate.swift */,
+				99E747BC2BA81DA300364CE5 /* SNAPSDK */,
 				99086FA82B77FBF300FC00B2 /* GoogleService-Info.plist */,
 				9993E3D02B81E82B007443BE /* UserModel */,
 				99086F962B76E3BA00FC00B2 /* ContentView.swift */,
@@ -191,6 +214,9 @@
 		99086FB02B79E8D700FC00B2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				998912642BAEA0F00012439E /* SCSDKCoreKit.xcframework */,
+				998912602BAEA0E60012439E /* SCSDKLoginKit.xcframework */,
+				EBD351C1A9B813254BCB2C25 /* Pods_spark.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -253,6 +279,14 @@
 			path = UserLogin;
 			sourceTree = "<group>";
 		};
+		9914F8C32BB533EF00F33482 /* ViewEventData */ = {
+			isa = PBXGroup;
+			children = (
+				9914F8C42BB5345F00F33482 /* ClickEvent.swift */,
+			);
+			path = ViewEventData;
+			sourceTree = "<group>";
+		};
 		9993E3D02B81E82B007443BE /* UserModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -283,6 +317,14 @@
 			path = FollowRequestView;
 			sourceTree = "<group>";
 		};
+		99E747BC2BA81DA300364CE5 /* SNAPSDK */ = {
+			isa = PBXGroup;
+			children = (
+				9988170F2BB160BF00DD44F8 /* SnapchatLoginView.swift */,
+			);
+			path = SNAPSDK;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -290,9 +332,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 99086F9F2B76E3BB00FC00B2 /* Build configuration list for PBXNativeTarget "spark" */;
 			buildPhases = (
+				24A34850389188E569CC50FA /* [CP] Check Pods Manifest.lock */,
 				99086F8D2B76E3BA00FC00B2 /* Sources */,
 				99086F8E2B76E3BA00FC00B2 /* Frameworks */,
 				99086F8F2B76E3BA00FC00B2 /* Resources */,
+				FCDF5C093D43DE8E76E61AF5 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -361,6 +405,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		24A34850389188E569CC50FA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-spark-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FCDF5C093D43DE8E76E61AF5 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-spark/Pods-spark-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-spark/Pods-spark-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-spark/Pods-spark-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		99086F8D2B76E3BA00FC00B2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -382,6 +468,7 @@
 				9993E3F02B8DD44E007443BE /* addEventsGPT.swift in Sources */,
 				99086FD52B7C984500FC00B2 /* LoginView.swift in Sources */,
 				9935AB252B8F11AB003994AE /* AddFriends1RS.swift in Sources */,
+				9914F8C52BB5345F00F33482 /* ClickEvent.swift in Sources */,
 				9993E3E82B8B2D9D007443BE /* CoordinatorClass.swift in Sources */,
 				9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */,
 				99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */,
@@ -398,6 +485,7 @@
 				9959E5CD2B8EDFEC00D2A9DE /* InputEventsGPT.swift in Sources */,
 				99FFE2D72B998E8E00070686 /* LandingPageRS.swift in Sources */,
 				99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */,
+				998817102BB160BF00DD44F8 /* SnapchatLoginView.swift in Sources */,
 				9993E3EE2B8DC9C2007443BE /* SetTimeRS.swift in Sources */,
 				99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */,
 				9959E5CF2B8EE04D00D2A9DE /* GrabEventDataGPT.swift in Sources */,
@@ -445,6 +533,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -505,6 +594,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -529,6 +619,7 @@
 		};
 		99086FA02B76E3BB00FC00B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 028364F744332DC5EA937FB6 /* Pods-spark.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -539,6 +630,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = spark/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Spark App";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
@@ -547,6 +639,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -562,6 +655,7 @@
 		};
 		99086FA12B76E3BB00FC00B2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C93A2158E741FCD4D48C7802 /* Pods-spark.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -572,6 +666,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = spark/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Spark App";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
@@ -580,6 +675,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -622,7 +718,7 @@
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.0;
+				minimumVersion = 10.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

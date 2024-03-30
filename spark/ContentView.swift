@@ -10,8 +10,14 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var isPresented = false
+
 
     var body: some View {
+        Button("Snapchat Login Button") { self.isPresented = true}
+            .sheet(isPresented: $isPresented) {
+                SnapchatLoginView()
+            }
         if authViewModel.isUserAuthenticated {
             HomeMapView()
         } else {

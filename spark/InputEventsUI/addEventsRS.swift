@@ -16,6 +16,8 @@ struct AddEvents: View {
     @State private var eventName: String = ""
     @State private var eventDescription: String = ""
     @State private var location: String = "" // Corrected from using eventName for location
+    @State private var locationTitle: String = "" // Added to store the location title
+    @State private var locationSubtitle: String = "" // Added to store the location subtitle
     @State private var selection: String?
     @State private var everyoneText: String = "Everyone"
     @State private var friendsAndMutualsText: String = "Friends and Mutuals Only"
@@ -201,6 +203,8 @@ struct AddEvents: View {
                                             // Update location with the selected result and clear results
                                             self.location = result.subtitle
                                             viewModelLoc.queryFragment = result.title
+                                            self.locationTitle = result.title
+                                            self.locationSubtitle = result.subtitle
                                             viewModelLoc.clearResults()
                                         }
                                 }
@@ -245,7 +249,9 @@ struct AddEvents: View {
                         "visibility": selection ?? "Everyone", // Default to "Everyone" if no selection
                         "organizerID": organizerID,
                         "likes": 0,  // Initialize likes count
-                        "likedBy": [""]  // Initialize empty array for user IDs who liked the event
+                        "likedBy": [""],  // Initialize empty array for user IDs who liked the event
+                        "locationTitle": locationTitle, // Include the location title
+                        "locationSubtitle": locationSubtitle, // Include the location subtitle
                     ]
 
                     let ref = Database.database().reference() // Adjust this line based on your Firebase setup

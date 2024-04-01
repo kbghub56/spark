@@ -48,12 +48,12 @@ struct SnapchatLoginView: View {
         let userDataQuery = builder.build()
         
         SCSDKLoginClient.fetchUserData(with: userDataQuery, success: { (userData: SCSDKUserData?, partialError: Error?) in
-            if let userData = userData, let bitmojiAvatarURL = userData.bitmojiTwoDAvatarUrl {
+            if let userData = userData, let bitmojiAvatarURL = userData.bitmojiTwoDAvatarUrl, let bitmojiAvatarID = userData.bitmojiAvatarID {
                 DispatchQueue.main.async {
-                        self.authViewModel.updateUserBitmojiUrl(bitmojiAvatarURL)
-                        print(userData.bitmojiAvatarID)
-                    }
+                    self.authViewModel.updateUserBitmoji(bitmojiUrl: bitmojiAvatarURL, bitmojiAvatarId: bitmojiAvatarID)
                 }
+            }
+
             else {
                     print("No user data available")
                 }

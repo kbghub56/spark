@@ -16,6 +16,7 @@ import CoreLocation
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import MapKit
 
 class LocationManager: NSObject, ObservableObject {
     private let locationManager = CLLocationManager()
@@ -38,6 +39,7 @@ extension LocationManager: CLLocationManagerDelegate {
         updateCurrentUserLocation(location: location) // Update Firestore
         // Notify UserManager to update friends distances
         //userManager?.updateFriendsDistances(currentLocation: location)
+        
     }
 
     private func updateCurrentUserLocation(location: CLLocation) {

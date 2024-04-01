@@ -17,6 +17,8 @@ class AuthViewModel: ObservableObject {
     @Published var currentUserID: String? = Auth.auth().currentUser?.uid  // Add this line
     @Published var snapchatDisplayName: String?
     @Published var snapchatBitmojiAvatarUrl: String?
+    @Published var snapchatBitmojiAvatarId: String?
+    @Published var snapchatBitmojiWalkingUrl: String?
     @Published var friendsBitmojiUrls: [String: String] = [:]  // Dictionary to store friends' Bitmoji URLs
 
 
@@ -128,18 +130,30 @@ extension AuthViewModel {
         }
     }
     
-    func updateUserBitmojiUrl(_ bitmojiUrl: String) {
+    func updateUserBitmoji(bitmojiUrl: String, bitmojiAvatarId: String) {
         guard let userId = currentUserID else { return }
         let userDocRef = Firestore.firestore().collection("users").document(userId)
-        userDocRef.updateData(["bitmojiUrl": bitmojiUrl]) { error in
+        
+        //Construct url for walking bitmoji
+        let bitmojiWalkUrl = "https://sdk.bitmoji.com/me/sticker/\(bitmojiAvatarId)/8e540795-8684-4cf1-853c-af2a41ec9abb"
+
+        userDocRef.updateData([
+            "bitmojiUrl": bitmojiUrl,
+            "bitmojiAvatarId": bitmojiAvatarId,
+            "bitmojiWalkingUrl": bitmojiWalkUrl
+        ]) { error in
             if let error = error {
                 print("Error updating document: \(error)")
             } else {
                 self.snapchatBitmojiAvatarUrl = bitmojiUrl
-                print("Document successfully updated with Bitmoji URL")
+                // Update a new property for Bitmoji Avatar ID
+                self.snapchatBitmojiAvatarId = bitmojiAvatarId
+                self.snapchatBitmojiWalkingUrl = bitmojiWalkUrl
+                print("Document successfully updated with Bitmoji URL and Avatar ID")
             }
         }
     }
+
     
     func fetchUserDetails() {
             guard let userId = currentUserID else { return }
@@ -148,6 +162,10 @@ extension AuthViewModel {
             userDocRef.getDocument { [weak self] (document, error) in
                 if let document = document, document.exists {
                     self?.snapchatBitmojiAvatarUrl = document.data()?["bitmojiUrl"] as? String
+                    // Fetch Bitmoji Avatar ID
+                    self?.snapchatBitmojiAvatarId = document.data()?["bitmojiAvatarId"] as? String
+                    self?.snapchatBitmojiWalkingUrl = document.data()?["bitmojiWalkingUrl"] as? String
+                    print("SNAPCHAT WALKING URL: \(self?.snapchatBitmojiWalkingUrl)")
 
                     // Fetch friends' IDs
                     if let friendsIds = document.data()?["friends"] as? [String] {

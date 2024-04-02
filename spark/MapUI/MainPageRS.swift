@@ -224,32 +224,31 @@ struct HomeMapView: View {
                     }
             }.padding(.horizontal, 60)
             
-            if selectedTab == 0{
-                FriendsDistanceListView() // Add the FriendsDistanceListView here
-                                .environmentObject(userManager)
-                                .padding(.horizontal) // Add padding if necessary
-                                .background(Color.black.opacity(0.7)) // Semi-transparent black background
-                                .cornerRadius(10)
-                                .padding(.top) // Add padding at the top if necessary
+            if selectedTab == 0 {
+                VStack {
+                    FriendsDistanceListView() // Add the FriendsDistanceListView here
+                        .environmentObject(userManager)
+                        .background(Color.black.opacity(0.7)) // Semi-transparent black background
+                        .cornerRadius(10)
+                        .padding(.top) // Add padding at the top if necessary
+                    FriendsView()
+                }
             }
 
             // This will show the RankedEventsListView when the Events tab is selected
             if selectedTab == 1 {
-                RankedEventsListView()
-                    .environmentObject(eventsViewModel) // Make sure to pass the necessary environment objects
-                    .environmentObject(locationManager)
-                    .padding(.horizontal) // Add padding if necessary
-                    .background(Color.black.opacity(0.7)) // Semi-transparent black background
-                    .cornerRadius(10)
-                    .padding(.top) // Add padding at the top if necessary
+                VStack {
+                    RankedEventsListView()
+                        .environmentObject(eventsViewModel) // Make sure to pass the necessary environment objects
+                        .environmentObject(locationManager)
+                        .padding(.horizontal) // Add padding if necessary
+                        .background(Color.black.opacity(0.7)) // Semi-transparent black background
+                        .cornerRadius(10)
+                        .padding(.top) // Add padding at the top if necessary
+                    EventsView()
+                }
             }
 
-            // The tab view is here for user interaction with the tabs
-            TabView(selection: $selectedTab) {
-                FriendsView().tag(0)
-                EventsView().tag(1)
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 3 / 4)
         .background(Color.black)
@@ -277,37 +276,31 @@ struct FriendsView: View {
     @State private var showingAddFriendView = false // State to control sheet presentation
     @EnvironmentObject var userManager: UserManager
     var body: some View {
-        VStack {
-            Spacer()
-            Button(action: {showingAddFriendView = true}) {
-                HStack {
-                    Image(systemName: "plus").font(.title)
-                    Text("Add Friends").font(.system(size: 22, weight: .bold))
-                }.foregroundColor(.black).padding().background(Color.white).cornerRadius(10)
-            }.padding(.bottom, 20)
-            .sheet(isPresented: $showingAddFriendView) { // Present SearchView as a sheet
-                    AddFriends()
-                    .environmentObject(userManager) // Pass userManager to SearchView
-            }
-    }
+        Button(action: {showingAddFriendView = true}) {
+            HStack {
+                Image(systemName: "plus").font(.title)
+                Text("Add Friends").font(.system(size: 22, weight: .bold))
+            }.foregroundColor(.black).padding().background(Color.white).cornerRadius(10)
+        }.padding(.bottom, 20)
+        .sheet(isPresented: $showingAddFriendView) { // Present SearchView as a sheet
+            AddFriends()
+                .environmentObject(userManager) // Pass userManager to SearchView
+        }
     }
 }
 struct EventsView: View {
     @State private var showingEventInputView = false
     var body: some View {
-        VStack {
-            Spacer()
-            Button(action: {
-                showingEventInputView = true
-            }) {
-                HStack {
-                    Image(systemName: "plus").font(.title)
-                    Text("Add Events").font(.system(size: 22, weight: .bold))
-                }.foregroundColor(.black).padding().background(Color.white).cornerRadius(10)
-            }.padding(.bottom, 20)
-            .sheet(isPresented: $showingEventInputView) {
-                AddEvents()
-            }
+        Button(action: {
+            showingEventInputView = true
+        }) {
+            HStack {
+                Image(systemName: "plus").font(.title)
+                Text("Add Events").font(.system(size: 22, weight: .bold))
+            }.foregroundColor(.black).padding().background(Color.white).cornerRadius(10)
+        }.padding(.bottom, 20)
+        .sheet(isPresented: $showingEventInputView) {
+            AddEvents()
         }
     }
 }
@@ -565,10 +558,10 @@ struct RankedEventsListView: View {
                                 // Likes count text
                                 // HStack for Bitmojis of friends who liked the event
                                 HStack(spacing: 0){
-                                    
-                                    Text("liked")//.padding(.trailing, 25)
-                                        .font(.system(size: 12))
-                                        .padding(.trailing, 3)
+//                                    
+//                                    Text("liked")//.padding(.trailing, 25)
+//                                        .font(.system(size: 12))
+//                                        .padding(.trailing, 3)
                                     
                                     Image(systemName: "heart.fill")
                                             .foregroundColor(.red) // Set the color to red
@@ -720,13 +713,11 @@ struct FriendsDistanceListView: View {
                         }
                     }
                     .padding(.vertical, 10) // Adjusted vertical padding for each row to balance spacing
-                }
-            }
-            .padding(.top, 10)
+                }.padding(.top, 10)
+                Spacer()
+            }.padding() // Add padding if necessary
         }
         .background(Color.black.opacity(0.7))
-        .cornerRadius(30)
-        .padding()
     }
 
     private func activityStatus(for lastActiveDate: Date) -> (text: String, color: Color, opacity: Double) {

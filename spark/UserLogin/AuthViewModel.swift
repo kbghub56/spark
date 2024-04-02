@@ -20,6 +20,7 @@ class AuthViewModel: ObservableObject {
     @Published var snapchatBitmojiAvatarId: String?
     @Published var snapchatBitmojiWalkingUrl: String?
     @Published var friendsBitmojiUrls: [String: String] = [:]  // Dictionary to store friends' Bitmoji URLs
+    @Published var friendsBitmojiWalkingUrls: [String: String] = [:]
 
 
   //  @Published var sessionTrigger: UUID = UUID()
@@ -184,12 +185,18 @@ extension AuthViewModel {
                 let friendDocRef = db.collection("users").document(friendId)
 
                 friendDocRef.getDocument { [weak self] (document, error) in
-                    if let document = document, document.exists, let bitmojiUrl = document.data()?["bitmojiUrl"] as? String {
+                    if let document = document, document.exists,
+                       let bitmojiUrl = document.data()?["bitmojiUrl"] as? String,
+                       let bitmojiWalkingUrl = document.data()?["bitmojiWalkingUrl"] as? String {
                         DispatchQueue.main.async {
+                            // Store the regular Bitmoji URL in the original dictionary
                             self?.friendsBitmojiUrls[friendId] = bitmojiUrl
+                            // Store the walking Bitmoji URL in the new dictionary
+                            self?.friendsBitmojiWalkingUrls[friendId] = bitmojiWalkingUrl
                         }
+                    
                     } else {
-                        print("Error fetching friend's Bitmoji URL: \(error?.localizedDescription ?? "Unknown error")")
+                        print("Error fetching friend's Bitmoji URLs: \(error?.localizedDescription ?? "Unknown error")")
                     }
                 }
             }

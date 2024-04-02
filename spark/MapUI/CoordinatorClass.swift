@@ -15,30 +15,41 @@ import FirebaseAuth
 class Coordinator: NSObject, MKMapViewDelegate {
     var parent: MapViewRepresentable
     var authViewModel: AuthViewModel
-
+    var userLocationView: MKAnnotationView?
+    var eventAnnotationView: MKAnnotationView?
+    var zoomLevel = 0.0
+    
+    
     init(parent: MapViewRepresentable, authViewModel: AuthViewModel) {
         self.parent = parent
         self.authViewModel = authViewModel
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        
+        print("[MDB] TRIGGER MAP VIEW")
         if let userLocation = annotation as? MKUserLocation {
-                let identifier = "UserLocation"
-                var view: MKAnnotationView
-                
-                if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) {
-                    dequeuedView.annotation = annotation
-                    view = dequeuedView
-                } else {
-                    view = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            print("[MDB] USER LOCATION")
+            let identifier = "UserLocation"
+            var view: MKAnnotationView
+            
+            if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) {
+                dequeuedView.annotation = annotation
+                view = dequeuedView
+            } else {
+                view = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            }
+            
+            
+            Task.detached {
+                while self.authViewModel.snapchatBitmojiWalkingUrl == nil {
+                    try! await Task.sleep(nanoseconds: 10000)
                 }
                 
-                // Set a placeholder image immediately
-                view.image = UIImage(named: "placeholderImage")  // Ensure you have a placeholder image
+                print("GET WALK URL: \(self.authViewModel.snapchatBitmojiWalkingUrl)")
                 
                 // Use the Bitmoji URL from the AuthViewModel
-                if let bitmojiUrlString = authViewModel.snapchatBitmojiWalkingUrl, let bitmojiUrl = URL(string: bitmojiUrlString) {
+                if let bitmojiUrlString = self.authViewModel.snapchatBitmojiWalkingUrl, let bitmojiUrl = URL(string: bitmojiUrlString) {
+                    print("[MDB] GET BITMOJI")
                     URLSession.shared.dataTask(with: bitmojiUrl) { data, response, error in
                         guard let data = data, error == nil, let image = UIImage(data: data) else {
                             return
@@ -48,26 +59,29 @@ class Coordinator: NSObject, MKMapViewDelegate {
                             view.image = image
                             
                             // Apply a scale transform to the view to adjust the size
-                            let scaleFactor: CGFloat = 0.5  // Adjust this scale factor to suit your needs
-                            view.transform = CGAffineTransform(scaleX: scaleFactor, y: scaleFactor)
+                            //   self.updateScaleFactorFor(view: view, at: self.zoomLevel)
+                            
+                            print("UPDATING BITMOJI (KB CODES)")
                             
                             // Force the map view to refresh this annotation view
-                            mapView.removeAnnotation(userLocation)
-                            mapView.addAnnotation(userLocation)
+                            //                            mapView.removeAnnotation(userLocation)
+                            //                            mapView.addAnnotation(userLocation)
+                            
+                            print("Set")
                         }
                     }.resume()
                 }
-                
-                return view
             }
-            // Handle other annotations...
-    
-
+            
+            self.userLocationView = view
+            
+            return view
+        }
         
-        if let eventAnnotation = annotation as? EventAnnotation {
-            let identifier = "EventAnnotation"
+        if let friendAnnotation = annotation as? FriendAnnotation {
+            let identifier = "FriendAnnotation"
             var view: MKAnnotationView
-
+            
             if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) {
                 dequeuedView.annotation = annotation
                 view = dequeuedView
@@ -75,41 +89,76 @@ class Coordinator: NSObject, MKMapViewDelegate {
                 view = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
                 view.canShowCallout = true
             }
-
-            let imageName: String
-                switch eventAnnotation.visibility {
-                case "Everyone":
-                    imageName = "EveryoneParty"
-                case "Friends Only":
-                    imageName = "FriendsOnly"
-                case "Friends and Mutuals Only":
-                    imageName = "FriendsAndMutuals"
-                default:
-                    imageName = "EveryoneParty"
+            
+            Task.detached {
+                print("DJJEDJDOEIJ: \(self.authViewModel.friendsBitmojiWalkingUrls)")
+                while self.authViewModel.friendsBitmojiWalkingUrls == [:] {
+                    try! await Task.sleep(nanoseconds: 100000)
                 }
+                
+                print("DJJEDJDOEIJ: \(self.authViewModel.friendsBitmojiWalkingUrls)")
+                
+                
+                // Assume FriendAnnotation has a 'userId' property to match keys in friendsBitmojiWalkingUrls
+                if let userId = friendAnnotation.title,
+                   let bitmojiUrlString = self.authViewModel.friendsBitmojiWalkingUrls[userId],
+                   let bitmojiUrl = URL(string: bitmojiUrlString) {
+                    
+                    URLSession.shared.dataTask(with: bitmojiUrl) { data, response, error in
+                        guard let data = data, error == nil, let image = UIImage(data: data) else {
+                            return
+                        }
+                        
+                        DispatchQueue.main.async {
+                            view.image = image
+                            self.updateScaleFactorFor(view: view, at: self.zoomLevel)
+
+                        }
+                    }.resume()
+                }
+            }
+            
+            return view
+        }
+        
+        
+        if let eventAnnotation = annotation as? EventAnnotation {
+            let identifier = "EventAnnotation"
+            var view: MKAnnotationView
+            
+            if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) {
+                dequeuedView.annotation = annotation
+                view = dequeuedView
+            } else {
+                view = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                view.canShowCallout = true
+            }
+            
+            let imageName: String
+            switch eventAnnotation.visibility {
+            case "Everyone":
+                imageName = "EveryoneParty"
+            case "Friends Only":
+                imageName = "FriendsOnly"
+            case "Friends and Mutuals Only":
+                imageName = "FriendsAndMutuals"
+            default:
+                imageName = "EveryoneParty"
+            }
             
             if let image = UIImage(named: imageName) {
-                // Define the target size of the image
-                let targetSize = CGSize(width: 75, height: 56.25)  // Your desired size
-
-                // Start an image context with the target size and no scaling
-                UIGraphicsBeginImageContextWithOptions(targetSize, false, 0.0)
-
-                // Draw the original image into the context with the target size
-                image.draw(in: CGRect(origin: CGPoint.zero, size: targetSize))
-
-                // Capture the resized image from the context
-                let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
-
-                // End the image context
-                UIGraphicsEndImageContext()
-
-                // Set the resized image to the annotation view
-                view.image = resizedImage
+                view.image = image
+                
+                // Adjust the frame of the view to make the image smaller
+                let newSize = CGSize(width: image.size.width * 0.75, height: image.size.height * 0.75) // Adjust the scaling factor (0.75) as needed
+                view.frame = CGRect(origin: view.frame.origin, size: newSize)
+                
+                self.updateScaleFactorFor(view: view, at: self.zoomLevel)
             }
-
-
-
+            
+            // Call updateScaleFactorFor to resize the annotation view based on the current zoom level
+            
+            
             // Setup like button for each event annotation
             let likeButton = LikeButton(type: .custom)
             if let currentUserID = authViewModel.currentUserID {
@@ -120,45 +169,46 @@ class Coordinator: NSObject, MKMapViewDelegate {
             likeButton.eventID = eventAnnotation.id
             likeButton.addTarget(self, action: #selector(handleLikeButtonTap(_:)), for: .touchUpInside)
             view.rightCalloutAccessoryView = likeButton
-
+            
+            self.eventAnnotationView = view
             return view
-
-        } else if let friendAnnotation = annotation as? FriendAnnotation {
-            let identifier = "FriendAnnotation"
-            var view: MKMarkerAnnotationView
-
-            if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
-                dequeuedView.annotation = friendAnnotation
-                view = dequeuedView
-            } else {
-                view = MKMarkerAnnotationView(annotation: friendAnnotation, reuseIdentifier: identifier)
-                view.canShowCallout = true
-            }
-
-           // view.pinTintColor = .blue // Set the pin color to blue for friend annotations
-
-            return view
-        } else {
+        }
+        
+        else {
             // Handle other types of annotations if necessary
             return nil
         }
-
-       // return view
+        
+        // return view
     }
-
     
-    
-
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         print("Callout accessory tapped")
-
     }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-            let zoomLevel = calculateZoomLevel(mapView: mapView)
-            print("Current Zoom Level: \(zoomLevel)")
+        self.zoomLevel = calculateZoomLevel(mapView: mapView)
+        print("Current Zoom Level: \(self.zoomLevel)")
+        
+        // Update user location view
+        if let userLocationView = self.userLocationView {
+            updateScaleFactorFor(view: userLocationView, at: self.zoomLevel)
         }
-
+        
+        // Iterate over all annotations to find event annotations and update their scale
+        for annotation in mapView.annotations {
+            if let view = mapView.view(for: annotation) as? MKAnnotationView, annotation is EventAnnotation {
+                updateScaleFactorFor(view: view, at: self.zoomLevel)
+            }
+            
+            if let view = mapView.view(for: annotation) as? MKAnnotationView, annotation is FriendAnnotation {
+                updateScaleFactorFor(view: view, at: self.zoomLevel)
+            }
+            
+        }
+    }
+    
+    
     // Calculate and return the map's zoom level based on the longitude span of its current region
     private func calculateZoomLevel(mapView: MKMapView) -> Double {
         // The map's longitude delta represents the span of the visible region
@@ -170,7 +220,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
         
         return zoomLevel
     }
-
+    
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         print("Annotation selected: \(String(describing: view.annotation?.title))")
     }
@@ -180,7 +230,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
             print("Current user ID not found")
             return
         }
-
+        
         if let eventID = sender.eventID {
             print("Toggling like for event with ID: \(eventID)")
             sender.isLiked.toggle()  // Toggle the like state
@@ -216,9 +266,32 @@ class Coordinator: NSObject, MKMapViewDelegate {
         
         return newImage!
     }
-
-
-
+    
+    func updateScaleFactorFor(view: MKAnnotationView, at zoomLevel: Double) {
+        let minZoom: Double = 10
+        let maxZoom: Double = 15
+        let minScale: CGFloat = 0.2
+        let maxScale: CGFloat = 0.3
+        
+        var scaleFactor: CGFloat
+        
+        if zoomLevel <= minZoom {
+            scaleFactor = minScale
+        } else if zoomLevel >= maxZoom {
+            scaleFactor = maxScale
+        } else {
+            // Linear interpolation between minScale and maxScale based on the zoom level
+            let ratio = CGFloat((zoomLevel - minZoom) / (maxZoom - minZoom))
+            scaleFactor = minScale + ratio * (maxScale - minScale)
+        }
+        
+        // Apply the scale transform
+        UIView.animate(withDuration: 0.25) {
+            view.transform = CGAffineTransform(scaleX: scaleFactor, y: scaleFactor)
+        }
+    }
+    
+    
 }
 
 class LikeButton: UIButton {

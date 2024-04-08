@@ -6,10 +6,10 @@
 //
 
 import SwiftUI
-
 import Foundation
 
 struct User: Codable {
+    var docID: String?  // Optional property for the Firebase document ID
     var userName: String?
     var email: String
     var uniqueUserID: String
@@ -19,6 +19,7 @@ struct User: Codable {
     var locationLastUpdated: Date?
 
     enum CodingKeys: String, CodingKey {
+        case docID
         case userName
         case email
         case uniqueUserID
@@ -30,6 +31,7 @@ struct User: Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        docID = try container.decodeIfPresent(String.self, forKey: .docID)  // Decode the docID if present
         userName = try container.decodeIfPresent(String.self, forKey: .userName)
         email = try container.decode(String.self, forKey: .email)
         uniqueUserID = try container.decode(String.self, forKey: .uniqueUserID)
@@ -39,5 +41,18 @@ struct User: Codable {
         locationLastUpdated = try container.decodeIfPresent(Date.self, forKey: .locationLastUpdated)
     }
 
-    // Implement the encode(to encoder: Encoder) throws method if necessary
+    // Implement the encode(to encoder: Encoder) method to include docID when encoding
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(docID, forKey: .docID)
+        try container.encodeIfPresent(userName, forKey: .userName)
+        try container.encode(email, forKey: .email)
+        try container.encode(uniqueUserID, forKey: .uniqueUserID)
+        try container.encode(friends, forKey: .friends)
+        try container.encodeIfPresent(latitude, forKey: .latitude)
+        try container.encodeIfPresent(longitude, forKey: .longitude)
+        try container.encodeIfPresent(locationLastUpdated, forKey: .locationLastUpdated)
+    }
+
+    // Add any other initializers if necessary
 }

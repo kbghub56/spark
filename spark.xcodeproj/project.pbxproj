@@ -28,12 +28,18 @@
 		99086FCB2B7B4A2000FC00B2 /* LocationSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FCA2B7B4A2000FC00B2 /* LocationSearchViewModel.swift */; };
 		99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FCC2B7B548600FC00B2 /* LocationResultCell.swift */; };
 		99086FD22B7B767000FC00B2 /* EventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FD12B7B767000FC00B2 /* EventViewModel.swift */; };
-		99086FD52B7C984500FC00B2 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FD42B7C984500FC00B2 /* LoginView.swift */; };
 		99086FD72B7C98B000FC00B2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 99086FD62B7C98B000FC00B2 /* FirebaseAuth */; };
 		99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */; };
-		99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */; };
 		9914F8C52BB5345F00F33482 /* ClickEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8C42BB5345F00F33482 /* ClickEvent.swift */; };
-		9914F8C72BBCC69600F33482 /* MainPage2RS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8C62BBCC69600F33482 /* MainPage2RS.swift */; };
+		9914F8CA2BBEC0F000F33482 /* locationQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8C92BBEC0F000F33482 /* locationQuestion.swift */; };
+		9914F8CC2BBEC0FD00F33482 /* snapLogin1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8CB2BBEC0FD00F33482 /* snapLogin1.swift */; };
+		9914F8CE2BBEC10800F33482 /* snapLogin2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8CD2BBEC10800F33482 /* snapLogin2.swift */; };
+		9914F8D02BC3DE2800F33482 /* EventPopupTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8CF2BC3DE2800F33482 /* EventPopupTransition.swift */; };
+		9914F8D22BC3E56900F33482 /* EventAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8D12BC3E56900F33482 /* EventAnnotationView.swift */; };
+		9914F8D42BC408AA00F33482 /* KeyBoardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8D32BC408AA00F33482 /* KeyBoardResponder.swift */; };
+		9914F8DC2BC547F300F33482 /* FollowReq2Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8DB2BC547F300F33482 /* FollowReq2Test.swift */; };
+		9914F8E22BC5BFA000F33482 /* SnapViewTEST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8E12BC5BFA000F33482 /* SnapViewTEST.swift */; };
+		9914F8E42BC5CC2200F33482 /* ClickEventTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8E32BC5CC2200F33482 /* ClickEventTest.swift */; };
 		9935AB1C2B8EF0FB003994AE /* LocationSearchGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */; };
 		9935AB1E2B8EF14A003994AE /* UserLoginGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */; };
 		9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB202B8EF402003994AE /* MainPageRS.swift */; };
@@ -82,11 +88,17 @@
 		99086FCA2B7B4A2000FC00B2 /* LocationSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel.swift; sourceTree = "<group>"; };
 		99086FCC2B7B548600FC00B2 /* LocationResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationResultCell.swift; sourceTree = "<group>"; };
 		99086FD12B7B767000FC00B2 /* EventViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventViewModel.swift; sourceTree = "<group>"; };
-		99086FD42B7C984500FC00B2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		9914F8C42BB5345F00F33482 /* ClickEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickEvent.swift; sourceTree = "<group>"; };
-		9914F8C62BBCC69600F33482 /* MainPage2RS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPage2RS.swift; sourceTree = "<group>"; };
+		9914F8C92BBEC0F000F33482 /* locationQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = locationQuestion.swift; sourceTree = "<group>"; };
+		9914F8CB2BBEC0FD00F33482 /* snapLogin1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = snapLogin1.swift; sourceTree = "<group>"; };
+		9914F8CD2BBEC10800F33482 /* snapLogin2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = snapLogin2.swift; sourceTree = "<group>"; };
+		9914F8CF2BC3DE2800F33482 /* EventPopupTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPopupTransition.swift; sourceTree = "<group>"; };
+		9914F8D12BC3E56900F33482 /* EventAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAnnotationView.swift; sourceTree = "<group>"; };
+		9914F8D32BC408AA00F33482 /* KeyBoardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyBoardResponder.swift; sourceTree = "<group>"; };
+		9914F8DB2BC547F300F33482 /* FollowReq2Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowReq2Test.swift; sourceTree = "<group>"; };
+		9914F8E12BC5BFA000F33482 /* SnapViewTEST.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapViewTEST.swift; sourceTree = "<group>"; };
+		9914F8E32BC5CC2200F33482 /* ClickEventTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickEventTest.swift; sourceTree = "<group>"; };
 		9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchGPT.swift; sourceTree = "<group>"; };
 		9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginGPT.swift; sourceTree = "<group>"; };
 		9935AB202B8EF402003994AE /* MainPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPageRS.swift; sourceTree = "<group>"; };
@@ -170,6 +182,7 @@
 		99086F932B76E3BA00FC00B2 /* spark */ = {
 			isa = PBXGroup;
 			children = (
+				9914F8C82BBEC0AD00F33482 /* UserSignUp */,
 				9914F8C32BB533EF00F33482 /* ViewEventData */,
 				9993E3DC2B87506B007443BE /* FollowRequestView */,
 				9993E3D52B86FC41007443BE /* SearchForFriends */,
@@ -229,8 +242,8 @@
 				99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */,
 				99FFE2DA2B9E69E800070686 /* EventAnnotationModel.swift */,
 				9935AB202B8EF402003994AE /* MainPageRS.swift */,
-				9914F8C62BBCC69600F33482 /* MainPage2RS.swift */,
 				9993E3E72B8B2D9D007443BE /* CoordinatorClass.swift */,
+				9914F8D12BC3E56900F33482 /* EventAnnotationView.swift */,
 				99086FC52B7A15F200FC00B2 /* HomeMapView.swift */,
 				9993E3DF2B8870E2007443BE /* MapViewModel.swift */,
 				9959E5D02B8EE08400D2A9DE /* MapUIGPT.swift */,
@@ -271,13 +284,10 @@
 		99086FD32B7C982600FC00B2 /* UserLogin */ = {
 			isa = PBXGroup;
 			children = (
-				99086FD42B7C984500FC00B2 /* LoginView.swift */,
 				99086FD82B7C9A7D00FC00B2 /* AuthViewModel.swift */,
 				99FFE2D22B99824000070686 /* LoginRS.swift */,
-				99086FDA2B7C9F6B00FC00B2 /* SignUpView.swift */,
 				99FFE2D62B998E8E00070686 /* LandingPageRS.swift */,
 				9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */,
-				9935AB282B90BD74003994AE /* SignUpRS.swift */,
 			);
 			path = UserLogin;
 			sourceTree = "<group>";
@@ -286,8 +296,23 @@
 			isa = PBXGroup;
 			children = (
 				9914F8C42BB5345F00F33482 /* ClickEvent.swift */,
+				9914F8CF2BC3DE2800F33482 /* EventPopupTransition.swift */,
+				9914F8E32BC5CC2200F33482 /* ClickEventTest.swift */,
 			);
 			path = ViewEventData;
+			sourceTree = "<group>";
+		};
+		9914F8C82BBEC0AD00F33482 /* UserSignUp */ = {
+			isa = PBXGroup;
+			children = (
+				99FFE2CE2B96064000070686 /* initFriendsRS.swift */,
+				9935AB282B90BD74003994AE /* SignUpRS.swift */,
+				9914F8C92BBEC0F000F33482 /* locationQuestion.swift */,
+				9914F8CB2BBEC0FD00F33482 /* snapLogin1.swift */,
+				9914F8CD2BBEC10800F33482 /* snapLogin2.swift */,
+				9914F8E12BC5BFA000F33482 /* SnapViewTEST.swift */,
+			);
+			path = UserSignUp;
 			sourceTree = "<group>";
 		};
 		9993E3D02B81E82B007443BE /* UserModel */ = {
@@ -304,9 +329,9 @@
 			children = (
 				9993E3D62B86FC5F007443BE /* SearchFriendView.swift */,
 				9935AB242B8F11AB003994AE /* AddFriends1RS.swift */,
+				9914F8D32BC408AA00F33482 /* KeyBoardResponder.swift */,
 				9935AB262B909C95003994AE /* AddFriends2RS.swift */,
 				99FFE2D02B96093C00070686 /* FriendRequestRS.swift */,
-				99FFE2CE2B96064000070686 /* initFriendsRS.swift */,
 			);
 			path = SearchForFriends;
 			sourceTree = "<group>";
@@ -315,6 +340,7 @@
 			isa = PBXGroup;
 			children = (
 				9993E3DA2B87500D007443BE /* FollowRequest.swift */,
+				9914F8DB2BC547F300F33482 /* FollowReq2Test.swift */,
 				9993E3DD2B8750A1007443BE /* FollowRequestView.swift */,
 			);
 			path = FollowRequestView;
@@ -458,22 +484,26 @@
 				99086FCB2B7B4A2000FC00B2 /* LocationSearchViewModel.swift in Sources */,
 				99086FD22B7B767000FC00B2 /* EventViewModel.swift in Sources */,
 				99FFE2CF2B96064000070686 /* initFriendsRS.swift in Sources */,
+				9914F8CE2BBEC10800F33482 /* snapLogin2.swift in Sources */,
 				9959E5D12B8EE08400D2A9DE /* MapUIGPT.swift in Sources */,
+				9914F8D42BC408AA00F33482 /* KeyBoardResponder.swift in Sources */,
 				9993E3EC2B8DC601007443BE /* EventDateTimeViewModelRS.swift in Sources */,
 				99086FBC2B79F5EA00FC00B2 /* EventInputView.swift in Sources */,
 				99086FC62B7A15F200FC00B2 /* HomeMapView.swift in Sources */,
+				9914F8E42BC5CC2200F33482 /* ClickEventTest.swift in Sources */,
+				9914F8DC2BC547F300F33482 /* FollowReq2Test.swift in Sources */,
 				9935AB1C2B8EF0FB003994AE /* LocationSearchGPT.swift in Sources */,
 				99FFE2D52B9989F600070686 /* WhenLocationOff.swift in Sources */,
 				9935AB292B90BD74003994AE /* SignUpRS.swift in Sources */,
+				9914F8CA2BBEC0F000F33482 /* locationQuestion.swift in Sources */,
 				99086FBA2B79F4C000FC00B2 /* AppDelegate.swift in Sources */,
 				99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */,
 				9993E3D42B85C2AB007443BE /* UserManager.swift in Sources */,
 				9993E3F02B8DD44E007443BE /* addEventsGPT.swift in Sources */,
-				99086FD52B7C984500FC00B2 /* LoginView.swift in Sources */,
 				9935AB252B8F11AB003994AE /* AddFriends1RS.swift in Sources */,
 				9914F8C52BB5345F00F33482 /* ClickEvent.swift in Sources */,
-				9914F8C72BBCC69600F33482 /* MainPage2RS.swift in Sources */,
 				9993E3E82B8B2D9D007443BE /* CoordinatorClass.swift in Sources */,
+				9914F8E22BC5BFA000F33482 /* SnapViewTEST.swift in Sources */,
 				9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */,
 				99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */,
 				99FFE2D32B99824000070686 /* LoginRS.swift in Sources */,
@@ -486,16 +516,18 @@
 				99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */,
 				9993E3EA2B8DC2CA007443BE /* addEventsRS.swift in Sources */,
 				9935AB272B909C95003994AE /* AddFriends2RS.swift in Sources */,
+				9914F8D22BC3E56900F33482 /* EventAnnotationView.swift in Sources */,
 				9959E5CD2B8EDFEC00D2A9DE /* InputEventsGPT.swift in Sources */,
 				99FFE2D72B998E8E00070686 /* LandingPageRS.swift in Sources */,
-				99086FDB2B7C9F6B00FC00B2 /* SignUpView.swift in Sources */,
 				998817102BB160BF00DD44F8 /* SnapchatLoginView.swift in Sources */,
 				9993E3EE2B8DC9C2007443BE /* SetTimeRS.swift in Sources */,
+				9914F8CC2BBEC0FD00F33482 /* snapLogin1.swift in Sources */,
 				99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */,
 				9959E5CF2B8EE04D00D2A9DE /* GrabEventDataGPT.swift in Sources */,
 				9993E3E62B8AF4E5007443BE /* EventModel.swift in Sources */,
 				99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */,
 				9993E3D22B81E84D007443BE /* UserModel.swift in Sources */,
+				9914F8D02BC3DE2800F33482 /* EventPopupTransition.swift in Sources */,
 				99FFE2D12B96093C00070686 /* FriendRequestRS.swift in Sources */,
 				9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */,
 				99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */,
@@ -642,7 +674,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -678,7 +710,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

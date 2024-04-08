@@ -12,4 +12,6 @@ struct FollowRequest: Identifiable {
     let fromUserID: String
     let toUserID: String
     var status: String  // e.g., "pending", "approved", "rejected"
+    let fromUsername: String
+    let bitmojiUrl: String
 }

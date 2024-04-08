@@ -87,16 +87,14 @@ class Coordinator: NSObject, MKMapViewDelegate {
                 view = dequeuedView
             } else {
                 view = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-                view.canShowCallout = true
+                view.canShowCallout = false
             }
             
             Task.detached {
-                print("DJJEDJDOEIJ: \(self.authViewModel.friendsBitmojiWalkingUrls)")
                 while self.authViewModel.friendsBitmojiWalkingUrls == [:] {
                     try! await Task.sleep(nanoseconds: 100000)
                 }
                 
-                print("DJJEDJDOEIJ: \(self.authViewModel.friendsBitmojiWalkingUrls)")
                 
                 
                 // Assume FriendAnnotation has a 'userId' property to match keys in friendsBitmojiWalkingUrls
@@ -137,21 +135,23 @@ class Coordinator: NSObject, MKMapViewDelegate {
             let imageName: String
             switch eventAnnotation.visibility {
             case "Everyone":
-                imageName = "EveryoneParty"
+                imageName = "EveryoneBare"
             case "Friends Only":
-                imageName = "FriendsOnly"
+                imageName = "FriendsBare"
             case "Friends and Mutuals Only":
                 imageName = "FriendsAndMutuals"
             default:
-                imageName = "EveryoneParty"
+                imageName = "EveryoneBare"
             }
             
             if let image = UIImage(named: imageName) {
                 view.image = image
                 
                 // Adjust the frame of the view to make the image smaller
-                let newSize = CGSize(width: image.size.width * 0.75, height: image.size.height * 0.75) // Adjust the scaling factor (0.75) as needed
+                let newSize = CGSize(width: image.size.width * 0.5, height: image.size.height * 0.5) // Adjust the scaling factor (0.75) as needed
                 view.frame = CGRect(origin: view.frame.origin, size: newSize)
+                
+                
                 
                 self.updateScaleFactorFor(view: view, at: self.zoomLevel)
             }
@@ -160,17 +160,18 @@ class Coordinator: NSObject, MKMapViewDelegate {
             
             
             // Setup like button for each event annotation
-            let likeButton = LikeButton(type: .custom)
-            if let currentUserID = authViewModel.currentUserID {
-                likeButton.isLiked = eventAnnotation.likedBy.contains(currentUserID)
-            }
-            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-            likeButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-            likeButton.eventID = eventAnnotation.id
-            likeButton.addTarget(self, action: #selector(handleLikeButtonTap(_:)), for: .touchUpInside)
-            view.rightCalloutAccessoryView = likeButton
+//            let likeButton = LikeButton(type: .custom)
+//            if let currentUserID = authViewModel.currentUserID {
+//                likeButton.isLiked = eventAnnotation.likedBy.contains(currentUserID)
+//            }
+//            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+//            likeButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+//            likeButton.eventID = eventAnnotation.id
+//            likeButton.addTarget(self, action: #selector(handleLikeButtonTap(_:)), for: .touchUpInside)
+//            view.rightCalloutAccessoryView = likeButton
             
             self.eventAnnotationView = view
+            view.canShowCallout = false
             return view
         }
         
@@ -223,8 +224,29 @@ class Coordinator: NSObject, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         print("Annotation selected: \(String(describing: view.annotation?.title))")
+        
+        if let eventAnnotation = view.annotation as? EventAnnotation {
+            // Find the corresponding Event based on the annotation's id
+            let event = parent.eventsViewModel.allEvents.first { $0.id == eventAnnotation.id }
+            
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.parent.selectedEvent = event
+                }
+            }
+        }
     }
-    
+
+    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        if view.annotation is EventAnnotation {
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.parent.selectedEvent = nil
+                }
+            }
+        }
+    }
+
     @objc func handleLikeButtonTap(_ sender: LikeButton) {
         guard let currentUserID = Auth.auth().currentUser?.uid else {
             print("Current user ID not found")

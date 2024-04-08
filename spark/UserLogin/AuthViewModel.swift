@@ -21,12 +21,20 @@ class AuthViewModel: ObservableObject {
     @Published var snapchatBitmojiWalkingUrl: String?
     @Published var friendsBitmojiUrls: [String: String] = [:]  // Dictionary to store friends' Bitmoji URLs
     @Published var friendsBitmojiWalkingUrls: [String: String] = [:]
+    @Published var navigateToSnapAvatar1 = false  // Add this property
+    @Published var navigateToSnapAvatar2 = false
+    @Published var navigateToLocationQuestion = false
+    @Published var navigateToInitFriends = false
+    @Published var logInThroughLogin = false
+
+    
 
 
   //  @Published var sessionTrigger: UUID = UUID()
 
     init() {
         updateCurrentUser()
+        print("INITIALIZING")
 
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
             DispatchQueue.main.async {
@@ -66,39 +74,51 @@ class AuthViewModel: ObservableObject {
 
 //extension for following/unfollowing users
 extension AuthViewModel {
-    func signUpUser(email: String, password: String, username: String) {
+    func signUpUser(email: String, password: String, username: String, completion: @escaping (Bool) -> Void) {
+        self.navigateToLocationQuestion = true
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let user = authResult?.user, error == nil else {
                 print("Error signing up: \(error!.localizedDescription)")
                 return
             }
             // Proceed to generate a unique user ID
-            self.assignUniqueUserID(for: user, username: username)
+            self.assignUniqueUserID(for: user, username: username) { success in
+                if success {
+                    print("SUCCESSS")
+                    self.navigateToLocationQuestion = true
+                   // self.navigateToSnapAvatar1 = true  // Set navigateToSnapAvatar1 to true
+                }
+                completion(success)
+            }
         }
     }
     
     
-    func assignUniqueUserID(for user: FirebaseAuth.User, username: String) {
+    func assignUniqueUserID(for user: FirebaseAuth.User, username: String, completion: @escaping (Bool) -> Void) {
         generateUniqueID { uniqueID in
             guard let uniqueID = uniqueID else {
                 // Handle the case where a unique ID could not be generated
                 return
             }
             
+            
             // Match the field names with your User model
             let userData: [String: Any] = [
                 "email": user.email ?? "",  // Handle optional email
                 "userName": username,  // Decide how you want to handle the userName
                 "uniqueUserID": uniqueID,
-                "friends": []
+                "friends": [],
+                "docID" : user.uid
             ]
 
             let db = Firestore.firestore()
             db.collection("users").document(user.uid).setData(userData) { error in
                 if let error = error {
                     print("Error saving user data: \(error.localizedDescription)")
+                    completion(false)
                 } else {
                     print("User data saved successfully.")
+                    completion(true)
                 }
             }
         }
@@ -151,9 +171,34 @@ extension AuthViewModel {
                 self.snapchatBitmojiAvatarId = bitmojiAvatarId
                 self.snapchatBitmojiWalkingUrl = bitmojiWalkUrl
                 print("Document successfully updated with Bitmoji URL and Avatar ID")
+                self.navigateToSnapAvatar2 = true
             }
         }
     }
+    
+    func updateUserDefaultAvatar(avatarName: String) {
+            guard let userId = currentUserID else { return }
+            let userDocRef = Firestore.firestore().collection("users").document(userId)
+            
+            let bitmojiUrl = avatarName
+            let bitmojiWalkingUrl = "\(avatarName)Walking"
+            
+            userDocRef.updateData([
+                "bitmojiUrl": bitmojiUrl,
+                "bitmojiAvatarId": avatarName,
+                "bitmojiWalkingUrl": bitmojiWalkingUrl
+            ]) { error in
+                if let error = error {
+                    print("Error updating document: \(error)")
+                } else {
+                    self.snapchatBitmojiAvatarUrl = bitmojiUrl
+                    self.snapchatBitmojiAvatarId = avatarName
+                    self.snapchatBitmojiWalkingUrl = bitmojiWalkingUrl
+                    print("Document successfully updated with default avatar")
+                    self.navigateToInitFriends = true
+                }
+            }
+        }
 
     
     func fetchUserDetails() {

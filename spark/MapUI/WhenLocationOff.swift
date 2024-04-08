@@ -8,7 +8,10 @@
 import SwiftUI
 import MapKit
 struct WhenLocationOff: View {
-    private var region = MKCoordinateRegion(
+    @EnvironmentObject var userManager: UserManager
+    @Binding var showingLocationOffView: Bool  // Add this binding to control the presentation
+
+    var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
@@ -26,36 +29,34 @@ struct WhenLocationOff: View {
                     .overlay(
                         VStack {
                             Text("Features remain locked until location enabled")
-                                .font(.system(size: 28, weight: .bold))
+                                .font(.system(size: 20))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center) // Center-align the text
                                 .padding(.bottom, 20)
+                                .padding([.leading, .trailing], 20)
+
                             Image(systemName: "lock.fill")
                                 .font(.system(size: 50))
                                 .foregroundColor(.black)
+                            
                             Button(action: {
-                                if let appSettings = URL(string: UIApplication.openSettingsURLString),
-                                   UIApplication.shared.canOpenURL(appSettings) {
-                                    UIApplication.shared.open(appSettings)
-                                }
+                                //locationManager.isLocationSharingEnabled = true
+                                userManager.updateUserLocationOffStatus(isLocationOff: false)
+                                showingLocationOffView = false  // This will dismiss the WhenLocationOff view
                             })  {
                                 Text("Enable location sharing")
-                                    .font(.system(size: 24, weight: .bold))
+                                    .font(.system(size: 20))
+                                    .bold()
                                     .foregroundColor(.black)
-                                    .padding() // Add padding around the text for the light blue box
-                                    .background(Color.blue.opacity(0.3)) // Light blue box
-                                    .cornerRadius(10) // Rounded edges for the light blue box
+                                    .padding()
+                                    .background(Color.blue.opacity(0.3))
+                                    .cornerRadius(10)
                             }
                             .padding(.top, 20)
                         }
                     )
             }
         }
-    }
-}
-struct WhenLocationOff_Previews: PreviewProvider {
-    static var previews: some View {
-        WhenLocationOff()
     }
 }
 

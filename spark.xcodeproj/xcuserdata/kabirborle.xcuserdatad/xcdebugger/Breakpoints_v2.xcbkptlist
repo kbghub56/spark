@@ -23,84 +23,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9EE9FE20-BB68-4037-A5BF-17B1439EDD76"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "spark/UserLogin/AuthViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "88"
-            endingLineNumber = "88"
-            landmarkName = "assignUniqueUserID(for:username:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "9976CC38-EF7C-46F7-B396-44EC14BB6C8F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "spark/InputEventsUI/addEventsRS.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "232"
-            endingLineNumber = "232"
-            landmarkName = "addEvent()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7FA91B2A-4660-45C3-BF52-9C98E0EBF1CB"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "spark/UserModel/UserManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "83"
-            endingLineNumber = "83"
-            landmarkName = "sendFollowRequest(from:to:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "7FA91B2A-4660-45C3-BF52-9C98E0EBF1CB - 183170d2a7a9d8a8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "spark.UserManager.sendFollowRequest(from: Swift.String, to: Swift.String) -&gt; ()"
-                  moduleName = "spark"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/kabirborle/Desktop/personal_projects/spark/spark/UserModel/UserManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "83"
-                  endingLineNumber = "83">
-               </Location>
-               <Location
-                  uuid = "7FA91B2A-4660-45C3-BF52-9C98E0EBF1CB - cc7ec93da94a8f7b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Error&gt;) -&gt; () in spark.UserManager.sendFollowRequest(from: Swift.String, to: Swift.String) -&gt; ()"
-                  moduleName = "spark"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/kabirborle/Desktop/personal_projects/spark/spark/UserModel/UserManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "84"
-                  endingLineNumber = "84">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "AF5A0BFF-F7AE-4FBF-9D69-D71580A1CA41"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -108,8 +30,8 @@
             filePath = "spark/UserModel/UserManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "97"
-            endingLineNumber = "97"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
             landmarkName = "handleFollowRequest(_:from:to:approved:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -124,8 +46,8 @@
             filePath = "spark/UserModel/UserManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "96"
-            endingLineNumber = "96"
+            startingLineNumber = "118"
+            endingLineNumber = "118"
             landmarkName = "handleFollowRequest(_:from:to:approved:)"
             landmarkType = "7">
          </BreakpointContent>

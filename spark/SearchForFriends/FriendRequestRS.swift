@@ -30,9 +30,14 @@ struct FriendRequest: View {
         ZStack {
             RoundedRectangle(cornerRadius: 50)
                 .fill(Color.white)
-                .frame(width: 350, height: 150)
+                .frame(width: 350, height: 350)
 
-            VStack {
+            VStack(spacing: 40) {
+                Text("New Friends?")
+                    .font(.title)
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+                
                 Text("Request from \(request.fromUserID)") // Consider fetching the user's name
                     .font(.system(size: 22, weight: .bold))
 

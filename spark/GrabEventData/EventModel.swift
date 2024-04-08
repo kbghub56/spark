@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Event: Identifiable {
+struct Event: Identifiable, Equatable {
     let id: String
     let title: String
     let description: String

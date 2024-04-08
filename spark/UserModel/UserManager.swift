@@ -16,13 +16,16 @@ import MapKit
 class UserManager: ObservableObject {
     @Published var currentUser: User?
     @Published var friendsDistances: [FriendDistance] = []
+    @Published var isLocationOff: Bool = false
     
     init() {
             getCurrentUser { [weak self] user in
                 DispatchQueue.main.async {
                     self?.currentUser = user
             }
+                
         }
+
     }
 
     func followUser(currentUserID: String, targetUserID: String) {
@@ -73,21 +76,40 @@ class UserManager: ObservableObject {
         }
     }
     
-    func sendFollowRequest(from currentUserID: String, to targetUserID: String) {
+    func sendFollowRequest(from currentUserID: String, to targetUserID: String, fromUser fromUsername: String, fromUserDocID fromDocId: String) {
         let db = Firestore.firestore()
-        let followRequest = [
-            "from": currentUserID,
-            "to": targetUserID,
-            "status": "pending"
-        ]
-        db.collection("followRequests").addDocument(data: followRequest) { error in
-            if let error = error {
-                print("Error sending follow request: \(error.localizedDescription)")
+
+        // Fetch the Bitmoji URL of the sender (current user)
+        db.collection("users").document(fromDocId).getDocument { [weak self] document, error in
+            var bitmojiUrl = ""  // Default to an empty string if the URL can't be fetched
+
+            if let document = document, document.exists, let url = document.data()?["bitmojiUrl"] as? String {
+                bitmojiUrl = url  // Update bitmojiUrl if it's available
             } else {
-                print("Follow request sent successfully.")
+                print("Could not fetch sender's Bitmoji URL or it does not exist.")
+            }
+
+            // Create the follow request document using the fetched or default Bitmoji URL
+            let followRequest = [
+                "from": currentUserID,
+                "to": targetUserID,
+                "status": "pending",
+                "fromUsername": fromUsername,
+                "bitmojiUrl": bitmojiUrl  // Use the fetched or default Bitmoji URL
+            ]
+
+            // Send the follow request
+            db.collection("followRequests").addDocument(data: followRequest) { error in
+                if let error = error {
+                    print("Error sending follow request: \(error.localizedDescription)")
+                } else {
+                    print("Follow request sent successfully, Bitmoji URL included.")
+                }
             }
         }
     }
+
+
     
     func handleFollowRequest(_ requestID: String, from fromUserID: String, to toUserID: String, approved: Bool) {
         let db = Firestore.firestore()
@@ -122,7 +144,9 @@ class UserManager: ObservableObject {
                     return FollowRequest(id: doc.documentID,
                                          fromUserID: data["from"] as? String ?? "",
                                          toUserID: data["to"] as? String ?? "",
-                                         status: data["status"] as? String ?? "pending")
+                                         status: data["status"] as? String ?? "pending",
+                                         fromUsername: data["fromUsername"] as? String ?? "",
+                                         bitmojiUrl: data["bitmojiUrl"] as? String ?? "")
                 }
                 completion(requests)
             }
@@ -142,10 +166,10 @@ class UserManager: ObservableObject {
         db.collection("users").document(currentUserID).getDocument { document, error in
             if let document = document, document.exists {
                 do {
-                    let user = try document.data(as: User.self)
+                    var user = try document.data(as: User.self)
+                    user.docID = document.documentID
                     DispatchQueue.main.async {
                         self.currentUser = user // Set the currentUser with fetched user data
-                        print(self.currentUser)
                         completion(user)
                     }
                 } catch let error {
@@ -207,6 +231,50 @@ class UserManager: ObservableObject {
             }
         }
     }
+    
+    func updateUserLocationOffStatus(isLocationOff: Bool) {
+        if(isLocationOff){
+            self.setLocationToNullForCurrentUser()
+        }
+        
+        self.isLocationOff = isLocationOff
+        
+        print("USER MANAGER LOCATION IS LOCATION OFF: \(self.isLocationOff)")
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+
+        let userDocRef = Firestore.firestore().collection("users").document(userID)
+
+        // Update 'locationOff' property directly
+        userDocRef.updateData(["locationOff": isLocationOff]) { err in
+            if let err = err {
+                print("Error updating location off status: \(err.localizedDescription)")
+            } else {
+                print("Successfully updated location off status")
+                DispatchQueue.main.async {
+                    self.isLocationOff = isLocationOff
+                }
+            }
+        }
+    }
+
+    
+    func fetchUserLocationOffStatus(completion: @escaping (Bool) -> Void) {
+        guard let userID = Auth.auth().currentUser?.uid else {
+            completion(false)  // Assuming false means location sharing is enabled by default
+            return
+        }
+
+        let db = Firestore.firestore()
+        db.collection("users").document(userID).getDocument { document, error in
+            if let document = document, document.exists {
+                let locationOff = document.get("locationOff") as? Bool ?? false
+                completion(locationOff)
+            } else {
+                completion(false)
+            }
+        }
+    }
+
 
 
     func getFirebaseUID(uniqueUserID: String, completion: @escaping (String?) -> Void) {
@@ -261,8 +329,9 @@ class UserManager: ObservableObject {
                     let distance = currentLocation.distance(from: friendLocation)  // Distance in meters
                     let bitmojiUrl = friendData["bitmojiUrl"] as? String
                     let lastActive = locationLastUpdated.dateValue()  // Convert Timestamp to Date
+                    let nearbyPlace = friendData["nearbyPlace"] as? String
 
-                    let friendDistance = FriendDistance(id: friendID, email: friendData["email"] as? String ?? "Unknown", distance: distance, bitmojiUrl: bitmojiUrl, userName: friendData["userName"] as? String ?? "Unknown", lastActive: lastActive)
+                    let friendDistance = FriendDistance(id: friendID, email: friendData["email"] as? String ?? "Unknown", distance: distance, bitmojiUrl: bitmojiUrl, userName: friendData["userName"] as? String ?? "Unknown", lastActive: lastActive, nearbyPlace: nearbyPlace)
                     self.friendsDistances.append(friendDistance)
                 }
             }
@@ -283,8 +352,19 @@ class UserManager: ObservableObject {
             }
         }
     }
+    
+    func setLocationToNullForCurrentUser() {
+        guard let userID = Auth.auth().currentUser?.uid else { return }
 
-
+        let usersRef = Database.database().reference().child("users").child(userID)
+        usersRef.updateChildValues(["latitude": 0, "longitude": 0]) { error, _ in
+            if let error = error {
+                print("Error setting location to null: \(error.localizedDescription)")
+            } else {
+                print("Successfully set location to null for user: \(userID)")
+            }
+        }
+    }
 }
 
 
@@ -295,4 +375,5 @@ struct FriendDistance: Identifiable {
     var bitmojiUrl: String?  // Optional Bitmoji URL
     let userName: String
     var lastActive: Date?  // Last active time
+    var nearbyPlace: String?
 }

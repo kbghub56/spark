@@ -11,11 +11,15 @@ import Combine
 
 struct HomeMapView: View {
     @EnvironmentObject var eventsViewModel: EventsViewModel
-    @StateObject private var locationManager = LocationManager()
     @StateObject private var mapState = MapState()
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var userManager: UserManager
+    @StateObject private var locationManager = LocationManager(userManager: UserManager())
     @State private var showingFollowRequestPopup = false
+    @State private var selectedEvent: Event?
+    @State private var showClickEvent = false
+    
+    
     
     
     @State private var isForYouSelected = true
@@ -36,22 +40,28 @@ struct HomeMapView: View {
             currentRequestIndex = 0  // Reset the index for any future follow requests
         }
     }
-
-
-
+    
+    
+    
     var body: some View {
         ZStack {
-            if locationManager.isLocationSharingEnabled {
-                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager)
+            if showingLocationOffView {
+                // WhenLocationOff view is shown directly in the main view hierarchy
+                WhenLocationOff(showingLocationOffView: $showingLocationOffView)
+                    .environmentObject(userManager)
+            } else {
+                
+                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent)
                     .edgesIgnoringSafeArea(.all)
+                    .environment(\.colorScheme, .dark)
                 
                 toggleSection
                 circleButton
                 
                 if showExpandedBlackScreen {
-                    ZStack{
-                        expandedBlackScreenView
-                    }
+                    //                    ZStack{
+                    //                        expandedBlackScreenView
+                    //                    }
                 } else {
                     // Default view when not expanded
                     RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y: 400).onTapGesture {
@@ -60,6 +70,20 @@ struct HomeMapView: View {
                         }
                     }
                 }
+                
+                GeometryReader { _ in
+                    VStack {
+                        Spacer()
+                        if showExpandedBlackScreen{
+                            ZStack{
+                                mapModal
+                            }
+                        } else {
+                            RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y:400).onTapGesture{withAnimation{showExpandedBlackScreen = true}}
+                        }
+                        //  mapModal
+                    }.padding(.horizontal, 0)
+                }.ignoresSafeArea(.all)
                 
                 if showMenu {
                     SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, locationManager: locationManager)
@@ -85,12 +109,25 @@ struct HomeMapView: View {
                 }
                 
                 
+                
             }
-            else{
-                WhenLocationOff()
-            }
-            
         }
+        .overlay(
+            Group {
+                if let selectedEvent = selectedEvent, showClickEvent {
+                    ClickEvent(isPresented: $showClickEvent, event: selectedEvent) {
+                        // Completion closure called when the pop-up is fully faded out
+                        self.selectedEvent = nil
+                    }
+                    .zIndex(1)
+                }
+            }
+        )
+        .onChange(of: selectedEvent) { newValue in
+            withAnimation {
+                showClickEvent = newValue != nil
+            }
+                }
         .onTapGesture {
             withAnimation {
                 if showExpandedBlackScreen {
@@ -102,9 +139,9 @@ struct HomeMapView: View {
             }
         }
         .onAppear {
-                    // This might be redundant if you're already setting the user in UserManager's init
-                    userManager.getCurrentUser { _ in }
-                }
+            // This might be redundant if you're already setting the user in UserManager's init
+            userManager.getCurrentUser { _ in }
+        }
         .onReceive(userManager.$currentUser) { user in
             if let uniqueUserID = user?.uniqueUserID {
                 userManager.fetchFollowRequests(forUserID: uniqueUserID) { requests in
@@ -123,14 +160,15 @@ struct HomeMapView: View {
                 }
             }
         }
-
+        
         .onChange(of: currentRequestIndex) { _ in
             if followRequests.isEmpty {
                 showingFollowRequestPopup = false
             }
             handleFollowRequestVisibility()
         }
-
+        
+        
         
     }
     
@@ -153,7 +191,87 @@ struct HomeMapView: View {
             }
         }
     }
-
+    
+    var mapModal: some View {
+        VStack {
+            RoundedRectangle(cornerRadius: 2.5)
+                .frame(width: 40, height: 5, alignment: .center)
+                .padding(.top, 7)
+            //            Image(systemName: "chevron.compact.down")
+            //                .font(.system(size: 30, weight: .medium, design: .default))
+            //                .foregroundColor(.gray)
+            //                .padding(.top, 16)
+            HStack {
+                Text("Friends")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(selectedTab == 0 ? .white : .gray)
+                    .onTapGesture {
+                        withAnimation {
+                            selectedTab = 0
+                        }
+                    }
+                Spacer()
+                Text("Events")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(selectedTab == 1 ? .white : .gray)
+                    .onTapGesture {
+                        withAnimation {
+                            selectedTab = 1
+                        }
+                    }
+            }.frame(maxWidth: 250)
+                .padding(.top, 10)
+            //                TabView(selection: $selectedTab) {
+            //                    FriendsView().tag(0)
+            //                    EventsView().tag(1)
+            //                }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            
+            if selectedTab == 0 {
+                VStack {
+                    FriendsDistanceListView() // Add the FriendsDistanceListView here
+                        .environmentObject(userManager)
+                        .environmentObject(locationManager)
+                        .background(Color.black.opacity(0.7)) // Semi-transparent black background
+                        .cornerRadius(10)
+                        .padding(.top) // Add padding at the top if necessary
+                    FriendsView().frame(height:100)
+                        .padding(.bottom)
+                }
+            }
+            
+            // This will show the RankedEventsListView when the Events tab is selected
+            if selectedTab == 1 {
+                VStack {
+                    RankedEventsListView()
+                        .environmentObject(eventsViewModel) // Make sure to pass the necessary environment objects
+                        .environmentObject(locationManager)
+                        .padding(.horizontal) // Add padding if necessary
+                        .background(Color.black.opacity(0.7)) // Semi-transparent black background
+                        .cornerRadius(10)
+                        .padding(.top) // Add padding at the top if necessary
+                    EventsView().frame(height:100)
+                        .padding(.bottom)
+                }
+            }
+        }
+        .frame(height: 650)
+        .background(Color.black)
+        .cornerRadius(30)
+        .transition(.move(edge: .bottom)).gesture(
+            DragGesture().onEnded { value in
+                if value.translation.width < 0 {
+                    withAnimation {
+                        selectedTab = 1
+                    }
+                } else if value.translation.width > 0 {
+                    withAnimation {
+                        selectedTab = 0
+                    }
+                }
+            }
+        ).onTapGesture {}
+    }
+    
     var toggleSection: some View {
         ZStack {
             Rectangle().foregroundColor(.clear).frame(width: 100, height: 50).background(Color.white.opacity(0.6)).cornerRadius(50).offset(x: -125, y: -380)
@@ -169,7 +287,7 @@ struct HomeMapView: View {
             }.offset(x: isForYouSelected ? -130 - 17.5 : -160 + 57.5, y: -375 - 5)
         }
     }
-
+    
     var circleButton: some View {
         Button(action: {
             withAnimation {
@@ -179,16 +297,16 @@ struct HomeMapView: View {
             ZStack {
                 Circle().fill(Color.white) // White circle background
                     .frame(width: 75, height: 75) // Size of the white circle
-
+                
                 // Check if a Bitmoji URL exists and is valid
                 if let bitmojiUrl = authViewModel.snapchatBitmojiAvatarUrl, let url = URL(string: bitmojiUrl) {
                     AsyncImage(url: url) { imagePhase in
                         // Handle different states of the image loading process
                         if let image = imagePhase.image {
                             image.resizable() // Make the image resizable
-                                 .aspectRatio(contentMode: .fill) // Fill the content in its aspect ratio
-                                 .frame(width: 65, height: 65) // Slightly smaller than the white circle for padding
-                                 .clipShape(Circle()) // Clip the image to a circle
+                                .aspectRatio(contentMode: .fill) // Fill the content in its aspect ratio
+                                .frame(width: 65, height: 65) // Slightly smaller than the white circle for padding
+                                .clipShape(Circle()) // Clip the image to a circle
                         } else if imagePhase.error != nil {
                             Color.gray // Display a gray area in case of an error
                         } else {
@@ -201,9 +319,9 @@ struct HomeMapView: View {
         .frame(width: 75, height: 75) // Set the frame for the entire button
         .offset(x: 133.50, y: -378.50) // Adjust the offset as needed
     }
-
-
-
+    
+    
+    
     var expandedBlackScreenView: some View {
         VStack {
             HStack(spacing: 20) {
@@ -234,7 +352,7 @@ struct HomeMapView: View {
                     FriendsView()
                 }
             }
-
+            
             // This will show the RankedEventsListView when the Events tab is selected
             if selectedTab == 1 {
                 VStack {
@@ -248,7 +366,6 @@ struct HomeMapView: View {
                     EventsView()
                 }
             }
-
         }
         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 3 / 4)
         .background(Color.black)
@@ -269,67 +386,96 @@ struct HomeMapView: View {
         )
         .onTapGesture { }
     }
-
-  
+    
+    
 }
 struct FriendsView: View {
     @State private var showingAddFriendView = false // State to control sheet presentation
-    @EnvironmentObject var userManager: UserManager
+    @EnvironmentObject var userManager: UserManager // Assuming you still need to pass this to your AddFriends view
+    
     var body: some View {
-        Button(action: {showingAddFriendView = true}) {
-            HStack {
-                Image(systemName: "plus").font(.title)
-                Text("Add Friends").font(.system(size: 22, weight: .bold))
-            }.foregroundColor(.black).padding().background(Color.white).cornerRadius(10)
-        }.padding(.bottom, 20)
-        .sheet(isPresented: $showingAddFriendView) { // Present SearchView as a sheet
-            AddFriends()
-                .environmentObject(userManager) // Pass userManager to SearchView
+        VStack {
+            Spacer()
+            Button(action: {
+                showingAddFriendView = true // Trigger sheet presentation
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus")
+                    Text("Add Friends")
+                }
+                .font(.system(size: 17, weight: .bold))
+                .frame(width: 200, height: 54)
+                .foregroundColor(.black)
+                .background(Color.white)
+                .cornerRadius(10)
+            }
+            .sheet(isPresented: $showingAddFriendView) {
+                AddFriends()
+                    .environmentObject(userManager) // Pass userManager to AddFriends
+            }
         }
     }
 }
+
 struct EventsView: View {
     @State private var showingEventInputView = false
+    
     var body: some View {
-        Button(action: {
-            showingEventInputView = true
-        }) {
-            HStack {
-                Image(systemName: "plus").font(.title)
-                Text("Add Events").font(.system(size: 22, weight: .bold))
-            }.foregroundColor(.black).padding().background(Color.white).cornerRadius(10)
-        }.padding(.bottom, 20)
-        .sheet(isPresented: $showingEventInputView) {
-            AddEvents()
+        VStack {
+            Spacer()
+            Button(action: {
+                showingEventInputView = true
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus")
+                    Text("Add Events")
+                }
+                .font(.system(size: 17, weight: .bold))
+                .frame(width: 200, height: 54)
+                .foregroundColor(.black)
+                .background(Color.white)
+                .cornerRadius(10)
+            }
+            .sheet(isPresented: $showingEventInputView) {
+                AddEvents() // Ensure AddEvents view is implemented in your project
+            }
         }
     }
 }
+
 struct SideMenu: View {
     @Binding var showMenu: Bool
     @Binding var isSwitchOn: Bool
     @Binding var showingLocationOffView: Bool
     @EnvironmentObject var userManager: UserManager
     @EnvironmentObject var authViewModel: AuthViewModel
-    var locationManager: LocationManager
+    var locationManager = LocationManager(userManager: UserManager())
     var body: some View {
         ZStack(alignment: .topTrailing) {
             Color.black.frame(width: UIScreen.main.bounds.width * 3 / 4, height: UIScreen.main.bounds.height).cornerRadius(35).offset(y: -12.5).overlay(
                 VStack(alignment: .leading) {
-                   // Text(authViewModel.sessionTrigger.uuidString).hidden()
+                    // Text(authViewModel.sessionTrigger.uuidString).hidden()
                     Circle().fill(Color.white.opacity(0.5)).frame(width: 100, height: 100).padding(.top, 20).offset(y:0)
                     Group{
                         // Display the current user's username, with a default value if it's nil
                         Group {
-                                if let username = userManager.currentUser?.userName {
-                                    Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
-                                } else {
-                                    Text("Unknown User").font(.system(size: 28).bold()).foregroundColor(.white)
-                                }
+                            if let username = userManager.currentUser?.userName {
+                                Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
+                            } else {
+                                Text("Unknown User").font(.system(size: 28).bold()).foregroundColor(.white)
                             }
+                        }
+                        .offset(x: 120, y: -120)
+                        .padding(.top, 10)
+                        
+                        Text(locationManager.nearbyPlace ?? "Unknown Place")
+                            .font(.system(size: 20).bold())
+                            .foregroundColor(.white)
                             .offset(x: 120, y: -120)
-                            .padding(.top, 10)
-
-                        Text("near this location").font(.system(size: 20).bold()).foregroundColor(.white).offset(x: 120, y:-120).padding(.top, 5)
+                            .padding(.top, 5)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
+                        
                         Text("Location:").font(.system(size: 24).bold()).foregroundColor(.white).offset(y: -45)
                     }
                     VStack {
@@ -345,21 +491,26 @@ struct SideMenu: View {
                             locationManager.isLocationSharingEnabled = isSwitchOn
                             if !isSwitchOn {
                                 showingLocationOffView = true // Present WhenLocationOff view
+                                userManager.updateUserLocationOffStatus(isLocationOff: true)
+                                print(userManager.isLocationOff)
+                            }
+                            else{
+                                userManager.updateUserLocationOffStatus(isLocationOff: false)
                             }
                         }
                     }) {
                         Circle().fill(Color.white).frame(width: 45, height: 45)
                     }.offset(x: isSwitchOn ? -25 : 25).offset(x:175, y: -200)
-
+                    
                     Button("Change") {}.foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(0.8).offset(x: 2.5, y: -325)
                     Button("Sign Out") {authViewModel.logOut()}.font(.system(size: 24).bold()).foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(1).offset(x: 75, y: 210).zIndex(1)
                     
-//                    Button(action: {
-//                        print("SIGNED OUT CLICKED")
-//                                    authViewModel.logOut() // Call logOut function from AuthViewModel
-//                    }) {
-//                        Text("Sign Out").font(.system(size: 24).bold()).foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(1).offset(x: 75, y: 210).zIndex(1)
-//                    }
+                    //                    Button(action: {
+                    //                        print("SIGNED OUT CLICKED")
+                    //                                    authViewModel.logOut() // Call logOut function from AuthViewModel
+                    //                    }) {
+                    //                        Text("Sign Out").font(.system(size: 24).bold()).foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(1).offset(x: 75, y: 210).zIndex(1)
+                    //                    }
                     
                     Text("Your 📷 Collages:").font(.system(size: 28).bold()).foregroundColor(.white).padding(.top, 20).offset(x: 25, y: -280)
                     HStack {
@@ -386,9 +537,11 @@ struct SideMenu: View {
                 }.frame(width: geometry.size.width / 4, height: geometry.size.height)
             }
         }
-        .sheet(isPresented: $showingLocationOffView) {
-                    WhenLocationOff() // Present the WhenLocationOff view when showingLocationOffView is true
-                }
+        //        .fullScreenCover(isPresented: $showingLocationOffView) {
+        //            WhenLocationOff(showingLocationOffView: $showingLocationOffView) // Pass locationManager here
+        //                .environmentObject(userManager)
+        //        }
+        
     }
 }
 
@@ -397,34 +550,70 @@ struct FollowRequestPopup: View {
     var request: FollowRequest
     var onAccept: () -> Void // Closure called when accept is tapped
     var onReject: () -> Void // Closure called when reject is tapped
-
+    
     var body: some View {
-        VStack {
-            Text("Follow Request")
-                .font(.headline)
+        VStack(spacing:40){
+            Text("New Friends?")
+                .font(.title)                                
                 .foregroundColor(.black)
-
-            Text("Request from \(request.fromUserID)")
-                .padding()
-                .foregroundColor(.black)
-
+                .multilineTextAlignment(.center)
+            
             HStack {
+                            LargeBitmojiView(bitmojiUrl: request.bitmojiUrl)
+                            
+                            Text(request.fromUsername)
+                                .font(.largeTitle)
+                                .bold()
+                                .foregroundColor(.black)
+                        }
+            .padding(.trailing)
+            .frame(maxWidth: .infinity, alignment: .center) // Add frame modifier
+
+            
+            HStack(spacing: 45) {
                 Button("Accept") {
                     onAccept() // Call the accept closure provided by the parent view
                 }
-                .buttonStyle(FollowRequestButtonStyle(backgroundColor: .black))
-
+                .foregroundColor(.white)
+                .font(.system(size: 22, weight: .bold))
+                .padding()
+                .scaleEffect(0.8)
+                .background(Color.black)
+                .cornerRadius(10)
+                
                 Button("Reject") {
                     onReject() // Call the reject closure provided by the parent view
                 }
-                .buttonStyle(FollowRequestButtonStyle(backgroundColor: .black))
+                .foregroundColor(.white)
+                .scaleEffect(0.8)
+                .font(.system(size: 22, weight: .bold))
+                .padding()
+                .background(Color.black)
+                .cornerRadius(10)
             }
         }
-        .frame(width: 300, height: 200)
+        .frame(width: 350, height: 350)
         .background(Color.white)
-        .cornerRadius(20)
+        .cornerRadius(50)
         .shadow(radius: 10)
         .padding()
+    }
+}
+
+struct LargeBitmojiView: View {
+    let bitmojiUrl: String
+    
+    var body: some View {
+        if let url = URL(string: bitmojiUrl) {
+            AsyncImage(url: url) { image in
+                image.resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 100, height: 100) // Adjust the size as needed
+                    .clipShape(Circle())
+            } placeholder: {
+                Circle().fill(Color.gray).frame(width: 100, height: 100) // Adjust the size as needed
+            }
+        }
     }
 }
 
@@ -432,7 +621,7 @@ struct FollowRequestPopup: View {
 
 struct FollowRequestButtonStyle: ButtonStyle {
     var backgroundColor: Color
-
+    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
@@ -453,7 +642,10 @@ struct RankedEventsListView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var eventsViewModel: EventsViewModel
     @EnvironmentObject var locationManager: LocationManager
+    @State private var showClickEvent: Bool = false
+    @State private var selectedEvent: Event? = nil
 
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -462,111 +654,113 @@ struct RankedEventsListView: View {
                         HStack {
                             // Placeholder circle
                             // Replace the placeholder circle with conditional emojis
-                                if event.visibility == "Everyone" {
-                                    Text("🎉") // Emoji for Everyone
-                                        .font(.system(size: 50))
-                                        .padding(.leading, 10)// Adjust size as needed
-                                } else if event.visibility == "Friends and Mutuals Only" {
-                                    Text("🤗") // Emoji for Friends and Mutuals Only
-                                        .font(.system(size: 50))
-                                        .padding(.leading, 10)// Adjust size as needed
-                                } else if event.visibility == "Friends Only" {
-                                    Text("😁") // Emoji for Friends Only
-                                        .font(.system(size: 50))
-                                        .padding(.leading, 10)// Adjust size as needed
-                                } else {
-                                    Circle() // Fallback to the circle if none of the conditions match
-                                        .strokeBorder(Color.white, lineWidth: 2)
-                                        .background(Circle().fill(Color.gray.opacity(0.3)))
-                                        .frame(width: 60, height: 60)
-                                        .padding(.leading, 10)
-                                }
-                   //             .padding(.leading, 10)
-                                
+                            if event.visibility == "Everyone" {
+                                Text("🎉") // Emoji for Everyone
+                                    .font(.system(size: 50))
+                                    .padding(.leading, 10)// Adjust size as needed
+                            } else if event.visibility == "Friends and Mutuals Only" {
+                                Text("🤗") // Emoji for Friends and Mutuals Only
+                                    .font(.system(size: 50))
+                                    .padding(.leading, 10)// Adjust size as needed
+                            } else if event.visibility == "Friends Only" {
+                                Text("😁") // Emoji for Friends Only
+                                    .font(.system(size: 50))
+                                    .padding(.leading, 10)// Adjust size as needed
+                            } else {
+                                Circle() // Fallback to the circle if none of the conditions match
+                                    .strokeBorder(Color.white, lineWidth: 2)
+                                    .background(Circle().fill(Color.gray.opacity(0.3)))
+                                    .frame(width: 60, height: 60)
+                                    .padding(.leading, 10)
+                            }
+                            //             .padding(.leading, 10)
+                            
                             
                             
                             VStack(alignment: .leading, spacing: 4) { // Use alignment .leading
-                             
+                                
                                 Text(event.title)
                                     .bold()
                                     .font(.title3)
                                     .foregroundColor(.white)
                                     .offset(y:-9)
-            
-                                    
-                      
+                                
+                                
+                                
                                 
                                 Text(truncateLocation(event.locTitle, event.locSubtitle))
-                                                                    .font(.system(size: 12))
-                                                                    .foregroundColor(.white)
-                                                                    .offset(y: -9)
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.white)
+                                    .offset(y: -9)
                                 // Display calculated distance
                                 Text(calculateDistanceToEvent(event: event))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white)
                                     .offset(y: -9)
                                 Button(action: {
-                                    // Leave the action empty for now
+                                    self.selectedEvent = event
+                                    self.showClickEvent = true
                                 }) {
                                     Text("See More")
                                         .font(.system(size: 14))
-                                        .foregroundColor(Color.blue) // Baby blue color
+                                        .foregroundColor(Color.blue) // Adjust color to your preference
                                 }
+
                                 .buttonStyle(PlainButtonStyle()) // Use PlainButtonStyle to avoid any default button styling
-        //                        .padding(.bottom, 5) // Add some padding to space it out from the bottom edge
+                                //                        .padding(.bottom, 5) // Add some padding to space it out from the bottom edge
                                 .overlay(Rectangle().frame(height: 2).foregroundColor(Color.blue), alignment: .bottom) // Add underline effect
                             }
                             .padding(.leading, 10) // Apply padding to the VStack to position both texts
-                
+                            
                             
                             Spacer()
- 
+                            
                             VStack{
                                 HStack(spacing: 12) { // You can adjust the spacing as needed
-                                        // Heart button
+                                    // Heart button
                                     Button(action: {
-                                            let currentUserID = self.authViewModel.currentUserID ?? ""
-                                            let isLiked = event.likedBy.contains(currentUserID)
-                                            
-                                            if isLiked {
-                                                eventsViewModel.unlikeEvent(eventID: event.id, currentUserID: currentUserID)
-                                            } else {
-                                                // Call likeEvent if the event is not currently liked
-                                                eventsViewModel.likeEvent(eventID: event.id, currentUserID: currentUserID, isLiked: true)
-                                            }
-                                        }) {
-                                            Image(systemName: event.likedBy.contains(authViewModel.currentUserID ?? "") ? "heart.fill" : "heart")
-                                                .font(.title)
-                                                .foregroundColor(event.likedBy.contains(authViewModel.currentUserID ?? "") ? .red : Color(.sRGB, red: 1, green: 1, blue: 1, opacity: 1.0)) // Red if liked, translucent if not
+                                        let currentUserID = self.authViewModel.currentUserID ?? ""
+                                        let isLiked = event.likedBy.contains(currentUserID)
+                                        
+                                        if isLiked {
+                                            eventsViewModel.unlikeEvent(eventID: event.id, currentUserID: currentUserID)
+                                        } else {
+                                            // Call likeEvent if the event is not currently liked
+                                            eventsViewModel.likeEvent(eventID: event.id, currentUserID: currentUserID, isLiked: true)
                                         }
-                                        .padding(.top, 4)
-                                        .offset(y: -9)
-
-                                        // Share button
-                                        Button(action: {
-                                            // Share button action
-                                        }) {
-                                            Image(systemName: "square.and.arrow.up")
-                                                .font(.title)
-                                                .foregroundColor(.white) // Adjust color as needed
-                                        }
-                                        .padding(.trailing, 15) // Add padding to the right of the share button
-                                        .padding(.top, 1)
-                                        .offset(y: -9)
+                                    }) {
+                                        Image(systemName: event.likedBy.contains(authViewModel.currentUserID ?? "") ? "heart.fill" : "heart")
+                                            .font(.title)
+                                            .foregroundColor(event.likedBy.contains(authViewModel.currentUserID ?? "") ? .red : Color(.sRGB, red: 1, green: 1, blue: 1, opacity: 1.0)) // Red if liked, translucent if not
                                     }
-                                    Spacer() // Pushes the content to the top of the VStack
+                                    .padding(.top, 4)
+                                    .offset(y: -9)
+                                    
+                                    // Share button
+                                    Button(action: {
+                                        // Share button action
+                                    }) {
+                                        Image(systemName: "square.and.arrow.up")
+                                            .font(.title)
+                                            .foregroundColor(.white) // Adjust color as needed
+                                    }
+                                    .padding(.trailing, 15) // Add padding to the right of the share button
+                                    .padding(.top, 1)
+                                    .offset(y: -9)
+                                }
+                                Spacer() // Pushes the content to the top of the VStack
                                 // Likes count text
                                 // HStack for Bitmojis of friends who liked the event
                                 HStack(spacing: 0){
-//                                    
-//                                    Text("liked")//.padding(.trailing, 25)
-//                                        .font(.system(size: 12))
-//                                        .padding(.trailing, 3)
+                                    //
+                                    //                                    Text("liked")//.padding(.trailing, 25)
+                                    //                                        .font(.system(size: 12))
+                                    //                                        .padding(.trailing, 3)
                                     
                                     Image(systemName: "heart.fill")
-                                            .foregroundColor(.red) // Set the color to red
-                                            .font(.system(size: 12)) // Adjust the size as needed
-                                           // .padding(.trailing, 4) // Add some space between the heart and the Bitmojis
+                                        .foregroundColor(.red) // Set the color to red
+                                        .font(.system(size: 12)) // Adjust the size as needed
+                                    // .padding(.trailing, 4) // Add some space between the heart and the Bitmojis
                                     HStack(spacing: -10) {
                                         
                                         ForEach(event.likedBy.filter { eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }, id: \.self) { userId in
@@ -590,10 +784,10 @@ struct RankedEventsListView: View {
                                         }
                                     }//.padding(.leading, 17)
                                     Text("&more")
-                                            .font(.system(size: 12))
-                                            // Adjust padding as needed to align with your design
-                                            .padding(.leading, 4)
-                                   
+                                        .font(.system(size: 12))
+                                    // Adjust padding as needed to align with your design
+                                        .padding(.leading, 4)
+                                    
                                 }
                             }
                             
@@ -601,8 +795,8 @@ struct RankedEventsListView: View {
                         }
                         .padding(.vertical, 10)
                         
-                       
-                       
+                        
+                        
                         // Light rectangular border below each event
                         Rectangle()
                             .fill(Color.white.opacity(0.2)) // Light-colored line
@@ -617,7 +811,39 @@ struct RankedEventsListView: View {
         .background(Color.black.opacity(0.7))
         .cornerRadius(30)
         .padding(.horizontal, 15)
- 
+        // Conditionally show the ClickEvent view as a popup
+        .overlay(
+                    Group {
+                        if showClickEvent && selectedEvent != nil {
+                            Color.black.opacity(0.4) // Dimmed background
+                                .edgesIgnoringSafeArea(.all)
+                                .onTapGesture {
+                                    // Close the popup when the dimmed background is tapped
+                                    withAnimation {
+                                        showClickEvent = false
+                                        selectedEvent = nil
+                                    }
+                                }
+
+                            ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
+                                // Completion closure called when the pop-up is fully faded out
+                                self.selectedEvent = nil
+                            }
+                     //       .frame(width: 375, height: 405) // Adjust the popup size as needed
+                     //       .background(Color.white) // Set your desired background
+                      //      .cornerRadius(20)
+                            .shadow(radius: 20)
+                           .overlay(
+                                RoundedRectangle(cornerRadius: 25) // Match this cornerRadius with the one used in .background
+                                    .stroke(Color.white, lineWidth: 1) // Set the color and line width of the border
+                            )
+                            .transition(.scale) // Add a transition effect if desired
+                            .zIndex(1) // Ensure the popup is always on top
+                            .onTapGesture { }
+                                        .gesture(DragGesture().onChanged{_ in }) // Prevent drag to dismiss from background
+                        }
+                    }, alignment: .center // Align the overlay in the center of the ScrollView
+                )
     }
     
     // Function to truncate location title and subtitle
@@ -636,11 +862,11 @@ struct RankedEventsListView: View {
         guard let userLocation = locationManager.currentLocation else {
             return "Distance unknown"
         }
-
+        
         let eventLocation = CLLocation(latitude: event.latitude, longitude: event.longitude)
         let distanceInMeters = userLocation.distance(from: eventLocation)
         let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
-
+        
         if distanceInMiles < 1 {
             return "< 1 mi away"
         } else {
@@ -653,14 +879,14 @@ struct RankedEventsListView: View {
 
 struct FriendBitmojiView: View {
     let bitmojiUrl: String
-
+    
     var body: some View {
         if let url = URL(string: bitmojiUrl) {
             AsyncImage(url: url) { image in
                 image.resizable()
-                     .aspectRatio(contentMode: .fill)
-                     .frame(width: 20, height: 20)
-                     .clipShape(Circle())
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 20, height: 20)
+                    .clipShape(Circle())
             } placeholder: {
                 Circle().fill(Color.gray).frame(width: 20, height: 20)
             }
@@ -671,59 +897,86 @@ struct FriendBitmojiView: View {
 
 struct FriendsDistanceListView: View {
     @EnvironmentObject var userManager: UserManager
-
+    @EnvironmentObject var locationManager: LocationManager
+    
     var body: some View {
-        ScrollView {
-            VStack(spacing: 15) { // Adjusted spacing between rows
-                ForEach(userManager.friendsDistances) { friendDistance in
-                    HStack {
-                        if let bitmojiUrl = friendDistance.bitmojiUrl, let url = URL(string: bitmojiUrl) {
-                            AsyncImage(url: url) { image in
-                                image.resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
-                            } placeholder: {
-                                Circle().fill(Color.gray).frame(width: 30, height: 30)
-                            }
-                        }
-                        Text(friendDistance.userName)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
-                            .font(.system(size: 25)) // Font size for the username
-
-                        Spacer()
-
-                        VStack(alignment: .trailing) {
-                            // Distance display
-                            if friendDistance.distance / 1609.34 < 1 {
-                                Text("< 1 mi away")
-                                    .foregroundColor(.gray)
-                            } else {
-                                let miles = (friendDistance.distance / 1609.34).rounded()
-                                Text("\(Int(miles)) mi away")
-                                    .foregroundColor(.gray)
+        if userManager.friendsDistances.isEmpty {
+            ScrollView {
+                VStack {
+                    Text("Find your friends here")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.vertical, 20)
+                    
+                    Spacer() // Add a Spacer to push the message to the top
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.black.opacity(0.7))
+            }
+        }  else {
+            ScrollView {
+                VStack(spacing: 15) { // Adjusted spacing between rows
+                    ForEach(userManager.friendsDistances) { friendDistance in
+                        HStack {
+                            if let bitmojiUrl = friendDistance.bitmojiUrl, let url = URL(string: bitmojiUrl) {
+                                AsyncImage(url: url) { image in
+                                    image.resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    Circle().fill(Color.gray).frame(width: 30, height: 30)
+                                }
                             }
                             
-                            // Activity status with adjusted font size
-                            let status = activityStatus(for: friendDistance.lastActive!)
-                            Text(status.text)
-                                .foregroundColor(status.color.opacity(status.opacity))
-                                .font(.system(size: 14)) // Increased font size for "Active/Away" captions
+                            // Use a VStack for the username and nearby place
+                            VStack(alignment: .leading, spacing: 2) {  // Reduced spacing to keep elements closer
+                                Text(friendDistance.userName)
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 25))  // Font size for the username
+                                
+                                // Display the nearby place with smaller font size under the username
+                                Text(friendDistance.nearbyPlace?.trimmedAddress() ?? "")
+                                    .foregroundColor(.gray)  // Use a lighter color for less emphasis
+                                    .font(.system(size: 14))  // Smaller font size similar to "Active/Away"
+                                    .lineLimit(1) // Limit to one line
+                                    .truncationMode(.tail) // Truncate at the end if needed
+                            }
+                            .padding(.leading, 10)
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .trailing) {
+                                // Distance display
+                                if friendDistance.distance / 1609.34 < 1 {
+                                    Text("< 1 mi away")
+                                        .foregroundColor(.gray)
+                                } else {
+                                    let miles = (friendDistance.distance / 1609.34).rounded()
+                                    Text("\(Int(miles)) mi away")
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                // Activity status
+                                let status = activityStatus(for: friendDistance.lastActive!)
+                                Text(status.text)
+                                    .foregroundColor(status.color.opacity(status.opacity))
+                                    .font(.system(size: 14))  // Font size for "Active/Away" captions
+                            }
                         }
-                    }
-                    .padding(.vertical, 10) // Adjusted vertical padding for each row to balance spacing
-                }.padding(.top, 10)
-                Spacer()
-            }.padding() // Add padding if necessary
+                        .padding(.vertical, 10) // Adjusted vertical padding for each row to balance spacing
+                    }.padding(.top, 10)
+                    Spacer()
+                }.padding() // Add padding if necessary
+            }
+            .background(Color.black.opacity(0.7))
         }
-        .background(Color.black.opacity(0.7))
     }
-
+    
     private func activityStatus(for lastActiveDate: Date) -> (text: String, color: Color, opacity: Double) {
         let now = Date()
         let twelveHoursAgo = now.addingTimeInterval(-43200)  // 12 hours = 43,200 seconds
-
+        
         if lastActiveDate > twelveHoursAgo {
             // Muted green for "Active" status
             let activeColor = Color(red: 137 / 255, green: 198 / 255, blue: 142 / 255)
@@ -735,6 +988,16 @@ struct FriendsDistanceListView: View {
         }
     }
 }
+extension String {
+    func trimmedAddress() -> String {
+        let components = self.components(separatedBy: ", ")
+        if components.count >= 3 {
+            return components[0...3].joined(separator: ", ")
+        }
+        return self  // Return the original string if it doesn't have enough components
+    }
+}
+
 
 
 

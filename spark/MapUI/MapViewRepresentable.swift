@@ -7,11 +7,27 @@ struct MapViewRepresentable: UIViewRepresentable {
     @ObservedObject var eventsViewModel: EventsViewModel
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var mapState: MapState
+    @Binding var selectedEvent: Event?
     var authViewModel: AuthViewModel
     var userManager: UserManager
 
     var mapView = MKMapView()
     var friendsLocationsCache: [String: CLLocation] = [:]
+    
+    init(eventsViewModel: EventsViewModel,
+         locationManager: LocationManager,
+         mapState: MapState,
+         authViewModel: AuthViewModel,
+         userManager: UserManager,
+         selectedEvent: Binding<Event?>) {
+        
+        self.eventsViewModel = eventsViewModel
+        self.locationManager = locationManager
+        self.mapState = mapState
+        self.authViewModel = authViewModel
+        self.userManager = userManager
+        self._selectedEvent = selectedEvent
+    }
 
     func makeUIView(context: Context) -> MKMapView {
         //locationManager.userManager = userManager

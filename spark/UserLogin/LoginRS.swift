@@ -15,6 +15,8 @@ struct LoginView: View {
     @State private var errorMessage: String?
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var showingSignUp = false
+    @Environment(\.presentationMode) var presentationMode
+
 //    @State private var name: String = ""
 //    @State private var email: String = ""
 //    @State private var password: String = ""
@@ -25,9 +27,9 @@ struct LoginView: View {
             ZStack {
                 VStack(spacing: 40) {
                     Text("Log In")
-                        .font(.system(size: 48)).bold()
+                        .font(.largeTitle)
+                        .bold()
                         .foregroundColor(.white)
-                        .offset(y: 125)
                     
                     Group {
                         TextField("Email", text: $email)
@@ -36,8 +38,6 @@ struct LoginView: View {
                             .background(Color(red: 0.85, green: 0.85, blue: 0.85))
                             .cornerRadius(10)
                             .frame(width: 237.1875)
-                            .offset(y: 125)
-                            .foregroundColor(.black)
                         
                         SecureField("Password", text: $password)
                             .autocapitalization(.none)
@@ -45,13 +45,8 @@ struct LoginView: View {
                             .background(Color(red: 0.85, green: 0.85, blue: 0.85))
                             .cornerRadius(10)
                             .frame(width: 237.1875)
-                            .offset(y: 125)
-                            .foregroundColor(.black)
                         
-                        if let errorMessage = errorMessage {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                        }
+                        
                     }
                     
                     Button(action: {
@@ -59,39 +54,38 @@ struct LoginView: View {
                         }
                     ) {
                         Text("Confirm")
-                            .font(.system(size: 32)).bold()
                             .foregroundColor(.black)
-                            .frame(width: 220, height: 60)
+                            .frame(width: 180, height: 60)
                             .background(Color.white)
                             .cornerRadius(45)
                     }
-                    .offset(y: 175)
                     Spacer()
                     
                     // Changed to a Button
                     Button(action: {
-                        showingSignUp = true                  }) {
-                        Text("Don't have an account yet?")
-                            .font(.system(size: 24)).bold()
+                        presentationMode.wrappedValue.dismiss()
+                        authViewModel.logInThroughLogin = false
+                    }) {
+                        Text("Don't have an account?")
+                            .font(.system(size: 17))
                             .underline()
                             .foregroundColor(.white)
                     }
-                    .offset(y: -275)
                     
-                    if let errorMessage = errorMessage {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                    }
+                    
                 }
-                .padding(.horizontal, 40)
-                .padding(.vertical, 20)
-            }
-            .offset(y: 80)
-            .frame(width: 430, height: 932)
-            .background(.black)
-            .sheet(isPresented: $showingSignUp) {
-                SignUpView()
-                    .environmentObject(authViewModel)
+                .padding(.vertical, 160)
+                .frame(width: 430, height: 932)
+                .background(.black)
+                
+                if let errorMessage = errorMessage {
+                    Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .transition(.slide)
+                            .zIndex(1) // Ensure the error message is layered above other content
+                            .offset(y: -375) // Adjust this value to position the error message at the desired location
+                    }
             }
         }
     }

@@ -139,7 +139,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
             case "Friends Only":
                 imageName = "FriendsBare"
             case "Friends and Mutuals Only":
-                imageName = "FriendsAndMutuals"
+                imageName = "FriendsAndMutualsBare"
             default:
                 imageName = "EveryoneBare"
             }
@@ -156,19 +156,6 @@ class Coordinator: NSObject, MKMapViewDelegate {
                 self.updateScaleFactorFor(view: view, at: self.zoomLevel)
             }
             
-            // Call updateScaleFactorFor to resize the annotation view based on the current zoom level
-            
-            
-            // Setup like button for each event annotation
-//            let likeButton = LikeButton(type: .custom)
-//            if let currentUserID = authViewModel.currentUserID {
-//                likeButton.isLiked = eventAnnotation.likedBy.contains(currentUserID)
-//            }
-//            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-//            likeButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-//            likeButton.eventID = eventAnnotation.id
-//            likeButton.addTarget(self, action: #selector(handleLikeButtonTap(_:)), for: .touchUpInside)
-//            view.rightCalloutAccessoryView = likeButton
             
             self.eventAnnotationView = view
             view.canShowCallout = false
@@ -230,7 +217,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
             let event = parent.eventsViewModel.allEvents.first { $0.id == eventAnnotation.id }
             
             DispatchQueue.main.async {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withAnimation(.easeInOut(duration: 0.1)) {
                     self.parent.selectedEvent = event
                 }
             }
@@ -240,7 +227,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         if view.annotation is EventAnnotation {
             DispatchQueue.main.async {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withAnimation(.easeInOut(duration: 0.1)) {
                     self.parent.selectedEvent = nil
                 }
             }

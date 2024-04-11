@@ -26,6 +26,9 @@ class AuthViewModel: ObservableObject {
     @Published var navigateToLocationQuestion = false
     @Published var navigateToInitFriends = false
     @Published var logInThroughLogin = false
+    @Published var userSignUpProgress: SignUpProgress = .initial
+    @Published var loggedInThroughLoginPage = false
+    @Published var hasBitmoji = false
 
     
 
@@ -66,6 +69,8 @@ class AuthViewModel: ObservableObject {
             self.isUserAuthenticated = false
             self.currentUserID = nil  // Clear the current user ID on logout
           //  sessionTrigger = UUID() // Update the UUID on logout
+            self.loggedInThroughLoginPage = false // Add this line
+            self.hasBitmoji = false
         } catch let signOutError as NSError {
             print("Error signing out: %@", signOutError)
         }
@@ -81,16 +86,24 @@ extension AuthViewModel {
                 print("Error signing up: \(error!.localizedDescription)")
                 return
             }
+            self.userSignUpProgress = .signedUp
+
             // Proceed to generate a unique user ID
             self.assignUniqueUserID(for: user, username: username) { success in
                 if success {
                     print("SUCCESSS")
-                    self.navigateToLocationQuestion = true
+                    
+
+              //      self.navigateToLocationQuestion = true
                    // self.navigateToSnapAvatar1 = true  // Set navigateToSnapAvatar1 to true
                 }
                 completion(success)
             }
         }
+    }
+    
+    func completeSignUp() {
+        userSignUpProgress = .signUpCompleted
     }
     
     
@@ -171,7 +184,9 @@ extension AuthViewModel {
                 self.snapchatBitmojiAvatarId = bitmojiAvatarId
                 self.snapchatBitmojiWalkingUrl = bitmojiWalkUrl
                 print("Document successfully updated with Bitmoji URL and Avatar ID")
-                self.navigateToSnapAvatar2 = true
+                self.userSignUpProgress = .bitmojiConnected
+
+          //      self.navigateToSnapAvatar2 = true
             }
         }
     }
@@ -217,6 +232,9 @@ extension AuthViewModel {
                     if let friendsIds = document.data()?["friends"] as? [String] {
                         self?.fetchFriendsBitmojiUrls(friendsIds: friendsIds)
                     }
+                    if self?.snapchatBitmojiAvatarUrl != nil{
+                        self?.hasBitmoji = true
+                    }
                 } else {
                     print("Document does not exist or error fetching document: \(error?.localizedDescription ?? "Unknown error")")
                 }
@@ -250,3 +268,10 @@ extension AuthViewModel {
 }
 
 
+
+enum SignUpProgress {
+    case initial
+    case signedUp
+    case bitmojiConnected
+    case signUpCompleted
+}

@@ -46,54 +46,54 @@ struct ClickEvent: View {
                     Spacer()
                     
                     VStack(spacing: 10) {
-                                            HStack {
-                                                Text("Start:")
-                                                    .font(.system(size: 17))
-                                                    .foregroundColor(.white)
-                                                
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(Color.white)
-                                                    .frame(width: 110, height: 30)
-                                                    .overlay(
-                                                        Text(formatDate(event.startDate))
-                                                            .font(.system(size: 14))
-                                                            .foregroundColor(.black)
-                                                    )
-                                                
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(Color.white)
-                                                    .frame(width: 70, height: 30)
-                                                    .overlay(
-                                                        Text(formatTime(event.startDate))
-                                                            .font(.system(size: 14))
-                                                            .foregroundColor(.black)
-                                                    )
-                                            }
-                                            
-                                            HStack {
-                                                Text("End:")
-                                                    .font(.system(size: 17))
-                                                    .foregroundColor(.white)
-                                                
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(Color.white)
-                                                    .frame(width: 110, height: 30)
-                                                    .overlay(
-                                                        Text(formatDate(event.endDate))
-                                                            .font(.system(size: 14))
-                                                            .foregroundColor(.black)
-                                                    )
-                                                
-                                                RoundedRectangle(cornerRadius: 10)
-                                                    .fill(Color.white)
-                                                    .frame(width: 70, height: 30)
-                                                    .overlay(
-                                                        Text(formatTime(event.endDate))
-                                                            .font(.system(size: 14))
-                                                            .foregroundColor(.black)
-                                                    )
-                                            }
-                                        }
+                        HStack {
+                            Text("Start:")
+                                .font(.system(size: 17))
+                                .foregroundColor(.white)
+                            
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white)
+                                .frame(width: 110, height: 30)
+                                .overlay(
+                                    Text(formatDate(event.startDate))
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.black)
+                                )
+                            
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white)
+                                .frame(width: 70, height: 30)
+                                .overlay(
+                                    Text(formatTime(event.startDate))
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.black)
+                                )
+                        }
+                        
+                        HStack {
+                            Text("End:")
+                                .font(.system(size: 17))
+                                .foregroundColor(.white)
+                            
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white)
+                                .frame(width: 110, height: 30)
+                                .overlay(
+                                    Text(formatDate(event.endDate))
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.black)
+                                )
+                            
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white)
+                                .frame(width: 70, height: 30)
+                                .overlay(
+                                    Text(formatTime(event.endDate))
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.black)
+                                )
+                        }
+                    }
                     
                     Spacer()
                     
@@ -128,7 +128,7 @@ struct ClickEvent: View {
                         // Initialize the isLiked state when the view appears
                         self.isLiked = event.likedBy.contains(authViewModel.currentUserID ?? "")
                     }
-
+                    
                     VStack {
                         Button(action: {
                             withAnimation {
@@ -138,55 +138,57 @@ struct ClickEvent: View {
                         }) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 24 * 1.5))
-                                //.scaleEffect(isShared ? 1.5 : 1)
+                            //.scaleEffect(isShared ? 1.5 : 1)
                                 .foregroundColor(.white)
                         }
                     }
                 }
                 
                 // Display the Bitmojis of the user's friends who liked the event
-                HStack(spacing: 0) {
-                    Text("Liked by")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
-                    
-                    Image(systemName: "heart.fill")
-                        .foregroundColor(.red)
-                        .font(.system(size: 12))
-                    
-                    HStack(spacing: -10) {
-                        ForEach(event.likedBy.filter { eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }, id: \.self) { userId in
-                            if let bitmojiUrl = authViewModel.friendsBitmojiUrls[userId], let url = URL(string: bitmojiUrl) {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image.resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 27, height: 27)
-                                            .clipShape(Circle())
-                                    case .failure(_):
-                                        Circle().fill(Color.gray).frame(width: 27, height: 27)
-                                    case .empty:
-                                        ProgressView()
-                                    @unknown default:
-                                        EmptyView()
+                if !event.likedBy.filter({ eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }).isEmpty{
+                    HStack(spacing: 0) {
+                        Text("Liked by")
+                            .font(.system(size: 12))
+                            .foregroundColor(.white)
+                        
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(.red)
+                            .font(.system(size: 12))
+                        
+                        HStack(spacing: -10) {
+                            ForEach(event.likedBy.filter { eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }, id: \.self) { userId in
+                                if let bitmojiUrl = authViewModel.friendsBitmojiUrls[userId], let url = URL(string: bitmojiUrl) {
+                                    AsyncImage(url: url) { phase in
+                                        switch phase {
+                                        case .success(let image):
+                                            image.resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 27, height: 27)
+                                                .clipShape(Circle())
+                                        case .failure(_):
+                                            Circle().fill(Color.gray).frame(width: 27, height: 27)
+                                        case .empty:
+                                            ProgressView()
+                                        @unknown default:
+                                            EmptyView()
+                                        }
                                     }
                                 }
                             }
                         }
+                        .onAppear {
+                            // Initialize the isLiked state when the view appears
+                            self.isLiked = event.likedBy.contains(authViewModel.currentUserID ?? "")
+                            print("is it liked: \(self.isLiked)")
+                        }
+                        
+                        Text("&more")
+                            .font(.system(size: 12))
+                            .foregroundColor(.white)
+                            .padding(.leading, 4)
                     }
-                    .onAppear {
-                        // Initialize the isLiked state when the view appears
-                        self.isLiked = event.likedBy.contains(authViewModel.currentUserID ?? "")
-                        print("is it liked: \(self.isLiked)")
-                    }
-                    
-                    Text("&more")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
-                        .padding(.leading, 4)
+                    .padding(.top, 10)
                 }
-                .padding(.top, 10)
             }
             .frame(width: 375, height: 405)
             .background(.black)
@@ -196,23 +198,23 @@ struct ClickEvent: View {
     }
     
     func getEventImage(_ event: Event) -> String {
-            switch event.visibility {
-            case "Everyone":
-                return "EveryoneParty"
-            case "Friends and Mutuals Only":
-                return "FriendsAndMutuals"
-            case "Friends Only":
-                return "FriendsOnly"
-            default:
-                return "EveryoneParty"
-            }
+        switch event.visibility {
+        case "Everyone":
+            return "EveryoneParty"
+        case "Friends and Mutuals Only":
+            return "FriendsAndMutuals"
+        case "Friends Only":
+            return "FriendsOnly"
+        default:
+            return "EveryoneParty"
         }
+    }
     
     func shareEvent() {
-        let eventDetails = "\(event.title ?? "Event Name")\n\n" +
-                           "Invite Status: \(event.visibility ?? "Invite Status")\n" +
-                           "Location: \(event.locTitle ?? "Location Title")\n\n" +
-                           "\(event.description ?? "Description")"
+        let eventDetails = "\(event.title)\n\n" +
+        "Invite Status: \(event.visibility ?? "Invite Status")\n" +
+        "Location: \(event.locTitle ?? "Location Title")\n\n" +
+        "\(event.description ?? "Description")"
         
         let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
         
@@ -223,16 +225,16 @@ struct ClickEvent: View {
     }
     
     // Helper function to format the date
-       private func formatDate(_ date: Date) -> String {
-           let dateFormatter = DateFormatter()
-           dateFormatter.dateFormat = "MMM d, yyyy"
-           return dateFormatter.string(from: date)
-       }
-       
-       // Helper function to format the time
-       private func formatTime(_ date: Date) -> String {
-           let dateFormatter = DateFormatter()
-           dateFormatter.dateFormat = "h:mm a"
-           return dateFormatter.string(from: date)
-       }
+    private func formatDate(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        return dateFormatter.string(from: date)
+    }
+    
+    // Helper function to format the time
+    private func formatTime(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "h:mm a"
+        return dateFormatter.string(from: date)
+    }
 }

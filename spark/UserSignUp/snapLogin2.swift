@@ -27,7 +27,7 @@ struct SnapAvatar2: View {
                     
                     Spacer()
                     
-                    if let bitmojiUrl = authViewModel.snapchatBitmojiAvatarUrl {
+                    if let bitmojiUrl = authViewModel.snapchatBitmojiWalkingUrl {
                         AsyncImage(url: URL(string: bitmojiUrl)) { image in
                             image
                                 .resizable()
@@ -45,7 +45,8 @@ struct SnapAvatar2: View {
                     
                     Spacer()
                     
-                    Button(action: {                        authViewModel.navigateToInitFriends = true
+                    Button(action: {                        
+                        authViewModel.completeSignUp()
                     }) {
                         Text("Continue")
                             .font(.system(size: 17, weight: .bold))

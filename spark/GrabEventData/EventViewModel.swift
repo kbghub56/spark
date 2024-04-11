@@ -143,6 +143,7 @@ class EventsViewModel: ObservableObject {
     }
     
     func fetchEvents() {
+        print("FETCHInG EVENTS")
         let ref = Database.database().reference(withPath: "events")
         ref.observe(.value, with: { [weak self] snapshot in
             guard let self = self else { return }

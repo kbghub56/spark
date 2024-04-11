@@ -26,11 +26,19 @@ struct AddEvents: View {
     @State private var friendsOnlyText: String = "Friends Only"
     @ObservedObject var viewModel = EventDateTimeViewModel()
     @StateObject var viewModelLoc = LocationSearchViewModel()
+    @State private var isDescriptionTooLong = false
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         ZStack {
+            if isDescriptionTooLong {
+                Text("Description must be 80 characters or less")
+                    .foregroundColor(.red)
+                    .offset(y: -375)
+            }
             VStack(alignment: .leading, spacing: 32.5) {
+                
+
                 HStack {
                     Spacer()
                     Text("Add Event")
@@ -49,10 +57,13 @@ struct AddEvents: View {
                     .foregroundColor(.white)
                 
                 TextField("Theme, description, etc!", text: $eventDescription)
-                    .padding(32)
+                    .padding()
                     .background(Color.gray)
                     .cornerRadius(10)
                     .foregroundColor(.white)
+                    .onChange(of: eventDescription) { newValue in
+                            isDescriptionTooLong = newValue.count > 80
+                        }
                 
                 locationSearchView().zIndex(1)
                 
@@ -154,9 +165,10 @@ struct AddEvents: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 15)
-                .background(.white)
+                .background(isDescriptionTooLong ? Color.gray : Color.white)
                 .cornerRadius(40)
                 .padding(.top, 25)
+                .disabled(isDescriptionTooLong)
             }
             .padding(.horizontal, 16)
         }

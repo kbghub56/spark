@@ -353,6 +353,48 @@ class UserManager: ObservableObject {
         }
     }
     
+    func removeAsFriend(currentUserUniqueID: String, friendID: String) {
+        let db = Firestore.firestore()
+        
+        // Use `[weak self]` to capture self weakly to avoid retain cycles
+        self.getFirebaseUID(uniqueUserID: currentUserUniqueID) { [weak self] currentUserUID in
+            guard let self = self, let currentUserUID = currentUserUID else {
+                print("Firebase UID for current user not found")
+                return
+            }
+            
+                // Now you have both Firebase UIDs, you can update the friends lists
+                let currentUserRef = db.collection("users").document(currentUserUID)
+                let friendUserRef = db.collection("users").document(friendID)
+
+                currentUserRef.updateData([
+                    "friends": FieldValue.arrayRemove([friendID])
+                ]) { error in
+                    if let error = error {
+                        print("Error updating current user's friends list: \(error.localizedDescription)")
+                    } else {
+                        print("Current user's friends list updated successfully.")
+                    }
+                }
+                
+                friendUserRef.updateData([
+                    "friends": FieldValue.arrayRemove([currentUserUID])
+                ]) { error in
+                    if let error = error {
+                        print("Error updating friend user's friends list: \(error.localizedDescription)")
+                    } else {
+                        print("Friend user's friends list updated successfully.")
+                    }
+                }
+            
+        }
+        DispatchQueue.main.async {
+                if let index = self.friendsDistances.firstIndex(where: { $0.id == friendID }) {
+                    self.friendsDistances.remove(at: index)
+                }
+            }
+    }
+    
     func setLocationToNullForCurrentUser() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
 

@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 struct WhenLocationOff: View {
     @EnvironmentObject var userManager: UserManager
+    @EnvironmentObject var authViewModel: AuthViewModel
     @Binding var showingLocationOffView: Bool  // Add this binding to control the presentation
 
     var region = MKCoordinateRegion(
@@ -42,6 +43,7 @@ struct WhenLocationOff: View {
                             Button(action: {
                                 //locationManager.isLocationSharingEnabled = true
                                 userManager.updateUserLocationOffStatus(isLocationOff: false)
+                                authViewModel.loggedInThroughLoginPage = true
                                 showingLocationOffView = false  // This will dismiss the WhenLocationOff view
                             })  {
                                 Text("Enable location sharing")

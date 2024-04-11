@@ -95,6 +95,7 @@ struct LoginView: View {
                 self.errorMessage = error.localizedDescription
             } else {
                 self.authViewModel.isUserAuthenticated = true
+                self.authViewModel.loggedInThroughLoginPage = true
             }
         }
     }

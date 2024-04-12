@@ -22,7 +22,7 @@ struct HomeMapView: View {
     
     
     
-    @State private var isForYouSelected = true
+    @State private var isForYouSelected = false
     @State private var showMenu = false
     @State private var showExpandedBlackScreen = false
     @State private var selectedTab = 0
@@ -303,18 +303,19 @@ struct HomeMapView: View {
             VStack(alignment: .trailing, spacing: 0) {
                 Text("All")
                     .font(.system(size: 13).bold())
-                    .foregroundColor(isForYouSelected ? .white : .gray)
+                    .foregroundColor(isForYouSelected ? .gray : .white)
                 Spacer(minLength: 0)
                 Text("For You")
                     .font(.system(size: 13).bold())
-                    .foregroundColor(isForYouSelected ? .gray : .white)
+                    .foregroundColor(isForYouSelected ? .white : .gray)
             }.shadow(color: .black.opacity(1), radius: 20, x: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/, y: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/)
                 .padding(.vertical, 12)
-            
+
             Button(action: {
                 withAnimation {
                     isForYouSelected.toggle()
-                    eventsViewModel.filterEvents(forFriendsAndMutuals: isForYouSelected)                }
+                    eventsViewModel.filterEvents(forFriendsAndMutuals: isForYouSelected)
+                }
             }, label: {
                 ZStack {
                     Rectangle()
@@ -323,7 +324,7 @@ struct HomeMapView: View {
                     Circle()
                         .fill(Color.white)
                         .frame(width: 44 - 3 * 2, height: 44 - 3 * 2)
-                        .offset(x: 0, y: isForYouSelected ?  -23 : 23)
+                        .offset(x: 0, y: isForYouSelected ? 23 : -23)
                 }
             }).frame(width: 44)
                 .buttonStyle(NilButtonStyle())
@@ -448,14 +449,14 @@ struct HomeMapView: View {
     
 }
 struct FriendsView: View {
-    @State private var showingAddFriendView = false // State to control sheet presentation
-    @EnvironmentObject var userManager: UserManager // Assuming you still need to pass this to your AddFriends view
-    
+    @State private var showingAddFriendView = false
+    @EnvironmentObject var userManager: UserManager
+
     var body: some View {
         VStack {
             Spacer()
             Button(action: {
-                showingAddFriendView = true // Trigger sheet presentation
+                showingAddFriendView = true
             }) {
                 HStack(spacing: 8) {
                     Image(systemName: "plus")
@@ -468,8 +469,8 @@ struct FriendsView: View {
                 .cornerRadius(10)
             }
             .sheet(isPresented: $showingAddFriendView) {
-                AddFriends()
-                    .environmentObject(userManager) // Pass userManager to AddFriends
+                AddFriends(showingAddFriendView: $showingAddFriendView) // Pass the binding
+                    .environmentObject(userManager)
             }
         }
     }

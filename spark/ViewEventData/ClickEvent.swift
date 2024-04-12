@@ -20,91 +20,60 @@ struct ClickEvent: View {
     var body: some View {
         ZStack {
             VStack(spacing: 10) {
-                Text(event.title ?? "Event Name")
-                    .font(.system(size: 20))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                Text(event.visibility ?? "Invite Status")
-                    .font(.system(size: 17))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                Text("\(event.locTitle)" ?? "Location Title")
-                    .font(.system(size: 17))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                Text(event.description ?? "Description")
-                    .font(.system(size: 17))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                
-                // Display the corresponding emoji in the white circle
                 HStack {
-                    Spacer()
-                    
-                    VStack(spacing: 10) {
-                        HStack {
-                            Text("Start:")
-                                .font(.system(size: 17))
-                                .foregroundColor(.white)
-                            
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)
-                                .frame(width: 110, height: 30)
-                                .overlay(
-                                    Text(formatDate(event.startDate))
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.black)
-                                )
-                            
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)
-                                .frame(width: 70, height: 30)
-                                .overlay(
-                                    Text(formatTime(event.startDate))
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.black)
-                                )
-                        }
+                    VStack(spacing: 15) {
+                        Text(event.title ?? "Event Name")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text(event.visibility ?? "Invite Status")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text("\(event.locTitle)" ?? "Location Title")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text(event.description ?? "Description")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         
                         HStack {
-                            Text("End:")
-                                .font(.system(size: 17))
-                                .foregroundColor(.white)
-                            
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)
-                                .frame(width: 110, height: 30)
-                                .overlay(
-                                    Text(formatDate(event.endDate))
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.black)
-                                )
-                            
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)
-                                .frame(width: 70, height: 30)
-                                .overlay(
-                                    Text(formatTime(event.endDate))
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.black)
-                                )
-                        }
+                                Text("\(formatDate(event.startDate)) \(formatTime(event.startDate))")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .background(Color.gray.opacity(0.3))
+                                    .cornerRadius(8)
+                                
+                                Text("-")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 4)
+                                
+                                Text("\(formatDate(event.endDate)) \(formatTime(event.endDate))")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .background(Color.gray.opacity(0.3))
+                                    .cornerRadius(8)
+                        } .padding(.top)
                     }
-                    
-                    Spacer()
                     
                     Image(getEventImage(event))
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 100, height: 100)
-                    
-                    Spacer()
                 }
-                
+                .padding(.top, 32)
+                .padding(.horizontal, 24)
+                Spacer()
                 HStack(spacing: 30) {
                     VStack {
                         Button(action: {
@@ -138,14 +107,16 @@ struct ClickEvent: View {
                         }) {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 24 * 1.5))
-                            //.scaleEffect(isShared ? 1.5 : 1)
                                 .foregroundColor(.white)
                         }
                     }
                 }
+//                .padding()
+//                .padding(.bottom, 32)
+//                .padding(.horizontal, 24)
                 
                 // Display the Bitmojis of the user's friends who liked the event
-                if !event.likedBy.filter({ eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }).isEmpty{
+                if !event.likedBy.filter({ eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }).isEmpty {
                     HStack(spacing: 0) {
                         Text("Liked by")
                             .font(.system(size: 12))
@@ -187,16 +158,24 @@ struct ClickEvent: View {
                             .foregroundColor(.white)
                             .padding(.leading, 4)
                     }
-                    .padding(.top, 10)
+                    .padding()
+                    .padding(.bottom, 32)
+                    .padding(.horizontal, 24)                }
+                else{
+                    Text("if >0 friends liked display profiles of mutuals")
+                        .font(.system(size: 17))
+                        .foregroundColor(.white)
+                        .padding()
+                        .padding(.bottom, 32)
+                        .padding(.horizontal, 24)
                 }
             }
-            .frame(width: 375, height: 405)
+            .frame(width: 385, height: 450)
             .background(.black)
-            .cornerRadius(25)
+            .cornerRadius(50)
             .modifier(EventPopupTransition(isPresented: isPresented, onCompletion: onCompletion))
         }
     }
-    
     func getEventImage(_ event: Event) -> String {
         switch event.visibility {
         case "Everyone":

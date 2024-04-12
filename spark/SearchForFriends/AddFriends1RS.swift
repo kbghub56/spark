@@ -40,6 +40,10 @@ struct AddFriends: View {
     @ObservedObject private var keyboard = KeyboardResponder()
     @State private var isShared = false
     @State private var sparkID: String = ""
+    @Binding var showingAddFriendView: Bool // Add this line
+    @State private var isShowingAddFrTwo = false // Add this line
+
+
     var userID: String = "UserUniqueIdentifier"
     var qrCodeImage: UIImage {
         let urlString = "https://example.com/user/\(userID)"
@@ -149,12 +153,7 @@ struct AddFriends: View {
                 .cornerRadius(25)
                 .padding(.horizontal, 32)
                 .padding(.top, 25)
-                NavigationLink(
-                    destination: AddFrTwo(foundUser: foundUser, userManager: userManager),
-                    isActive: $shouldNavigate,
-                    label: { EmptyView() }
-                )
-                .hidden()
+                
             }
             
             
@@ -168,6 +167,9 @@ struct AddFriends: View {
 //                            }
         }
     }
+    .sheet(isPresented: $isShowingAddFrTwo) {
+                AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingAddFrTwo)
+            }
 
         }
         
@@ -180,7 +182,7 @@ struct AddFriends: View {
             case .success(let user):
                 foundUser = user
                 errorMessage = nil
-                shouldNavigate = true
+                isShowingAddFrTwo = true // Present AddFrTwo using a sheet
             case .failure(let error):
                 errorMessage = error.localizedDescription
                 foundUser = nil
@@ -192,22 +194,22 @@ struct AddFriends: View {
 
 
 
-struct AddFriends_Previews: PreviewProvider {
-    static var previews: some View {
-        AddFriends().environmentObject(UserManager())
-    }
-}
-// Extension to invert QR code colors for dark mode
+//struct AddFriends_Previews: PreviewProvider {
+//    static var previews: some View {
+//        AddFriends().environmentObject(UserManager())
+//    }
+//}
+//// Extension to invert QR code colors for dark mode
 
 
-// An intermediary view to forward the user object to the actual destination
-struct IntermediaryView: View {
-    var foundUser: User?
-    var userManager: UserManager
-
-    var body: some View {
-        // Directly load AddFrTwo view with the foundUser
-        // This is assuming AddFrTwo can handle a nil foundUser appropriately
-        AddFrTwo(foundUser: foundUser, userManager: userManager)
-    }
-}
+//// An intermediary view to forward the user object to the actual destination
+//struct IntermediaryView: View {
+//    var foundUser: User?
+//    var userManager: UserManager
+//
+//    var body: some View {
+//        // Directly load AddFrTwo view with the foundUser
+//        // This is assuming AddFrTwo can handle a nil foundUser appropriately
+//        AddFrTwo(foundUser: foundUser, userManager: userManager)
+//    }
+//}

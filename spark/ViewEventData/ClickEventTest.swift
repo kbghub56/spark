@@ -14,31 +14,37 @@ struct ClickEvent2: View {
     
     var body: some View {
         ZStack {
+            
             VStack (spacing: 10){
-                Text("Event Name")
-                    .font(.system(size: 20))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack{
+                    VStack(spacing: 15){
+                        Text("Party at Martel Sundeck")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("Friends and Mutuals")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("Martel College, 99 Sunset Boullevard, Houston Texas 03042")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("Texas party. wear texas themed attire. make sure you have tickets before entering.")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("time")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 100, height: 100)
+                }.padding(.top, 32)
                     .padding(.horizontal, 24)
-                Text("invite status")
-                    .font(.system(size: 17))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                Text("location")
-                    .font(.system(size: 17))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                Text("description")
-                    .font(.system(size: 17))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 100, height: 100)
-
+                Spacer()
                     HStack(spacing: 30) {
                         VStack {
                             Button(action: {
@@ -66,24 +72,17 @@ struct ClickEvent2: View {
                                     .foregroundColor(.white)
                             }
                         }
-                        
                     }
                     Text("if >0 friends liked display profiles of mutuals")
                         .font(.system(size: 17))
                         .foregroundColor(.white)
                         .padding()
+                        .padding(.bottom, 32)
+                        .padding(.horizontal, 24)
+
                     
-                    
-                    Button(action: {
-                        print("Done button tapped")                 }) {
-                            Text("Done")
-                                .foregroundColor(.black)                         .font(.system(size: 17))
-                                .padding()                         .background(Color.white)
-                                .cornerRadius(10)
-                                .scaleEffect(0.8)
-                        }
                 }
-                .frame(width: 390, height: 450)
+                .frame(width: 385, height: 450)
                 .background(.black)
                 .cornerRadius(50)
             }

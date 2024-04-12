@@ -34,7 +34,10 @@ struct MainPage2: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer(minLength: 0)
-                    circleButton
+                    if !showMenu {
+                                    circleButton
+                                        .matchedGeometryEffect(id: "button", in: animationNamespace)
+                                }
                 }.padding(.horizontal, 16)
                     .padding(.bottom, 25)
                 HStack {
@@ -72,18 +75,20 @@ struct MainPage2: View {
                 VStack {
                     Spacer()
                     if showExpandedBlackScreen{
-                        ZStack{
-                            mapModal
-                        }
+                        mapModal
+                                            .matchedGeometryEffect(id: "mapModal", in: animationNamespace)
                     } else {
                         RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y:400).onTapGesture{withAnimation{showExpandedBlackScreen = true}}
                     }
                 }.padding(.horizontal, 0)
             }.ignoresSafeArea(.all)
             
-            SideMenu2(showMenu: $showMenu, isSwitchOn: $isSwitchOn, namespace: animationNamespace)
-                .animation(.easeInOut, value: showMenu)
-                .offset(x: showMenu ? 0 : UIScreen.main.bounds.width)
+            if showMenu {
+                            SideMenu2(showMenu: $showMenu, isSwitchOn: $isSwitchOn, namespace: animationNamespace)
+                                .matchedGeometryEffect(id: "button", in: animationNamespace)
+                                .frame(width: UIScreen.main.bounds.width - 50, height: UIScreen.main.bounds.height - 100)
+                                .offset(x: 25, y: 50)
+                        }
         }
         .onTapGesture {
             withAnimation {
@@ -216,14 +221,13 @@ struct MainPage2: View {
     
     var circleButton: some View {
         Button(action: {
-            withAnimation {
+            withAnimation(.easeInOut(duration: 0.3)) {
                 showMenu.toggle()
             }
         }) {
             Circle()
                 .fill(Color.white)
                 .frame(width: 50, height: 50)
-                .matchedGeometryEffect(id: "circle", in: animationNamespace)
         }
     }
 }
@@ -290,6 +294,8 @@ struct SideMenu2: View {
                     
                     VStack(alignment: .leading) {
                         profileSection
+                            .matchedGeometryEffect(id: "circleButton", in: namespace)
+
                         locationToggle
                         collagesSection
                         signOutButton

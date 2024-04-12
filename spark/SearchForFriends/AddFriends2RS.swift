@@ -12,6 +12,8 @@ struct AddFrTwo: View {
     var userManager: UserManager
     @State private var errorMessage: String?
     @GestureState private var swipeGesture = false
+    @Binding var isPresented: Bool // Add this line
+
     
     var body: some View {
         ZStack {
@@ -67,6 +69,8 @@ struct AddFrTwo: View {
             }
             print("THIS IS WHAT IS SHOWING UP: \(currentUser.docID)")
             userManager.sendFollowRequest(from: currentUser.uniqueUserID, to: foundUser.uniqueUserID, fromUser: currentUser.userName ?? "", fromUserDocID: currentUser.docID ?? "")
+            isPresented = false // Dismiss the AddFrTwo view
+
         }
     }
 }

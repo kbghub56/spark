@@ -20,59 +20,62 @@ struct ClickEvent: View {
     var body: some View {
         ZStack {
             VStack(spacing: 10) {
-                HStack {
-                    VStack(spacing: 15) {
-                        Text(event.title ?? "Event Name")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                VStack{
+                    HStack {
+                        VStack(spacing: 15) {
+                            Text(event.title ?? "Event Name")
+                                .font(.system(size: 20))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Text(event.visibility ?? "Invite Status")
+                                .font(.system(size: 17))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Text("\(event.locTitle)" ?? "Location Title")
+                                .font(.system(size: 17))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Text(event.description ?? "Description")
+                                .font(.system(size: 17))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            
+                        }
                         
-                        Text(event.visibility ?? "Invite Status")
-                            .font(.system(size: 17))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Text("\(event.locTitle)" ?? "Location Title")
-                            .font(.system(size: 17))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Text(event.description ?? "Description")
-                            .font(.system(size: 17))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        HStack {
-                                Text("\(formatDate(event.startDate)) \(formatTime(event.startDate))")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.white)
-                                    .padding(.vertical, 4)
-                                    .padding(.horizontal, 8)
-                                    .background(Color.gray.opacity(0.3))
-                                    .cornerRadius(8)
-                                
-                                Text("-")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 4)
-                                
-                                Text("\(formatDate(event.endDate)) \(formatTime(event.endDate))")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.white)
-                                    .padding(.vertical, 4)
-                                    .padding(.horizontal, 8)
-                                    .background(Color.gray.opacity(0.3))
-                                    .cornerRadius(8)
-                        } .padding(.top)
+                        Image(getEventImage(event))
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 100, height: 100)
                     }
-                    
-                    Image(getEventImage(event))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 100, height: 100)
+                    .padding(.top, 32)
+                    .padding(.horizontal, 24)
+                    HStack {
+                            Text("\(formatDate(event.startDate)) \(formatTime(event.startDate))")
+                                .font(.system(size: 12))
+                                .foregroundColor(.white)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.gray.opacity(0.3))
+                                .cornerRadius(8)
+                            
+                            Text("-")
+                                .font(.system(size: 10))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 4)
+                            
+                            Text("\(formatDate(event.endDate)) \(formatTime(event.endDate))")
+                                .font(.system(size: 12))
+                                .foregroundColor(.white)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.gray.opacity(0.3))
+                                .cornerRadius(8)
+                    } .padding(.top)
                 }
-                .padding(.top, 32)
-                .padding(.horizontal, 24)
                 Spacer()
                 HStack(spacing: 30) {
                     VStack {
@@ -162,7 +165,7 @@ struct ClickEvent: View {
                     .padding(.bottom, 32)
                     .padding(.horizontal, 24)                }
                 else{
-                    Text("if >0 friends liked display profiles of mutuals")
+                    Text("")
                         .font(.system(size: 17))
                         .foregroundColor(.white)
                         .padding()

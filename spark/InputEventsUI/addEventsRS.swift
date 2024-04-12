@@ -27,6 +27,8 @@ struct AddEvents: View {
     @ObservedObject var viewModel = EventDateTimeViewModel()
     @StateObject var viewModelLoc = LocationSearchViewModel()
     @State private var isDescriptionTooLong = false
+    @State private var isShowingSetTimePopup = false
+
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -75,20 +77,23 @@ struct AddEvents: View {
                                 .foregroundColor(.white)
                             Button("Change") {
                                 viewModel.isShowingSetTimeView = true
+                                isShowingSetTimePopup = true
                             }
                             .font(.system(size: 12))
                             .foregroundColor(.blue)
                         }
                         Spacer()
                     } else {
-                        Button("Set Time") {
-                            viewModel.isShowingSetTimeView = true
-                        }
-                        .foregroundColor(.black)
-                        .bold()
-                        .frame(width: 150, height: 50)
-                        .background(Color.white)
-                        .cornerRadius(30)
+                        Button(action: {
+                                       isShowingSetTimePopup = true
+                                   }) {
+                                       Text("Set Time")
+                                           .foregroundColor(.black)
+                                           .bold()
+                                           .frame(width: 150, height: 50)
+                                           .background(Color.white)
+                                           .cornerRadius(30)
+                                   }
                         Spacer()
                     }
                 }
@@ -171,14 +176,29 @@ struct AddEvents: View {
                 .disabled(isDescriptionTooLong)
             }
             .padding(.horizontal, 16)
+            
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
         .navigationBarHidden(true)
-        .sheet(isPresented: $viewModel.isShowingSetTimeView) {
-            SetTime(viewModel: viewModel)
-        }
+//        .sheet(isPresented: $viewModel.isShowingSetTimeView) {
+//            SetTime(viewModel: viewModel)
+//        }
+        .overlay(
+                    Group {
+                        if isShowingSetTimePopup {
+                            Color.black.opacity(0.5)
+                                .edgesIgnoringSafeArea(.all)
+                                .onTapGesture {
+                                    isShowingSetTimePopup = false
+                                }
+                            
+                            SetTime(viewModel: viewModel, isShowingSetTimePopup: $isShowingSetTimePopup)
+                                .transition(.scale)
+                        }
+                    }
+                )
     }
     
     @ViewBuilder

@@ -18,6 +18,8 @@ struct HomeMapView: View {
     @State private var showingFollowRequestPopup = false
     @State private var selectedEvent: Event?
     @State private var showClickEvent = false
+    @Namespace private var animationNamespace
+
     
     
     
@@ -78,8 +80,8 @@ struct HomeMapView: View {
                 } else if !showMenu {
                     RoundedRectangle(cornerRadius: 50)
                         .fill(Color.black)
-                        .frame(height: UIScreen.main.bounds.height / 8)
-                        .offset(y: showMenu ? UIScreen.main.bounds.height : 370)
+                        .frame(height: (UIScreen.main.bounds.height / 8))
+                        .offset(y: showMenu ? UIScreen.main.bounds.height : 360      )
                         .overlay(
                             Text("  🫧  💫  👥            🍾  🥂  🎊  ")
                                 .font(.system(size: 22))
@@ -110,12 +112,15 @@ struct HomeMapView: View {
                     }.padding(.horizontal, 0)
                 }.ignoresSafeArea(.all)
                 
-                if showMenu {
-                    SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, locationManager: locationManager)
-                        .transition(.move(edge: .trailing))
+             //   if showMenu {
+                    SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, locationManager: locationManager, namespace: animationNamespace)
+                     //   .transition(.move(edge: .trailing))
                         .environmentObject(userManager)
                         .environmentObject(authViewModel)
-                }
+                        .animation(.easeInOut, value: showMenu)
+                        .offset(x: showMenu ? 0 : UIScreen.main.bounds.width)
+                     //   .matchedGeometryEffect(id: "circle", in: namespace)
+             //   }
                 
                 // Usage in HomeMapView
                 if showingFollowRequestPopup && !followRequests.isEmpty {
@@ -509,98 +514,221 @@ struct SideMenu: View {
     @EnvironmentObject var userManager: UserManager
     @EnvironmentObject var authViewModel: AuthViewModel
     var locationManager = LocationManager(userManager: UserManager())
+    var namespace: Namespace.ID
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            Color.black.frame(width: UIScreen.main.bounds.width * 3 / 4, height: UIScreen.main.bounds.height).cornerRadius(35).offset(y: -12.5).overlay(
-                VStack(alignment: .leading) {
-                    // Text(authViewModel.sessionTrigger.uuidString).hidden()
-                    Circle().fill(Color.white.opacity(0.5)).frame(width: 100, height: 100).padding(.top, 20).offset(y:0)
-                    Group{
-                        // Display the current user's username, with a default value if it's nil
-                        Group {
-                            if let username = userManager.currentUser?.userName {
-                                Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
-                            } else {
-                                Text("Unknown User").font(.system(size: 28).bold()).foregroundColor(.white)
-                            }
-                        }
-                        .offset(x: 120, y: -120)
-                        .padding(.top, 10)
-                        
-                        Text(locationManager.nearbyPlace ?? "Unknown Place")
-                            .font(.system(size: 20).bold())
-                            .foregroundColor(.white)
-                            .offset(x: 120, y: -120)
-                            .padding(.top, 5)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: false, vertical: true)
-                        
-                        Text("Location:").font(.system(size: 24).bold()).foregroundColor(.white).offset(y: -45)
+        ZStack {
+            // Semi-transparent background with tap gesture to hide the menu
+            if showMenu {
+                Color.black.opacity(showMenu ? 0.5 : 0).edgesIgnoringSafeArea(.all)
+                                .onTapGesture {
+                                    withAnimation(.easeInOut) {
+                                        showMenu = false
+                                    }
+                                }
+            }
+
+            // SideMenu content
+            if showMenu {
+                VStack {
+                    Spacer()
+                    
+                    VStack(alignment: .leading) {
+                        profileSection
+                        locationToggle
+                        collagesSection
+                        signOutButton
                     }
-                    VStack {
-                        Rectangle().foregroundColor(.clear).frame(width: 100, height: 50).background(Color.white.opacity(0.6)).cornerRadius(50).offset(x: 150, y: -125)
-                        HStack{
-                            Text("On").font(.system(size: 13).bold()).foregroundColor(isSwitchOn ? .white : .gray).offset(x: -6)
-                            Text("Off").font(.system(size: 13).bold()).foregroundColor(isSwitchOn ? .gray : .white).offset(x: 6)
-                        }.offset(x:150, y: -125)
-                    }.padding(.top, 20)
-                    Button(action: {
-                        withAnimation {
-                            isSwitchOn.toggle()
-                            locationManager.isLocationSharingEnabled = isSwitchOn
-                            if !isSwitchOn {
-                                showingLocationOffView = true // Present WhenLocationOff view
-                                userManager.updateUserLocationOffStatus(isLocationOff: true)
-                                print(userManager.isLocationOff)
-                            }
-                            else{
-                                userManager.updateUserLocationOffStatus(isLocationOff: false)
-                            }
-                        }
-                    }) {
-                        Circle().fill(Color.white).frame(width: 45, height: 45)
-                    }.offset(x: isSwitchOn ? -25 : 25).offset(x:175, y: -200)
+                    .frame(width: 385, height: 450)
+                    .background(Color.black)
+                    .cornerRadius(20)
+                    .shadow(radius: 5)
+                    // Empty gesture to 'capture' taps without triggering the background's gesture
+                    .onTapGesture {}
                     
-                    Button("Change") {}.foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(0.8).offset(x: 2.5, y: -325)
-                    Button("Sign Out") {authViewModel.logOut()}.font(.system(size: 24).bold()).foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(1).offset(x: 75, y: 210).zIndex(1)
-                    
-                    //                    Button(action: {
-                    //                        print("SIGNED OUT CLICKED")
-                    //                                    authViewModel.logOut() // Call logOut function from AuthViewModel
-                    //                    }) {
-                    //                        Text("Sign Out").font(.system(size: 24).bold()).foregroundColor(.black).padding().background(Color.white).cornerRadius(50).padding(.top, 10).scaleEffect(1).offset(x: 75, y: 210).zIndex(1)
-                    //                    }
-                    
-                    Text("Your 📷 Collages:").font(.system(size: 28).bold()).foregroundColor(.white).padding(.top, 20).offset(x: 25, y: -280)
-                    HStack {
-                        Image("PNG image 1").resizable().scaledToFit().frame(width: 100, height: 100).cornerRadius(15).blur(radius: 1.5)
-                        Image("PNG image 2").resizable().scaledToFit().frame(width: 100, height: 100).cornerRadius(15).blur(radius: 1.5)
-                    }.offset(x: 27.5, y: -270).padding(.top, 20)
-                    HStack {
-                        Image("PNG image 3").resizable().scaledToFit().frame(width: 100, height: 100).cornerRadius(15).blur(radius: 1.5)
-                        Image("PNG image").resizable().scaledToFit().frame(width: 100, height: 100).cornerRadius(15).blur(radius: 1.5)
-                    }.offset(x: 27.5, y: -270).padding(.top, 10).overlay(
-                        VStack {
-                            Image(systemName: "lock.fill").font(.largeTitle).foregroundColor(.white)
-                            Text("coming soon ...").font(.title).foregroundColor(.white)
-                        }.offset(x: 27.5, y: -325)
-                    )
-                    //Spacer()
-                }.padding(), alignment: .topLeading
-            )
-            GeometryReader { geometry in
-                Color.clear.contentShape(Rectangle()).onTapGesture {
-                    withAnimation {
-                        showMenu = false
-                    }
-                }.frame(width: geometry.size.width / 4, height: geometry.size.height)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .opacity(showMenu ? 1 : 0) // Controls the opacity of the menu
+                .animation(.easeInOut, value: showMenu) // Applies an animation based on the state of `showMenu`
             }
         }
-        //        .fullScreenCover(isPresented: $showingLocationOffView) {
-        //            WhenLocationOff(showingLocationOffView: $showingLocationOffView) // Pass locationManager here
-        //                .environmentObject(userManager)
-        //        }
-        
+        .edgesIgnoringSafeArea(.all)
+    }
+
+    var profileSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 25) {
+                ZStack{
+                    Circle()
+                        .fill(Color.white.opacity(0.5))
+                        .frame(width: 75, height: 75)
+                    if let bitmojiUrl = authViewModel.snapchatBitmojiAvatarUrl, let url = URL(string: bitmojiUrl) {
+                        AsyncImage(url: url) { imagePhase in
+                            // Handle different states of the image loading process
+                            if let image = imagePhase.image {
+                                image.resizable() // Make the image resizable
+                                    .aspectRatio(contentMode: .fill) // Fill the content in its aspect ratio
+                                    .frame(width: 60, height: 60) // Slightly smaller than the white circle for padding
+                                    .clipShape(Circle()) // Clip the image to a circle
+                            } else if imagePhase.error != nil {
+                                Color.gray // Display a gray area in case of an error
+                            } else {
+                                ProgressView() // Show a progress indicator while loading
+                            }
+                        }
+                    }
+                }
+                
+//                    .overlay(
+//                        Button(action: {}, label: {
+//                            Text("Change")
+//                                .font(.system(size: 13))
+//                                .foregroundColor(.black)
+//                                .padding(8)
+//                                .padding(.horizontal, 3)
+//                                .background(Color.white)
+//                                .cornerRadius(50)
+//                        })
+//                        .offset(x: 0, y: 38)
+//                    )
+
+                VStack(alignment: .leading) {
+                    if let username = userManager.currentUser?.userName {
+                        Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
+                            .font(.system(size: 20).bold())
+                            .foregroundColor(.white)
+                            .padding(.top, 10)
+                    } else {
+                        Text("Unknown User").font(.system(size: 28).bold()).foregroundColor(.white)
+                            .font(.system(size: 20).bold())
+                            .foregroundColor(.white)
+                            .padding(.top, 10)
+                    }
+                        
+                    Text(locationManager.nearbyPlace ?? "Unknown Place")
+                        .font(.system(size: 17).bold())
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(.top, 20)
+            .padding(.horizontal, 32)
+
+        }
+    }
+
+    var locationToggle: some View {
+        HStack {
+            Text("Location:")
+                .font(.system(size: 24).bold())
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            ZStack {
+                RoundedRectangle(cornerRadius: 25)
+                    .fill(Color.white.opacity(0.6))
+                    .frame(width: 100, height: 50)
+                
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 45, height: 45)
+                    .offset(x: isSwitchOn ? -25 : 25)
+                
+                HStack {
+                    Text("On")
+                        .font(.system(size: 13).bold())
+                        .foregroundColor(isSwitchOn ? .white : .gray)
+                    
+                    Text(" ")
+                    
+                    Text("Off")
+                        .font(.system(size: 13).bold())
+                        .foregroundColor(isSwitchOn ? .gray : .white)
+                }
+                .offset(y: 40)
+            }
+            .onTapGesture {
+                withAnimation {
+                    isSwitchOn.toggle()
+                    locationManager.isLocationSharingEnabled = isSwitchOn
+                    if !isSwitchOn {
+                        showingLocationOffView = true // Present WhenLocationOff view
+                        userManager.updateUserLocationOffStatus(isLocationOff: true)
+                        print(userManager.isLocationOff)
+                    } else {
+                        userManager.updateUserLocationOffStatus(isLocationOff: false)
+                    }
+                }
+            }
+        }
+        .padding(.vertical)
+        .padding(.horizontal, 32)
+    }
+
+    var collagesSection: some View {
+        VStack(alignment: .center, spacing: 10) {
+            Text("Your Collages 📷:")
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity)
+
+            HStack {
+                Spacer()
+                Image("PNG image 1")
+                    .resizable()
+                    .frame(width: 75, height: 75)
+                    .cornerRadius(15)
+                    .blur(radius: 1.5)
+                Image("PNG image 2")
+                    .resizable()
+                    .frame(width: 75, height: 75)
+                    .cornerRadius(15)
+                    .blur(radius: 1.5)
+                Spacer()
+            }
+            HStack {
+                Spacer()
+                Image("PNG image 3")
+                    .resizable()
+                    .frame(width: 75, height: 75)
+                    .cornerRadius(15)
+                    .blur(radius: 1.5)
+                Image("PNG image")
+                    .resizable()
+                    .frame(width: 75, height: 75)
+                    .cornerRadius(15)
+                    .blur(radius: 1.5)
+                Spacer()
+            }
+        }
+        .overlay(
+            VStack {
+                Image(systemName: "lock.fill")
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .scaleEffect(0.75)
+                Text("coming soon ...")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .scaleEffect(0.75)
+            }
+        ).frame(maxWidth: .infinity)
+    }
+
+    var signOutButton: some View {
+        VStack{
+            Spacer()
+            Button("Sign Out") {
+                authViewModel.logOut()
+            }
+            .font(.system(size: 12))
+            .foregroundColor(.white)
+            .padding(10)
+            .padding(.horizontal, 5)
+            .background(Color.black)
+            .cornerRadius(50)
+        }.frame(maxWidth: .infinity)
     }
 }
 
@@ -703,40 +831,36 @@ struct RankedEventsListView: View {
     @EnvironmentObject var locationManager: LocationManager
     @State private var showClickEvent: Bool = false
     @State private var selectedEvent: Event? = nil
-
+    
     
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
                 ForEach(eventsViewModel.sortedEventsByLikesFromFriends, id: \.id) { event in
-                    VStack { // Wrap in a VStack to include the Divider below each event
+                    VStack {
                         HStack {
-                            // Placeholder circle
-                            // Replace the placeholder circle with conditional emojis
                             if event.visibility == "Everyone" {
-                                Text("🎉") // Emoji for Everyone
+                                Text("🎉")
                                     .font(.system(size: 50))
-                                    .padding(.leading, 10)// Adjust size as needed
+                                    .padding(.leading, 10)
                             } else if event.visibility == "Friends and Mutuals Only" {
-                                Text("🤗") // Emoji for Friends and Mutuals Only
+                                Text("🤗")
                                     .font(.system(size: 50))
-                                    .padding(.leading, 10)// Adjust size as needed
+                                    .padding(.leading, 10)
                             } else if event.visibility == "Friends Only" {
-                                Text("😁") // Emoji for Friends Only
+                                Text("😁")
                                     .font(.system(size: 50))
-                                    .padding(.leading, 10)// Adjust size as needed
+                                    .padding(.leading, 10)
                             } else {
-                                Circle() // Fallback to the circle if none of the conditions match
+                                Circle()
                                     .strokeBorder(Color.white, lineWidth: 2)
                                     .background(Circle().fill(Color.gray.opacity(0.3)))
                                     .frame(width: 60, height: 60)
                                     .padding(.leading, 10)
                             }
-                            //             .padding(.leading, 10)
                             
                             
-                            
-                            VStack(alignment: .leading, spacing: 4) { // Use alignment .leading
+                            VStack(alignment: .leading, spacing: 4) {
                                 
                                 Text(event.title)
                                     .bold()
@@ -751,36 +875,34 @@ struct RankedEventsListView: View {
                                     .font(.system(size: 12))
                                     .foregroundColor(.white)
                                     .offset(y: -9)
-                                // Display calculated distance
                                 Text(calculateDistanceToEvent(event: event))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white)
                                     .offset(y: -9)
                                 HStack {
-                                        Spacer() // Add a Spacer to push the button to the center
-                                        
-                                        Button(action: {
-                                            self.selectedEvent = event
-                                            self.showClickEvent = true
-                                        }) {
-                                            Text("See More")
-                                                .font(.system(size: 14))
-                                                .foregroundColor(Color.blue) // Adjust color to your preference
-                                        }
-                                        .buttonStyle(PlainButtonStyle()) // Use PlainButtonStyle to avoid any default button styling
-                                        .overlay(Rectangle().frame(height: 2).foregroundColor(Color.blue), alignment: .bottom) // Add underline effect
-                                        
-                                        Spacer() // Add another Spacer to center the button
-                                    } // Add underline effect
+                                    Spacer()
+                                    
+                                    Button(action: {
+                                        self.selectedEvent = event
+                                        self.showClickEvent = true
+                                    }) {
+                                        Text("See More")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(Color.blue)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    .overlay(Rectangle().frame(height: 2).foregroundColor(Color.blue), alignment: .bottom)
+                                    
+                                    Spacer()
+                                }
                             }
-                            .padding(.leading, 10) // Apply padding to the VStack to position both texts
+                            .padding(.leading, 10)
                             
                             
                             Spacer()
                             
                             VStack{
-                                HStack(spacing: 12) { // You can adjust the spacing as needed
-                                    // Heart button
+                                HStack(spacing: 12) {
                                     Button(action: {
                                         let currentUserID = self.authViewModel.currentUserID ?? ""
                                         let isLiked = event.likedBy.contains(currentUserID)
@@ -815,7 +937,7 @@ struct RankedEventsListView: View {
                                 // Likes count text
                                 // HStack for Bitmojis of friends who liked the event
                                 if !event.likedBy.filter({ eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }).isEmpty {
-
+                                    
                                     HStack(spacing: 0){
                                         //
                                         //                                    Text("liked")//.padding(.trailing, 25)
@@ -877,39 +999,72 @@ struct RankedEventsListView: View {
         .background(Color.black.opacity(0.7))
         .cornerRadius(30)
         .padding(.horizontal, 15)
-        // Conditionally show the ClickEvent view as a popup
         .overlay(
                     Group {
                         if showClickEvent && selectedEvent != nil {
-                            Color.black.opacity(0.4) // Dimmed background
+                            Color.black.opacity(0.4)
                                 .edgesIgnoringSafeArea(.all)
                                 .onTapGesture {
-                                    // Close the popup when the dimmed background is tapped
                                     withAnimation {
                                         showClickEvent = false
                                         selectedEvent = nil
                                     }
                                 }
 
-                            ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
-                                // Completion closure called when the pop-up is fully faded out
-                                self.selectedEvent = nil
+                            VStack {
+                                Spacer()
+
+                                ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
+                                    self.selectedEvent = nil
+                                }
+                                .frame(width: 385, height: 450)
+                                .background(.black)
+                                .cornerRadius(50)
+                                .shadow(radius: 20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 50)
+                                        .stroke(Color.white, lineWidth: 2)
+                                )
+                                .transition(.scale)
+                                .scaleEffect(0.9)
+
+                                Spacer()
                             }
-                     //       .frame(width: 375, height: 405) // Adjust the popup size as needed
-                     //       .background(Color.white) // Set your desired background
-                      //      .cornerRadius(20)
-                            .shadow(radius: 20)
-                           .overlay(
-                                RoundedRectangle(cornerRadius: 25) // Match this cornerRadius with the one used in .background
-                                    .stroke(Color.white, lineWidth: 1) // Set the color and line width of the border
-                            )
-                            .transition(.scale) // Add a transition effect if desired
-                            .zIndex(1) // Ensure the popup is always on top
-                            .onTapGesture { }
-                                        .gesture(DragGesture().onChanged{_ in }) // Prevent drag to dismiss from background
                         }
-                    }, alignment: .center // Align the overlay in the center of the ScrollView
+                    }
                 )
+        
+        
+        //        // Conditionally show the ClickEvent view as a popup
+        //        .overlay(
+        //            Group {
+        //                if showClickEvent && selectedEvent != nil {
+        //                    ZStack {
+        //                        Color.black.opacity(0.4) // Dimmed background
+        //                            .edgesIgnoringSafeArea(.all)
+        //                            .onTapGesture {
+        //                                // Close the popup when the dimmed background is tapped
+        //                                withAnimation {
+//                                    showClickEvent = false
+//                                    selectedEvent = nil
+//                                }
+//                            }
+//
+//                        ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
+//                            // Completion closure called when the pop-up is fully faded out
+//                            self.selectedEvent = nil
+//                        }
+//                        .frame(width: 385, height: 450) // Adjust the popup size to match ClickEvent dimensions
+//                        .cornerRadius(50)
+//                        .shadow(radius: 20)
+//                        .transition(.scale) // Add a transition effect if desired
+//                        .zIndex(1) // Ensure the popup is always on top
+//                        .onTapGesture { }
+//                        .gesture(DragGesture().onChanged { _ in }) // Prevent drag to dismiss from background
+//                    }
+//                }
+//            }, alignment: .center // Align the overlay in the center of the ScrollView
+//        )
     }
     
     // Function to truncate location title and subtitle
@@ -965,24 +1120,38 @@ struct FriendBitmojiView: View {
 struct FriendsDistanceListView: View {
     @EnvironmentObject var userManager: UserManager
     @EnvironmentObject var locationManager: LocationManager
+    @State private var showingAddFriendView = false
+    @State private var showRemoveFriendPopup = false
+    @State private var selectedFriendID: String?
+    @State private var dragOffset: CGFloat = 0
+
+
     
     var body: some View {
         if userManager.friendsDistances.isEmpty {
             ScrollView {
                 VStack {
-                    Text("Find your friends here")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.vertical, 20)
+                    Button(action: {showingAddFriendView = true}
+                    ){
+                        Text("Click here to find your friends")
+                            .font(.system(size: 24, weight: .bold))
+                            .underline()
+                            .foregroundColor(.white)
+                            .padding(.vertical, 20)
+                    }
                     
-                    Spacer() // Add a Spacer to push the message to the top
+                    Spacer()
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color.black.opacity(0.7))
+                .sheet(isPresented: $showingAddFriendView) {
+                    AddFriends(showingAddFriendView: $showingAddFriendView) // Pass the binding
+                        .environmentObject(userManager)
+                }
             }
         }  else {
             ScrollView {
-                VStack(spacing: 15) { // Adjusted spacing between rows
+                VStack(spacing: 15) {
                     ForEach(userManager.friendsDistances) { friendDistance in
                         HStack {
                             if let bitmojiUrl = friendDistance.bitmojiUrl, let url = URL(string: bitmojiUrl) {
@@ -994,20 +1163,35 @@ struct FriendsDistanceListView: View {
                                 } placeholder: {
                                     Circle().fill(Color.gray).frame(width: 30, height: 30)
                                 }
+                                .gesture(
+                                                DragGesture()
+                                                    .onChanged { value in
+                                                        if value.translation.width > 0 {
+                                                            dragOffset = value.translation.width
+                                                        }
+                                                    }
+                                                    .onEnded { value in
+                                                        if dragOffset > 50 {
+                                                            selectedFriendID = friendDistance.id
+                                                            showRemoveFriendPopup = true
+                                                        }
+                                                        dragOffset = 0
+                                                    }
+                                            )
                             }
+                                
                             
-                            // Use a VStack for the username and nearby place
-                            VStack(alignment: .leading, spacing: 2) {  // Reduced spacing to keep elements closer
+                            
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(friendDistance.userName)
                                     .foregroundColor(.white)
-                                    .font(.system(size: 25))  // Font size for the username
+                                    .font(.system(size: 25))
                                 
-                                // Display the nearby place with smaller font size under the username
                                 Text(friendDistance.nearbyPlace?.trimmedAddress() ?? "")
-                                    .foregroundColor(.gray)  // Use a lighter color for less emphasis
-                                    .font(.system(size: 14))  // Smaller font size similar to "Active/Away"
-                                    .lineLimit(1) // Limit to one line
-                                    .truncationMode(.tail) // Truncate at the end if needed
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 14))
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
                             }
                             .padding(.leading, 10)
                             
@@ -1031,28 +1215,51 @@ struct FriendsDistanceListView: View {
                                     .font(.system(size: 14))  // Font size for "Active/Away" captions
                             }
                             
-                            // Add remove button
-                            Button(action: {
-                                guard let currentUserUniqueID = userManager.currentUser?.uniqueUserID else {
-                                    print("Current user unique ID not found")
-                                    return
-                                }
-                                DispatchQueue.main.async {
-                                    userManager.removeAsFriend(currentUserUniqueID: currentUserUniqueID, friendID: friendDistance.id)
-                                }
-                            }) {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(.red)
-                                    .font(.system(size: 20))
-                            }
-                            .padding(.leading, 10)
+//                            // Add remove button
+//                            Button(action: {
+//                                guard let currentUserUniqueID = userManager.currentUser?.uniqueUserID else {
+//                                    print("Current user unique ID not found")
+//                                    return
+//                                }
+//                                DispatchQueue.main.async {
+//                                    userManager.removeAsFriend(currentUserUniqueID: currentUserUniqueID, friendID: friendDistance.id)
+//                                }
+//                            }) {
+//                                Image(systemName: "xmark")
+//                                    .foregroundColor(.red)
+//                                    .font(.system(size: 20))
+//                            }
+//                            .padding(.leading, 10)
                         }
+                        .offset(x: dragOffset)
                         .padding(.vertical, 10) // Adjusted vertical padding for each row to balance spacing
+//                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+//                                                    Button(action: {
+//                                                        selectedFriendID = friendDistance.id
+//                                                        showRemoveFriendPopup = true
+//                                                    }) {
+//                                                        Image(systemName: "xmark")
+//                                                    }
+//                                                    .tint(.red)
+//                                                }
                     }.padding(.top, 10)
                     Spacer()
                 }.padding() // Add padding if necessary
             }
             .background(Color.black.opacity(0.7))
+            .overlay(
+                            ZStack {
+                                if showRemoveFriendPopup {
+                                    Color.black.opacity(0.5).edgesIgnoringSafeArea(.all)
+                                    
+                                    if let friendID = selectedFriendID,
+                                       let friendName = userManager.friendsDistances.first(where: { $0.id == friendID })?.userName {
+                                        RemoveFriendPopup(friendID: friendID, friendName: friendName, showPopup: $showRemoveFriendPopup)
+                                            .environmentObject(userManager)
+                                    }
+                                }
+                            }
+                        )
         }
     }
     
@@ -1085,3 +1292,67 @@ extension String {
 
 
 //opacity(0.2/0.3)
+
+
+struct RemoveFriendPopup: View {
+    var friendID: String
+    var friendName: String
+
+    @Binding var showPopup: Bool
+    @EnvironmentObject var userManager: UserManager
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 50)
+                .fill(Color.black)
+                .frame(width: 350, height: 350)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 50)
+                        .stroke(Color.white, lineWidth: 2)
+                )
+                .overlay(
+                    VStack(spacing: 20) {
+                        Text("Remove \(friendName)")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                        
+                        Text("as a friend")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                        
+                        Spacer()
+                        
+                        HStack(spacing: 45) {
+                            Button("Accept") {
+                                guard let currentUserUniqueID = userManager.currentUser?.uniqueUserID else {
+                                    print("Current user unique ID not found")
+                                    return
+                                }
+                                userManager.removeAsFriend(currentUserUniqueID: currentUserUniqueID, friendID: friendID)
+                                showPopup = false
+                            }
+                            .foregroundColor(.black)
+                            .font(.system(size: 22, weight: .bold))
+                            .padding()
+                            .scaleEffect(0.8)
+                            .background(Color.white)
+                            .cornerRadius(10)
+                            
+                            Button("Deny") {
+                                showPopup = false
+                            }
+                            .foregroundColor(.white)
+                            .scaleEffect(0.8)
+                            .font(.system(size: 22, weight: .bold))
+                            .padding()
+                            .background(Color.black)
+                            .cornerRadius(10)
+                        }.padding(.bottom, 48)
+                    }
+                    .padding(.top, 48)
+                )
+        }
+    }
+}

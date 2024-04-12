@@ -324,7 +324,6 @@
 		9993E3D02B81E82B007443BE /* UserModel */ = {
 			isa = PBXGroup;
 			children = (
-				9993E3D12B81E84D007443BE /* UserModel.swift */,
 				9993E3D32B85C2AB007443BE /* UserManager.swift */,
 			);
 			path = UserModel;
@@ -336,6 +335,7 @@
 				9993E3D62B86FC5F007443BE /* SearchFriendView.swift */,
 				9935AB242B8F11AB003994AE /* AddFriends1RS.swift */,
 				9914F8D32BC408AA00F33482 /* KeyBoardResponder.swift */,
+				9993E3D12B81E84D007443BE /* UserModel.swift */,
 				9935AB262B909C95003994AE /* AddFriends2RS.swift */,
 				99FFE2D02B96093C00070686 /* FriendRequestRS.swift */,
 			);

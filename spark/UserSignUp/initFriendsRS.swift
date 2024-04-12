@@ -80,9 +80,9 @@ struct InitFriends: View {
                 HStack {
                     TextField("Optional", text: $userInput)
                         .foregroundColor(.black)
-                        .padding(EdgeInsets(top: 21, leading: 16, bottom: 21, trailing: 16))
+                        .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
                         .background(.gray)
-                        .cornerRadius(20)
+                        .cornerRadius(15)
                 }
                 
                 if let errorMessage = errorMessage {
@@ -112,6 +112,9 @@ struct InitFriends: View {
                 .padding(.horizontal, 16)
                 .sheet(isPresented: $isShowingSheet) {
                                 AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingSheet)
+                                    .onDisappear {
+                                            presentationMode.wrappedValue.dismiss()
+                                        }
                             }
             }
             .padding(16)

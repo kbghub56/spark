@@ -8,6 +8,8 @@
 import SwiftUI
 import SCSDKLoginKit
 
+import SwiftUI
+
 struct SignUpView: View {
     @State private var userName: String = ""
     @State private var email: String = ""
@@ -18,60 +20,71 @@ struct SignUpView: View {
     @State private var showingLogIn = false
     @State private var navigateToSnapAvatar = false
 
-
     @State private var isSnapchatLoggedIn: Bool = false
     @EnvironmentObject var authViewModel: AuthViewModel
+    
     var body: some View {
         NavigationView {
             ZStack {
                 VStack(spacing: 40) {
                     Text("Sign Up")
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.largeTitle)
+                        .bold()
                         .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                    
                     Group {
-                        TextField("Name", text: $userName)
-                            .autocapitalization(.none)
-                            .padding(20)
-                            .background(Color(red: 0.85, green: 0.85, blue: 0.85))
-                            .cornerRadius(10)
-                            .frame(width: 237.1875)
-                        TextField("Email", text: $email)
-                            .autocapitalization(.none)
-                            .padding(20)
-                            .background(Color(red: 0.85, green: 0.85, blue: 0.85))
-                            .cornerRadius(10)
-                            .frame(width: 237.1875)
-
+                        HStack {
+                            TextField("Name", text: $userName)
+                                .foregroundColor(.black)
+                                .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                                .background(.gray)
+                                .cornerRadius(15)
+                        }
+                        
+                        HStack {
+                            TextField("Email", text: $email)
+                                .foregroundColor(.black)
+                                .autocapitalization(.none)
+                                .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                                .background(.gray)
+                                .cornerRadius(15)
+                        }
+                        
                         SecureField("Password", text: $password)
+                            .foregroundColor(.black)
                             .autocapitalization(.none)
-                            .padding(20)
-                            .background(Color(red: 0.85, green: 0.85, blue: 0.85))
-                            .cornerRadius(10)
-                            .frame(width: 237.1875)
-
+                            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                            .background(.gray)
+                            .cornerRadius(15)
+                        
                         SecureField("Confirm Password", text: $confirmPassword)
+                            .foregroundColor(.black)
                             .autocapitalization(.none)
-                            .padding(20)
-                            .background(Color(red: 0.85, green: 0.85, blue: 0.85))
-                            .cornerRadius(10)
-                            .frame(width: 237.1875)
+                            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                            .background(.gray)
+                            .cornerRadius(15)
                     }
-                   
+                    .padding(.horizontal, 16)
+                    
                     Button(action: {
                         signUp()
                     }) {
                         Text("Confirm")
+                            .font(.system(size: 17, weight: .bold))
                             .foregroundColor(.black)
-                            .frame(width: 120, height: 60)
+                            .navigationTitle("")
                             .background(Color.white)
-                            .cornerRadius(20)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 15)
+                            .background(.white)
+                            .cornerRadius(40)
+                            .padding(.top, 25)
                     }
-                    Spacer()
-                    // Updated section with Button
+                    .padding(.horizontal, 16)
                     
-                  //  Spacer()
                     Button(action: {
-                        showingLogIn = true 
+                        showingLogIn = true
                         authViewModel.logInThroughLogin = true
                         print("Navigate to login screen")
                     }) {
@@ -81,9 +94,6 @@ struct SignUpView: View {
                             .foregroundColor(.white)
                             .padding(40)
                     }
-                    
-                    
-                    
                 }
                 .padding(.horizontal, 40)
                 .padding(.vertical, 120)
@@ -91,14 +101,13 @@ struct SignUpView: View {
                 .background(.black)
                 
                 if let errorMessage = errorMessage {
-                                    Text(errorMessage)
+                    Text(errorMessage)
                         .font(.caption)
                         .foregroundColor(.red)
                         .transition(.slide)
-                        .zIndex(1) // Ensure the error message is layered above other content
-                        //.padding(.bottom)
-                        .offset(y: -375) // Adjust this value to position the error message at the desired location
-                                }
+                        .zIndex(1)
+                        .offset(y: -375)
+                }
             }
             .fullScreenCover(isPresented: $showingLogIn) {
                 LoginView()
@@ -107,11 +116,6 @@ struct SignUpView: View {
         }
     }
     
-//    private func allFieldsAreValid() -> Bool {
-//        // Check if all fields are filled and passwords match
-//        return !userName.isEmpty && !email.isEmpty && !password.isEmpty && password == confirmPassword
-//    }
-    
     func signUp() {
         guard !email.isEmpty, !password.isEmpty else {
             self.errorMessage = "Please fill in all fields."
@@ -119,38 +123,30 @@ struct SignUpView: View {
         }
         
         guard email.hasSuffix("@rice.edu") else {
-                self.errorMessage = "Please enter a valid Rice email."
-                return
-            }
+            self.errorMessage = "Please enter a valid Rice email."
+            return
+        }
         
         guard password.count >= 6 else {
             self.errorMessage = "Password must be at least 6 characters long."
             return
         }
+        
         guard password == confirmPassword else {
             self.errorMessage = "Passwords do not match."
             return
         }
         
-        // Call signUpUser from AuthViewModel
         authViewModel.signUpUser(email: email, password: password, username: userName) { success in
-                if success {
-                    self.navigateToSnapAvatar = true
-                }
+            if success {
+                self.navigateToSnapAvatar = true
             }
+        }
     }
-    
-
-    
-//   Define a function that starts the Snapchat login process
-    
 }
-
 
 struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
         SignUpView()
     }
 }
-
-

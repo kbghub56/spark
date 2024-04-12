@@ -31,8 +31,10 @@ struct ContentView: View {
                         else {
                             switch authViewModel.userSignUpProgress {
                             case .initial, .signedUp:
-                                SnapAvatar1()
+                                LocationQuestion()
                                     .environmentObject(authViewModel)
+                            case .bitmoji1:
+                                SnapAvatar1()
                             case .bitmojiConnected:
                                 SnapAvatar2()
                                     .environmentObject(authViewModel)

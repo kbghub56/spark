@@ -159,6 +159,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
             
             self.eventAnnotationView = view
             view.canShowCallout = false
+            
             return view
         }
         

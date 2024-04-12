@@ -81,6 +81,7 @@ class AuthViewModel: ObservableObject {
 extension AuthViewModel {
     func signUpUser(email: String, password: String, username: String, completion: @escaping (Bool) -> Void) {
         self.navigateToLocationQuestion = true
+        print("signing up")
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let user = authResult?.user, error == nil else {
                 print("Error signing up: \(error!.localizedDescription)")
@@ -167,9 +168,13 @@ extension AuthViewModel {
     func updateUserBitmoji(bitmojiUrl: String, bitmojiAvatarId: String) {
         guard let userId = currentUserID else { return }
         let userDocRef = Firestore.firestore().collection("users").document(userId)
+        print("UPDATING USER BITMOJI")
         
         //Construct url for walking bitmoji
         let bitmojiWalkUrl = "https://sdk.bitmoji.com/me/sticker/\(bitmojiAvatarId)/8e540795-8684-4cf1-853c-af2a41ec9abb"
+        
+        print(bitmojiUrl)
+        print("doc ref \(bitmojiUrl)")
 
         userDocRef.updateData([
             "bitmojiUrl": bitmojiUrl,
@@ -189,6 +194,7 @@ extension AuthViewModel {
           //      self.navigateToSnapAvatar2 = true
             }
         }
+        print("DONEEEEE")
     }
     
     func updateUserDefaultAvatar(avatarName: String) {
@@ -272,6 +278,7 @@ extension AuthViewModel {
 enum SignUpProgress {
     case initial
     case signedUp
+    case bitmoji1
     case bitmojiConnected
     case signUpCompleted
 }

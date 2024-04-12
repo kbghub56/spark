@@ -42,6 +42,8 @@ struct AddFriends: View {
     @State private var sparkID: String = ""
     @Binding var showingAddFriendView: Bool // Add this line
     @State private var isShowingAddFrTwo = false // Add this line
+    @Environment(\.presentationMode) var presentationMode
+
 
 
     var userID: String = "UserUniqueIdentifier"
@@ -169,6 +171,9 @@ struct AddFriends: View {
     }
     .sheet(isPresented: $isShowingAddFrTwo) {
                 AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingAddFrTwo)
+                    .onDisappear {
+                        presentationMode.wrappedValue.dismiss()
+                    }
             }
 
         }

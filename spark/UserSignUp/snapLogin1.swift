@@ -99,6 +99,7 @@ struct SnapAvatar1: View {
                 DispatchQueue.main.async {
                     self.authViewModel.updateUserBitmoji(bitmojiUrl: bitmojiAvatarURL, bitmojiAvatarId: bitmojiAvatarID)
                     self.navigateToSnapAvatar2 = true
+                    print("set enum")
                 }
             } else {
                 print("No user data available")

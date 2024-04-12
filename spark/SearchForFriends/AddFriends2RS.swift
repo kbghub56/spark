@@ -13,6 +13,8 @@ struct AddFrTwo: View {
     @State private var errorMessage: String?
     @GestureState private var swipeGesture = false
     @Binding var isPresented: Bool // Add this line
+    @Environment(\.presentationMode) var presentationMode
+
 
     
     var body: some View {
@@ -41,6 +43,7 @@ struct AddFrTwo: View {
                 
                 Button(action: {
                     followFoundUser()
+                    isPresented = false
                 }) {
                     Text("Continue")
                         .font(.system(size: 17, weight: .bold))
@@ -70,6 +73,8 @@ struct AddFrTwo: View {
             print("THIS IS WHAT IS SHOWING UP: \(currentUser.docID)")
             userManager.sendFollowRequest(from: currentUser.uniqueUserID, to: foundUser.uniqueUserID, fromUser: currentUser.userName ?? "", fromUserDocID: currentUser.docID ?? "")
             isPresented = false // Dismiss the AddFrTwo view
+            presentationMode.wrappedValue.dismiss()
+
 
         }
     }

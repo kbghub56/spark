@@ -16,12 +16,7 @@ struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var showingSignUp = false
     @Environment(\.presentationMode) var presentationMode
-
-//    @State private var name: String = ""
-//    @State private var email: String = ""
-//    @State private var password: String = ""
-//    @State private var confirmPassword: String = ""
-//    @State private var shouldNavigate: Bool = false
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -30,38 +25,39 @@ struct LoginView: View {
                         .font(.largeTitle)
                         .bold()
                         .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
                     
                     Group {
                         TextField("Email", text: $email)
                             .autocapitalization(.none)
-                            .padding(20)
-                            .background(Color(red: 0.85, green: 0.85, blue: 0.85))
-                            .cornerRadius(10)
-                            .frame(width: 237.1875)
+                            .foregroundColor(.black)
+                            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                            .background(.gray)
+                            .cornerRadius(15)
                         
                         SecureField("Password", text: $password)
                             .autocapitalization(.none)
-                            .padding(20)
-                            .background(Color(red: 0.85, green: 0.85, blue: 0.85))
-                            .cornerRadius(10)
-                            .frame(width: 237.1875)
-                        
-                        
+                            .foregroundColor(.black)
+                            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                            .background(.gray)
+                            .cornerRadius(15)
                     }
+                    
+                    Spacer()
                     
                     Button(action: {
                         loginUser(email: email, password: password)
-                        }
-                    ) {
+                    }) {
                         Text("Confirm")
+                            .font(.system(size: 17, weight: .bold))
                             .foregroundColor(.black)
-                            .frame(width: 180, height: 60)
-                            .background(Color.white)
-                            .cornerRadius(45)
                     }
-                    Spacer()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+                    .background(.white)
+                    .cornerRadius(40)
+                    .padding(.top, 25)
                     
-                    // Changed to a Button
                     Button(action: {
                         presentationMode.wrappedValue.dismiss()
                         authViewModel.logInThroughLogin = false
@@ -71,24 +67,24 @@ struct LoginView: View {
                             .underline()
                             .foregroundColor(.white)
                     }
-                    
-                    
                 }
                 .padding(.vertical, 160)
+                .padding(.horizontal, 48)
                 .frame(width: 430, height: 932)
                 .background(.black)
                 
                 if let errorMessage = errorMessage {
                     Text(errorMessage)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .transition(.slide)
-                            .zIndex(1) // Ensure the error message is layered above other content
-                            .offset(y: -375) // Adjust this value to position the error message at the desired location
-                    }
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .transition(.slide)
+                        .zIndex(1)
+                        .offset(y: -375)
+                }
             }
         }
     }
+    
     func loginUser(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
@@ -100,9 +96,9 @@ struct LoginView: View {
         }
     }
 }
+
 struct LogIn_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
     }
 }
-

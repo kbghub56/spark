@@ -31,7 +31,7 @@ struct HomeMapView: View {
     @State private var trackingMode: MapUserTrackingMode = .follow
     @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194), span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
     @State private var isSwitchOn = true
-    @State private var showingLocationOffView = false // State to control the presentation of the WhenLocationOff view
+    @State private var showingLocationOffView = false
     @State private var showingAddFriendView = false
     @State private var currentRequestIndex = 0
     @State private var followRequests: [FollowRequest] = []
@@ -41,7 +41,7 @@ struct HomeMapView: View {
     private func handleFollowRequestVisibility() {
         if followRequests.isEmpty {
             showingFollowRequestPopup = false
-            currentRequestIndex = 0  // Reset the index for any future follow requests
+            currentRequestIndex = 0
         }
     }
     
@@ -50,7 +50,6 @@ struct HomeMapView: View {
     var body: some View {
         ZStack {
             if showingLocationOffView {
-                // WhenLocationOff view is shown directly in the main view hierarchy
                 WhenLocationOff(showingLocationOffView: $showingLocationOffView)
                     .environmentObject(userManager)
                     .environmentObject(authViewModel)
@@ -78,17 +77,33 @@ struct HomeMapView: View {
                 
                 if showExpandedBlackScreen {
                 } else if !showMenu {
+                    let swipeUpThreshold: CGFloat = -50 // Adjust this threshold as needed
+                    
                     RoundedRectangle(cornerRadius: 50)
                         .fill(Color.black)
                         .frame(height: (UIScreen.main.bounds.height / 8))
-                        .offset(y: showMenu ? UIScreen.main.bounds.height : 360      )
+                        .offset(y: showMenu ? UIScreen.main.bounds.height : 360)
                         .overlay(
-                            Text("  🫧  💫  👥            🍾  🥂  🎊  ")
+                            Text(" ") // Keeping your existing overlay content
                                 .font(.system(size: 22))
                                 .foregroundColor(.white)
                                 .offset(y: showMenu ? UIScreen.main.bounds.height : 360)
                         )
                         .animation(.easeOut(duration: 1), value: showMenu)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { gesture in
+                                    if gesture.translation.height < swipeUpThreshold {
+                                        withAnimation {
+                                            showExpandedBlackScreen = true
+                                            showEmojis = false
+                                        }
+                                    }
+                                }
+                                .onEnded { _ in
+                                    // Here you can reset the drag state if you are tracking it
+                                }
+                        )
                         .onTapGesture {
                             withAnimation {
                                 showExpandedBlackScreen = true

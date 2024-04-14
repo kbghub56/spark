@@ -79,6 +79,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
         }
         
         if let friendAnnotation = annotation as? FriendAnnotation {
+            print("[KB] FRIEND ANNOTATION")
             let identifier = "FriendAnnotation"
             var view: MKAnnotationView
             
@@ -121,6 +122,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
         
         
         if let eventAnnotation = annotation as? EventAnnotation {
+            print("[KB] TRIGGER EVENT ANNOTATION")
             let identifier = "EventAnnotation"
             var view: MKAnnotationView
             
@@ -215,12 +217,12 @@ class Coordinator: NSObject, MKMapViewDelegate {
         
         if let eventAnnotation = view.annotation as? EventAnnotation {
             // Find the corresponding Event based on the annotation's id
-            let event = parent.eventsViewModel.allEvents.first { $0.id == eventAnnotation.id }
+            //let event = parent.eventsViewModel.allEvents.first { $0.id == eventAnnotation.id }
             
             DispatchQueue.main.async {
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    self.parent.selectedEvent = event
-                }
+               // withAnimation(.easeInOut(duration: 0.1)) {
+                self.parent.selectedEvent = self.parent.eventsViewModel.allEvents.first { $0.id == eventAnnotation.id }
+              //  }
             }
         }
     }

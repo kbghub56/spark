@@ -20,7 +20,7 @@ struct HomeMapView: View {
     @State private var showClickEvent = false
     @Namespace private var animationNamespace
 
-    
+    @State private var modalOffset: CGFloat = 0
     
     
     
@@ -46,6 +46,8 @@ struct HomeMapView: View {
     }
     
     
+    let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()  // 300 seconds equals 5 minutes
+    
     
     var body: some View {
         ZStack {
@@ -59,6 +61,9 @@ struct HomeMapView: View {
                 MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent)
                     .edgesIgnoringSafeArea(.all)
                     .environment(\.colorScheme, .dark)
+                    .onReceive(timer) { _ in
+                                        eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
+                                    }
                 
                 VStack(spacing: 0) {
                                 HStack {
@@ -154,8 +159,8 @@ struct HomeMapView: View {
             }
         )
         .onChange(of: selectedEvent) { newValue in
-            withAnimation {
-                showClickEvent = newValue != nil
+                withAnimation {
+            showClickEvent = newValue != nil
             }
                 }
         .onTapGesture {
@@ -288,18 +293,34 @@ struct HomeMapView: View {
         .background(Color.black)
         .cornerRadius(30)
         .transition(.move(edge: .bottom))
+        .offset(y: modalOffset)
         .gesture(
-            DragGesture().onEnded { value in
-                withAnimation {
-                    if value.translation.width < 0 {
-                        selectedTab = min(selectedTab + 1, 1)
-                    } else if value.translation.width > 0 {
-                        selectedTab = max(selectedTab - 1, 0)
+                DragGesture()
+                    .onChanged { value in
+                        modalOffset = value.translation.height
+                    }
+                    .onEnded { value in
+                        withAnimation {
+                            if value.translation.height > 100 {
+                                showExpandedBlackScreen = false
+                                showEmojis = true
+                            }
+                            modalOffset = 0
+                        }
+                    }
+            )
+            .gesture(
+                DragGesture().onEnded { value in
+                    withAnimation {
+                        if value.translation.width < 0 {
+                            selectedTab = min(selectedTab + 1, 1)
+                        } else if value.translation.width > 0 {
+                            selectedTab = max(selectedTab - 1, 0)
+                        }
                     }
                 }
-            }
-        )
-        .onTapGesture {}
+            )
+            .onTapGesture {}
     }
     
     

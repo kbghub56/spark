@@ -30,7 +30,10 @@ struct ContentView: View {
                         } 
                         else {
                             switch authViewModel.userSignUpProgress {
-                            case .initial, .signedUp:
+                            case .initial:
+                                SignUpView()
+                                    .environmentObject(authViewModel)
+                            case .signedUp:
                                 LocationQuestion()
                                     .environmentObject(authViewModel)
                             case .bitmoji1:

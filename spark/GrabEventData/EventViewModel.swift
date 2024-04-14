@@ -145,6 +145,7 @@ class EventsViewModel: ObservableObject {
     func fetchEvents() {
         print("FETCHInG EVENTS")
         let ref = Database.database().reference(withPath: "events")
+        let now = Date().timeIntervalSince1970
         ref.observe(.value, with: { [weak self] snapshot in
             guard let self = self else { return }
             var newEvents: [Event] = []
@@ -166,11 +167,13 @@ class EventsViewModel: ObservableObject {
                     // Ensure the likedBy array is included when you fetch your events
                     let likedBy = dict["likedBy"] as? [String] ?? []
                     
-                    let event = Event(id: snapshot.key, title: title, description: description, startDate: Date(timeIntervalSince1970: startDate), endDate: Date(timeIntervalSince1970: endDate), latitude: latitude, longitude: longitude, visibility: visibility, organizerID: organizerID, likedBy: likedBy, locTitle: locateTitle, locSubtitle: locateSubtitle)
-                    
-                    // Now use the synchronous shouldIncludeEvent check
-                    if self.shouldIncludeEvent(event) {
-                        newEvents.append(event)
+                    if endDate > now{
+                        let event = Event(id: snapshot.key, title: title, description: description, startDate: Date(timeIntervalSince1970: startDate), endDate: Date(timeIntervalSince1970: endDate), latitude: latitude, longitude: longitude, visibility: visibility, organizerID: organizerID, likedBy: likedBy, locTitle: locateTitle, locSubtitle: locateSubtitle)
+                        
+                        // Now use the synchronous shouldIncludeEvent check
+                        if self.shouldIncludeEvent(event) {
+                            newEvents.append(event)
+                        }
                     }
                 }
             }

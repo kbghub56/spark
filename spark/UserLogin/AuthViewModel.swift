@@ -167,6 +167,7 @@ extension AuthViewModel {
     
     func updateUserBitmoji(bitmojiUrl: String, bitmojiAvatarId: String) {
         guard let userId = currentUserID else { return }
+        print("USER ID : \(userId)")
         let userDocRef = Firestore.firestore().collection("users").document(userId)
         print("UPDATING USER BITMOJI")
         

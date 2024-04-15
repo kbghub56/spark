@@ -59,33 +59,33 @@ struct AddFriends: View {
             Color.black.edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 30) {
-                VStack(spacing: 5) {
-                    HStack {
-                        Text(userManager.currentUser?.uniqueUserID ?? "No ID")
-                            .font(.system(size: 17))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.leading)
-                            .padding(.trailing, 60)
-                        
-                        Spacer()
-                        
-                        ZStack {
-                            VStack {
-                                Button(action: {
-                                    withAnimation {
-                                        self.isShared.toggle()
-                                    }
-                                }) {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.system(size: 24))
-                                        .foregroundColor(.white)
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                .padding(.horizontal, 16)
+//                VStack(spacing: 5) {
+//                    HStack {
+//                        Text(userManager.currentUser?.uniqueUserID ?? "No ID")
+//                            .font(.system(size: 17))
+//                            .foregroundColor(.white)
+//                            .multilineTextAlignment(.leading)
+//                            .padding(.trailing, 60)
+//                        
+//                        Spacer()
+//                        
+//                        ZStack {
+//                            VStack {
+//                                Button(action: {
+//                                    withAnimation {
+//                                        self.isShared.toggle()
+//                                    }
+//                                }) {
+//                                    Image(systemName: "square.and.arrow.up")
+//                                        .font(.system(size: 24))
+//                                        .foregroundColor(.white)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                
+//                .padding(.horizontal, 16)
                 
                 VStack(spacing:5){
                     HStack {
@@ -120,6 +120,19 @@ struct AddFriends: View {
                     .scaledToFit()
                     .cornerRadius(50)
                     .padding(.horizontal, 16)
+                    .overlay(
+                        VStack {
+                            Spacer()
+                            Image(systemName: "lock.fill")
+                                .font(.title)
+                                .foregroundColor(.white)
+                            Text("coming soon ...")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                            Spacer()
+                        }
+                    ).frame(maxWidth: .infinity)
+
                 
                 Text("Add Friend:")
                     .font(.system(size: 20, weight: .bold))

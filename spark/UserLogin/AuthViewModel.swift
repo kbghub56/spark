@@ -172,6 +172,8 @@ extension AuthViewModel {
         
         //Construct url for walking bitmoji
         let bitmojiWalkUrl = "https://sdk.bitmoji.com/me/sticker/\(bitmojiAvatarId)/8e540795-8684-4cf1-853c-af2a41ec9abb"
+        //delete below when kb fixes
+        self.userSignUpProgress = .bitmojiConnected
         
         print(bitmojiUrl)
         print("doc ref \(bitmojiUrl)")
@@ -189,7 +191,7 @@ extension AuthViewModel {
                 self.snapchatBitmojiAvatarId = bitmojiAvatarId
                 self.snapchatBitmojiWalkingUrl = bitmojiWalkUrl
                 print("Document successfully updated with Bitmoji URL and Avatar ID")
-                self.userSignUpProgress = .bitmojiConnected
+  //              self.userSignUpProgress = .bitmojiConnected
 
           //      self.navigateToSnapAvatar2 = true
             }

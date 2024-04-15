@@ -1,10 +1,3 @@
-//
-//  MainPageRS.swift
-//  spark
-//
-//  Created by Kabir Borle on 2/27/24.
-//
-
 import SwiftUI
 import MapKit
 import Combine
@@ -19,11 +12,6 @@ struct HomeMapView: View {
     @State private var selectedEvent: Event?
     @State private var showClickEvent = false
     @Namespace private var animationNamespace
-
-    
-    
-    
-    
     @State private var isForYouSelected = false
     @State private var showMenu = false
     @State private var showExpandedBlackScreen = false
@@ -36,6 +24,8 @@ struct HomeMapView: View {
     @State private var currentRequestIndex = 0
     @State private var followRequests: [FollowRequest] = []
     @State private var showEmojis = true
+//    @State private var yOffset: CGFloat = ...
+    @State private var isExpandedScreenFullSize: Bool = false
 
     
     private func handleFollowRequestVisibility() {
@@ -46,7 +36,7 @@ struct HomeMapView: View {
     }
     
     
-    
+//    let expandedScreenFullSizeOffset: CGFloat = ...
     var body: some View {
         ZStack {
             if showingLocationOffView {
@@ -74,45 +64,48 @@ struct HomeMapView: View {
                                 Spacer(minLength: 0)
                             }.padding(.bottom, 90)
                              .padding(.top, 16)
-                
-                if showExpandedBlackScreen {
-                } else if !showMenu {
-                    let swipeUpThreshold: CGFloat = -50 // Adjust this threshold as needed
-                    
-                    RoundedRectangle(cornerRadius: 50)
-                        .fill(Color.black)
-                        .frame(height: (UIScreen.main.bounds.height / 8))
-                        .offset(y: showMenu ? UIScreen.main.bounds.height : 360)
-                        .overlay(
-                            Text(" ") // Keeping your existing overlay content
-                                .font(.system(size: 22))
-                                .foregroundColor(.white)
-                                .offset(y: showMenu ? UIScreen.main.bounds.height : 360)
-                        )
-                        .animation(.easeOut(duration: 1), value: showMenu)
-                        .gesture(
-                            DragGesture()
-                                .onChanged { gesture in
-                                    if gesture.translation.height < swipeUpThreshold {
-                                        withAnimation {
-                                            showExpandedBlackScreen = true
-                                            showEmojis = false
+                VStack(){
+                    Spacer()
+                    if showExpandedBlackScreen {
+                        // Content when expanded screen is shown
+                    } else if !showMenu {
+                        let swipeUpThreshold: CGFloat = -50 // Adjust this threshold as needed
+                        
+                        RoundedRectangle(cornerRadius: 35)
+                            .fill(Color.black)
+                            .frame(height: (UIScreen.main.bounds.height / 7.5))
+                            .edgesIgnoringSafeArea(.bottom)
+                            .overlay(
+                                VStack(){
+                                    RoundedRectangle(cornerRadius: 2.5)
+                                        .frame(width: 40, height: 5, alignment: .center)
+                                        .padding(.top, 11)
+                                        .foregroundColor(Color(white: 0.8))
+                                    Spacer()
+                                        
+                                }
+                            )
+                            .animation(.easeOut(duration: 1), value: showMenu)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { gesture in
+                                        if gesture.translation.height < swipeUpThreshold {
+                                            withAnimation {
+                                                showExpandedBlackScreen = true
+                                                showEmojis = false
+                                            }
                                         }
                                     }
+                            )
+                            .onTapGesture {
+                                withAnimation {
+                                    showExpandedBlackScreen = true
+                                    showEmojis = false
                                 }
-                                .onEnded { _ in
-                                    // Here you can reset the drag state if you are tracking it
-                                }
-                        )
-                        .onTapGesture {
-                            withAnimation {
-                                showExpandedBlackScreen = true
-                                showEmojis = false
                             }
-                        }
-                }
-                
-                
+                    }
+                }.edgesIgnoringSafeArea(.all)
+
                 GeometryReader { _ in
                     VStack {
                         Spacer()
@@ -553,7 +546,7 @@ struct SideMenu: View {
                         collagesSection
                         signOutButton
                     }
-                    .frame(width: 385, height: 450)
+                    .frame(width: 375, height: 450)
                     .background(Color.black)
                     .cornerRadius(20)
                     .shadow(radius: 5)
@@ -607,22 +600,32 @@ struct SideMenu: View {
 //                        .offset(x: 0, y: 38)
 //                    )
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 5) {
                     if let username = userManager.currentUser?.userName {
                         Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
                             .font(.system(size: 20).bold())
                             .foregroundColor(.white)
-                            .padding(.top, 10)
                     } else {
                         Text("Unknown User").font(.system(size: 28).bold()).foregroundColor(.white)
                             .font(.system(size: 20).bold())
                             .foregroundColor(.white)
-                            .padding(.top, 10)
+                    }
+                    HStack{
+                        Text("SparkID:")
+                            .font(.system(size: 17))
+                            .bold()
+                            .foregroundColor(.white)
+                        Text(userManager.currentUser?.uniqueUserID ?? "Not Found")
+                            .font(.system(size: 17))
+                            .bold()
+                            .underline()
+                            .foregroundColor(.white)
                     }
                         
                     Text(locationManager.nearbyPlace ?? "Unknown Place")
                         .font(.system(size: 17).bold())
                         .foregroundColor(.white)
+                        
                 }
             }
             .padding(.top, 20)
@@ -719,14 +722,14 @@ struct SideMenu: View {
         }
         .overlay(
             VStack {
+                Spacer()
                 Image(systemName: "lock.fill")
                     .font(.title)
                     .foregroundColor(.white)
-                    .scaleEffect(0.75)
                 Text("coming soon ...")
                     .font(.subheadline)
                     .foregroundColor(.white)
-                    .scaleEffect(0.75)
+                Spacer()
             }
         ).frame(maxWidth: .infinity)
     }

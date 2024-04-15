@@ -1,10 +1,3 @@
-//
-//  initFriendsRS.swift
-//  spark
-//
-//  Created by Kabir Borle on 3/4/24.
-//
-
 import SwiftUI
 
 struct InitFriends: View {
@@ -36,17 +29,17 @@ struct InitFriends: View {
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.leading)
                 
-                Text("Your link:")
-                    .font(.system(size: 17))
-                    .bold()
-                    .foregroundColor(.white)
-                
+//                Text("Your link:")
+//                    .font(.system(size: 17))
+//                    .bold()
+//                    .foregroundColor(.white)
+//                
                 HStack {
-                    Text("spark.sampleurl.personxyzpenispe")
-                        .font(.system(size: 17))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.leading)
-                        .padding(.trailing, 60)
+//                    Text("spark.sampleurl.personxyzpenispe")
+//                        .font(.system(size: 17))
+//                        .foregroundColor(.white)
+//                        .multilineTextAlignment(.leading)
+//                        .padding(.trailing, 60)
                     
                     ZStack {
                         VStack {
@@ -54,7 +47,7 @@ struct InitFriends: View {
                                 self.isPressed.toggle()
                             }) {
                                 Image(systemName: "square.and.arrow.up")
-                                    .font(.system(size: 24))
+///.font(.system(size: 24))
                                     .foregroundColor(.white)
                             }
                         }

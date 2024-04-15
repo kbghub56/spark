@@ -209,7 +209,7 @@ class Coordinator: NSObject, MKMapViewDelegate {
         
         return zoomLevel
     }
-    
+    //checks if you did select an animation, sets parent varaiable (self.parent.selectedEvent = event) homemapview goes to parent class which calls mapview representable. based on the value
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         print("Annotation selected: \(String(describing: view.annotation?.title))")
         

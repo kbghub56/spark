@@ -167,11 +167,12 @@ struct AddEvents: View {
                     Text("Continue")
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(isDescriptionTooLong ? Color.gray : Color.white)
+                        .cornerRadius(40)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(isDescriptionTooLong ? Color.gray : Color.white)
-                .cornerRadius(40)
+                .padding(.horizontal, 16)
                 .padding(.top, 25)
                 .disabled(isDescriptionTooLong)
             }

@@ -12,7 +12,7 @@ import SwiftUI
 struct SetTime: View {
     @ObservedObject var viewModel: EventDateTimeViewModel
     @Binding var isShowingSetTimePopup: Bool
-    @State private var endDate: Date = Date().addingTimeInterval(3 * 3600)
+ //   @State private var endDate: Date = Date().addingTimeInterval(3 * 3600)
     
     var body: some View {
         VStack(spacing: 20) {
@@ -37,7 +37,7 @@ struct SetTime: View {
                         
                         DatePicker(
                             "End:",
-                            selection: $endDate,
+                            selection: $viewModel.endTime,
                             in: viewModel.startTime...,
                             displayedComponents: [.date, .hourAndMinute]
                         )

@@ -1,10 +1,3 @@
-//
-//  AddFriends1RS.swift
-//  spark
-//
-//  Created by Kabir Borle on 2/28/24.
-//
-
 import SwiftUI
 import CoreImage.CIFilterBuiltins
 // Utility function to generate a QR code suitable for dark mode by inverting colors

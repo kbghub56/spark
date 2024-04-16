@@ -4,11 +4,10 @@
 //
 //  Created by Kabir Borle on 2/27/24.
 //
-
 import SwiftUI
+import UIKit
 import MapKit
 import Combine
-
 struct HomeMapView: View {
     @EnvironmentObject var eventsViewModel: EventsViewModel
     @StateObject private var mapState = MapState()
@@ -16,10 +15,11 @@ struct HomeMapView: View {
     @EnvironmentObject var userManager: UserManager
     @StateObject private var locationManager = LocationManager(userManager: UserManager())
     @State private var showingFollowRequestPopup = false
-    @State private var selectedEvent: Event?
+    @State private var selectedEvent: EventAnnotation?
+    @State private var selectedFriend: FriendAnnotation?
     @State private var showClickEvent = false
+    @State private var showFriendProf = false
     @Namespace private var animationNamespace
-
     @State private var modalOffset: CGFloat = 0
     
     
@@ -36,7 +36,6 @@ struct HomeMapView: View {
     @State private var currentRequestIndex = 0
     @State private var followRequests: [FollowRequest] = []
     @State private var showEmojis = true
-
     
     private func handleFollowRequestVisibility() {
         if followRequests.isEmpty {
@@ -58,7 +57,7 @@ struct HomeMapView: View {
                     .environmentObject(authViewModel)
             } else {
                 
-                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent)
+                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend)
                     .edgesIgnoringSafeArea(.all)
                     .environment(\.colorScheme, .dark)
                     .onReceive(timer) { _ in
@@ -81,28 +80,46 @@ struct HomeMapView: View {
                             }.padding(.bottom, 90)
                              .padding(.top, 16)
                 
-                if showExpandedBlackScreen {
-                } else if !showMenu {
-                    RoundedRectangle(cornerRadius: 50)
-                        .fill(Color.black)
-                        .frame(height: (UIScreen.main.bounds.height / 8))
-                        .offset(y: showMenu ? UIScreen.main.bounds.height : 360      )
-                        .overlay(
-                            Text("  🫧  💫  👥            🍾  🥂  🎊  ")
-                                .font(.system(size: 22))
-                                .foregroundColor(.white)
-                                .offset(y: showMenu ? UIScreen.main.bounds.height : 360)
-                        )
-                        .animation(.easeOut(duration: 1), value: showMenu)
-                        .onTapGesture {
-                            withAnimation {
-                                showExpandedBlackScreen = true
-                                showEmojis = false
+                VStack(){
+                    Spacer()
+                    if showExpandedBlackScreen {
+                    } else if !showMenu {
+                        let swipeUpThreshold: CGFloat = -50
+                        
+                        RoundedRectangle(cornerRadius: 35)
+                            .fill(Color.black)
+                            .frame(height: (UIScreen.main.bounds.height / 7.5))
+                            .edgesIgnoringSafeArea(.bottom)
+                            .overlay(
+                                VStack(){
+                                    RoundedRectangle(cornerRadius: 2.5)
+                                        .frame(width: 40, height: 5, alignment: .center)
+                                        .padding(.top, 11)
+                                        .foregroundColor(Color(white:0.8))
+                                    Spacer()
+                                }
+                            )
+                          //  .animation(.easeOut(duration: 1), value: showMenu)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { gesture in
+                                        if gesture.translation.height < swipeUpThreshold {
+                                       //     withAnimation {
+                                                showExpandedBlackScreen = true
+                                                showEmojis = false
+                                     //       }
+                                        }
+                                    }
+                            )
+                            .onTapGesture {
+                        //        withAnimation {
+                                    showExpandedBlackScreen = true
+                                    showEmojis = false
+                        //        }
                             }
-                        }
-                }
-                
-                
+                    }
+                }.edgesIgnoringSafeArea(.all)
+
                 GeometryReader { _ in
                     VStack {
                         Spacer()
@@ -151,20 +168,30 @@ struct HomeMapView: View {
             Group {
                 if let selectedEvent = selectedEvent, showClickEvent {
                     ClickEvent(isPresented: $showClickEvent, event: selectedEvent) {
-                        // Completion closure called when the pop-up is fully faded out
                         self.selectedEvent = nil
                     }
                     .zIndex(1)
                 }
+                else if let selectedFriend = selectedFriend, showFriendProf {
+                    FriendPopup(isPresented: $showFriendProf, friend: selectedFriend) {
+                        // Handle tap outside event
+                        withAnimation {
+                            showFriendProf = false
+                        }
+                    }
+                }
             }
         )
         .onChange(of: selectedEvent) { newValue in
-                withAnimation {
+              //  withAnimation {
             showClickEvent = newValue != nil
-            }
-                }
+      //      }
+        }
+        .onChange(of: selectedFriend) { newValue in
+            showFriendProf = newValue != nil
+        }
         .onTapGesture {
-            withAnimation {
+           // withAnimation {
                 if showExpandedBlackScreen {
                     showExpandedBlackScreen = false
                     showEmojis = true
@@ -172,7 +199,7 @@ struct HomeMapView: View {
                 if showMenu {
                     showMenu = false
                 }
-            }
+         //   }
         }
         .onAppear {
             // This might be redundant if you're already setting the user in UserManager's init
@@ -336,7 +363,6 @@ struct HomeMapView: View {
                     .foregroundColor(isForYouSelected ? .white : .gray)
             }.shadow(color: .black.opacity(1), radius: 20, x: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/, y: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/)
                 .padding(.vertical, 12)
-
             Button(action: {
                 withAnimation {
                     isForYouSelected.toggle()
@@ -372,7 +398,7 @@ struct HomeMapView: View {
 //            }.offset(x: isForYouSelected ? -130 - 17.5 : -160 + 57.5, y: -375 - 5)
 //        }
 //    }
-//    
+//
     var circleButton: some View {
         Button(action: {
             withAnimation {
@@ -477,7 +503,6 @@ struct HomeMapView: View {
 struct FriendsView: View {
     @State private var showingAddFriendView = false
     @EnvironmentObject var userManager: UserManager
-
     var body: some View {
         VStack {
             Spacer()
@@ -501,7 +526,6 @@ struct FriendsView: View {
         }
     }
 }
-
 struct EventsView: View {
     @State private var showingEventInputView = false
     
@@ -527,7 +551,6 @@ struct EventsView: View {
         }
     }
 }
-
 struct SideMenu: View {
     @Binding var showMenu: Bool
     @Binding var isSwitchOn: Bool
@@ -547,7 +570,6 @@ struct SideMenu: View {
                                     }
                                 }
             }
-
             // SideMenu content
             if showMenu {
                 VStack {
@@ -575,7 +597,6 @@ struct SideMenu: View {
         }
         .edgesIgnoringSafeArea(.all)
     }
-
     var profileSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 25) {
@@ -612,7 +633,6 @@ struct SideMenu: View {
 //                        })
 //                        .offset(x: 0, y: 38)
 //                    )
-
                 VStack(alignment: .leading) {
                     if let username = userManager.currentUser?.userName {
                         Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
@@ -633,10 +653,8 @@ struct SideMenu: View {
             }
             .padding(.top, 20)
             .padding(.horizontal, 32)
-
         }
     }
-
     var locationToggle: some View {
         HStack {
             Text("Location:")
@@ -685,7 +703,6 @@ struct SideMenu: View {
         .padding(.vertical)
         .padding(.horizontal, 32)
     }
-
     var collagesSection: some View {
         VStack(alignment: .center, spacing: 10) {
             Text("Your Collages 📷:")
@@ -693,7 +710,6 @@ struct SideMenu: View {
                 .foregroundColor(.white)
                 .padding(.vertical, 10)
                 .frame(maxWidth: .infinity)
-
             HStack {
                 Spacer()
                 Image("PNG image 1")
@@ -736,7 +752,6 @@ struct SideMenu: View {
             }
         ).frame(maxWidth: .infinity)
     }
-
     var signOutButton: some View {
         VStack{
             Spacer()
@@ -752,7 +767,6 @@ struct SideMenu: View {
         }.frame(maxWidth: .infinity)
     }
 }
-
 struct FollowRequestPopup: View {
     @EnvironmentObject var userManager: UserManager
     var request: FollowRequest
@@ -762,7 +776,7 @@ struct FollowRequestPopup: View {
     var body: some View {
         VStack(spacing:40){
             Text("New Friends?")
-                .font(.title)                                
+                .font(.title)
                 .foregroundColor(.black)
                 .multilineTextAlignment(.center)
             
@@ -776,7 +790,6 @@ struct FollowRequestPopup: View {
                         }
             .padding(.trailing)
             .frame(maxWidth: .infinity, alignment: .center) // Add frame modifier
-
             
             HStack(spacing: 45) {
                 Button("Accept") {
@@ -807,7 +820,6 @@ struct FollowRequestPopup: View {
         .padding()
     }
 }
-
 struct LargeBitmojiView: View {
     let bitmojiUrl: String
     
@@ -824,9 +836,6 @@ struct LargeBitmojiView: View {
         }
     }
 }
-
-
-
 struct FollowRequestButtonStyle: ButtonStyle {
     var backgroundColor: Color
     
@@ -839,19 +848,17 @@ struct FollowRequestButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
     }
 }
-
 struct HomeMapView_Preview: PreviewProvider {
     static var previews: some View {
         HomeMapView()
     }
 }
-
 struct RankedEventsListView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var eventsViewModel: EventsViewModel
     @EnvironmentObject var locationManager: LocationManager
     @State private var showClickEvent: Bool = false
-    @State private var selectedEvent: Event? = nil
+    @State private var selectedEvent: EventAnnotation? = nil
     
     
     var body: some View {
@@ -904,7 +911,7 @@ struct RankedEventsListView: View {
                                     Spacer()
                                     
                                     Button(action: {
-                                        self.selectedEvent = event
+                                        self.selectedEvent = EventAnnotation(event: event)
                                         self.showClickEvent = true
                                     }) {
                                         Text("See More")
@@ -944,7 +951,7 @@ struct RankedEventsListView: View {
                                     
                                     // Share button
                                     Button(action: {
-                                        // Share button action
+                                        self.shareEvent(event: event)
                                     }) {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.title)
@@ -1031,10 +1038,8 @@ struct RankedEventsListView: View {
                                         selectedEvent = nil
                                     }
                                 }
-
                             VStack {
-                                Spacer()
-
+                               // Spacer()
                                 ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
                                     self.selectedEvent = nil
                                 }
@@ -1048,46 +1053,28 @@ struct RankedEventsListView: View {
                                 )
                                 .transition(.scale)
                                 .scaleEffect(0.9)
-
-                                Spacer()
+                          //      Spacer()
                             }
                         }
                     }
                 )
-        
-        
-        //        // Conditionally show the ClickEvent view as a popup
-        //        .overlay(
-        //            Group {
-        //                if showClickEvent && selectedEvent != nil {
-        //                    ZStack {
-        //                        Color.black.opacity(0.4) // Dimmed background
-        //                            .edgesIgnoringSafeArea(.all)
-        //                            .onTapGesture {
-        //                                // Close the popup when the dimmed background is tapped
-        //                                withAnimation {
-//                                    showClickEvent = false
-//                                    selectedEvent = nil
-//                                }
-//                            }
-//
-//                        ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
-//                            // Completion closure called when the pop-up is fully faded out
-//                            self.selectedEvent = nil
-//                        }
-//                        .frame(width: 385, height: 450) // Adjust the popup size to match ClickEvent dimensions
-//                        .cornerRadius(50)
-//                        .shadow(radius: 20)
-//                        .transition(.scale) // Add a transition effect if desired
-//                        .zIndex(1) // Ensure the popup is always on top
-//                        .onTapGesture { }
-//                        .gesture(DragGesture().onChanged { _ in }) // Prevent drag to dismiss from background
-//                    }
-//                }
-//            }, alignment: .center // Align the overlay in the center of the ScrollView
-//        )
     }
     
+    func shareEvent(event: Event) {
+        let eventDetails = "\(event.title ?? "Event Title")\n" +
+        "Invite Status: \(event.visibility ?? "Invite Status")\n" +
+        "Location: \(event.locTitle ?? "Location Title")\n" +
+        "\(event.locSubtitle ?? "Additional Location Info")\n" +
+        "\(event.description ?? "Description")"
+        
+        let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController?.present(activityViewController, animated: true, completion: nil)
+        }
+    }
+
     // Function to truncate location title and subtitle
     func truncateLocation(_ title: String, _ subtitle: String) -> String {
         print("SORTED EVENTS: \(eventsViewModel.sortedEventsByLikesFromFriends)")
@@ -1118,8 +1105,6 @@ struct RankedEventsListView: View {
         }
     }
 }
-
-
 struct FriendBitmojiView: View {
     let bitmojiUrl: String
     
@@ -1136,17 +1121,15 @@ struct FriendBitmojiView: View {
         }
     }
 }
-
-
 struct FriendsDistanceListView: View {
     @EnvironmentObject var userManager: UserManager
     @EnvironmentObject var locationManager: LocationManager
     @State private var showingAddFriendView = false
-    @State private var showRemoveFriendPopup = false
+  //  @State private var showRemoveFriendPopup = false
     @State private var selectedFriendID: String?
-    @State private var dragOffset: CGFloat = 0
-
-
+ //   @State private var dragOffset: CGFloat = 0
+    @State private var showFriendPopup = false
+    @State private var selectedFriend: FriendDistance?
     
     var body: some View {
         if userManager.friendsDistances.isEmpty {
@@ -1184,21 +1167,10 @@ struct FriendsDistanceListView: View {
                                 } placeholder: {
                                     Circle().fill(Color.gray).frame(width: 30, height: 30)
                                 }
-                                .gesture(
-                                                DragGesture()
-                                                    .onChanged { value in
-                                                        if value.translation.width > 0 {
-                                                            dragOffset = value.translation.width
-                                                        }
-                                                    }
-                                                    .onEnded { value in
-                                                        if dragOffset > 50 {
-                                                            selectedFriendID = friendDistance.id
-                                                            showRemoveFriendPopup = true
-                                                        }
-                                                        dragOffset = 0
-                                                    }
-                                            )
+                                .onTapGesture {
+                                                                    selectedFriend = friendDistance
+                                                                    showFriendPopup = true
+                                                                }
                             }
                                 
                             
@@ -1252,7 +1224,7 @@ struct FriendsDistanceListView: View {
 //                            }
 //                            .padding(.leading, 10)
                         }
-                        .offset(x: dragOffset)
+                    //    .offset(x: dragOffset)
                         .padding(.vertical, 10) // Adjusted vertical padding for each row to balance spacing
 //                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
 //                                                    Button(action: {
@@ -1269,18 +1241,36 @@ struct FriendsDistanceListView: View {
             }
             .background(Color.black.opacity(0.7))
             .overlay(
-                            ZStack {
-                                if showRemoveFriendPopup {
-                                    Color.black.opacity(0.5).edgesIgnoringSafeArea(.all)
-                                    
-                                    if let friendID = selectedFriendID,
-                                       let friendName = userManager.friendsDistances.first(where: { $0.id == friendID })?.userName {
-                                        RemoveFriendPopup(friendID: friendID, friendName: friendName, showPopup: $showRemoveFriendPopup)
-                                            .environmentObject(userManager)
+                            Group {
+                                if showFriendPopup, let friend = selectedFriend {
+                                    Color.black.opacity(0.4)
+                                        .edgesIgnoringSafeArea(.all)
+                                        .onTapGesture {
+                                            withAnimation {
+                                                showFriendPopup = false
+                                                selectedFriend = nil
+                                            }
+                                        }
+                                    VStack{
+                                        FriendPopup(isPresented: $showFriendPopup, friend: FriendAnnotation(coordinate: CLLocationCoordinate2D(latitude: 23.92, longitude: 32.90), title: friend.id, subtitle: "", nearbyPlace: friend.nearbyPlace, userName: friend.userName, locationLastUpdated: friend.lastActive, bitmojiUrl : friend.bitmojiUrl)) {
+                                            selectedFriend = nil
+                                        }
+                                        .frame(width: 385, height: 450) // Adjust the size as needed
+                                        .background(.black)
+                                        .cornerRadius(50)
+                                        .shadow(radius: 20)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 50)
+                                                .stroke(Color.white, lineWidth: 2)
+                                        )
+                                        .transition(.scale)
+                                        .scaleEffect(0.9)
                                     }
+                                
                                 }
                             }
                         )
+
         }
     }
     
@@ -1308,72 +1298,4 @@ extension String {
         return self  // Return the original string if it doesn't have enough components
     }
 }
-
-
-
-
 //opacity(0.2/0.3)
-
-
-struct RemoveFriendPopup: View {
-    var friendID: String
-    var friendName: String
-
-    @Binding var showPopup: Bool
-    @EnvironmentObject var userManager: UserManager
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 50)
-                .fill(Color.black)
-                .frame(width: 350, height: 350)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 50)
-                        .stroke(Color.white, lineWidth: 2)
-                )
-                .overlay(
-                    VStack(spacing: 20) {
-                        Text("Remove \(friendName)")
-                            .font(.title)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                        
-                        Text("as a friend")
-                            .font(.title)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                        
-                        Spacer()
-                        
-                        HStack(spacing: 45) {
-                            Button("Accept") {
-                                guard let currentUserUniqueID = userManager.currentUser?.uniqueUserID else {
-                                    print("Current user unique ID not found")
-                                    return
-                                }
-                                userManager.removeAsFriend(currentUserUniqueID: currentUserUniqueID, friendID: friendID)
-                                showPopup = false
-                            }
-                            .foregroundColor(.black)
-                            .font(.system(size: 22, weight: .bold))
-                            .padding()
-                            .scaleEffect(0.8)
-                            .background(Color.white)
-                            .cornerRadius(10)
-                            
-                            Button("Deny") {
-                                showPopup = false
-                            }
-                            .foregroundColor(.white)
-                            .scaleEffect(0.8)
-                            .font(.system(size: 22, weight: .bold))
-                            .padding()
-                            .background(Color.black)
-                            .cornerRadius(10)
-                        }.padding(.bottom, 48)
-                    }
-                    .padding(.top, 48)
-                )
-        }
-    }
-}

@@ -14,7 +14,7 @@ struct ClickEvent: View {
     @State private var isLiked = false
     @State private var isShared = false
     @Binding var isPresented: Bool
-    let event: Event
+    let event: EventAnnotation
     let onCompletion: () -> Void
     
     var body: some View {
@@ -38,7 +38,7 @@ struct ClickEvent: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
-                            Text(event.description ?? "Description")
+                            Text(event.subtitle ?? "Description")
                                 .font(.system(size: 17))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -53,28 +53,36 @@ struct ClickEvent: View {
                     }
                     .padding(.top, 32)
                     .padding(.horizontal, 24)
-                    HStack {
+                    VStack(alignment: .center, spacing: 5) {
+                        HStack(spacing: 5) {
+                            Text("Start:")
+                                .font(.system(size: 16))
+                                .foregroundColor(.white)
+                            
                             Text("\(formatDate(event.startDate)) \(formatTime(event.startDate))")
-                                .font(.system(size: 12))
+                                .font(.system(size: 16))
                                 .foregroundColor(.white)
                                 .padding(.vertical, 4)
                                 .padding(.horizontal, 8)
                                 .background(Color.gray.opacity(0.3))
                                 .cornerRadius(8)
-                            
-                            Text("-")
-                                .font(.system(size: 10))
+                        }
+                        
+                        HStack(spacing: 5) {
+                            Text("End:")
+                                .font(.system(size: 16))
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 4)
                             
                             Text("\(formatDate(event.endDate)) \(formatTime(event.endDate))")
-                                .font(.system(size: 12))
+                                .font(.system(size: 16))
                                 .foregroundColor(.white)
                                 .padding(.vertical, 4)
                                 .padding(.horizontal, 8)
                                 .background(Color.gray.opacity(0.3))
                                 .cornerRadius(8)
-                    } .padding(.top)
+                        }
+                    }
+                    .padding(.top)
                 }
                 Spacer()
                 HStack(spacing: 30) {
@@ -179,7 +187,7 @@ struct ClickEvent: View {
             .modifier(EventPopupTransition(isPresented: isPresented, onCompletion: onCompletion))
         }
     }
-    func getEventImage(_ event: Event) -> String {
+    func getEventImage(_ event: EventAnnotation) -> String {
         switch event.visibility {
         case "Everyone":
             return "EveryoneParty"
@@ -196,7 +204,7 @@ struct ClickEvent: View {
         let eventDetails = "\(event.title)\n\n" +
         "Invite Status: \(event.visibility ?? "Invite Status")\n" +
         "Location: \(event.locTitle ?? "Location Title")\n\n" +
-        "\(event.description ?? "Description")"
+        "\(event.subtitle ?? "Description")"
         
         let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
         

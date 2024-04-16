@@ -7,7 +7,8 @@ struct MapViewRepresentable: UIViewRepresentable {
     @ObservedObject var eventsViewModel: EventsViewModel
     @ObservedObject var locationManager: LocationManager
     @ObservedObject var mapState: MapState
-    @Binding var selectedEvent: Event?
+    @Binding var selectedEvent: EventAnnotation?
+    @Binding var selectedFriend: FriendAnnotation?
     var authViewModel: AuthViewModel
     var userManager: UserManager
 
@@ -19,7 +20,8 @@ struct MapViewRepresentable: UIViewRepresentable {
          mapState: MapState,
          authViewModel: AuthViewModel,
          userManager: UserManager,
-         selectedEvent: Binding<Event?>) {
+         selectedEvent: Binding<EventAnnotation?>,
+         selectedFriend: Binding<FriendAnnotation?>){
         
         self.eventsViewModel = eventsViewModel
         self.locationManager = locationManager
@@ -27,6 +29,7 @@ struct MapViewRepresentable: UIViewRepresentable {
         self.authViewModel = authViewModel
         self.userManager = userManager
         self._selectedEvent = selectedEvent
+        self._selectedFriend = selectedFriend
     }
 
     func makeUIView(context: Context) -> MKMapView {
@@ -80,14 +83,18 @@ struct MapViewRepresentable: UIViewRepresentable {
                         if let friendDoc = friendDoc, friendDoc.exists,
                            let friendData = friendDoc.data(),
                            let latitude = friendData["latitude"] as? Double,
-                           let longitude = friendData["longitude"] as? Double {
+                           let longitude = friendData["longitude"] as? Double,
+                           let nearbyPlace = friendData["nearbyPlace"] as? String,
+                           let userName = friendData["userName"] as? String,
+                           let locationLastUpdated = friendData["locationLastUpdated"] as? Timestamp,
+                           let bitmojiUrl = friendData["bitmojiUrl"] as? String {
                             let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
                             DispatchQueue.main.async {
                                 // Update or create the annotation for this friend
                                 if let annotation = self.mapView.annotations.first(where: { ($0 as? FriendAnnotation)?.title == friendID }) as? FriendAnnotation {
                                     annotation.coordinate = coordinate
                                 } else {
-                                    let annotation = FriendAnnotation(coordinate: coordinate, title: friendID, subtitle: nil)
+                                    let annotation = FriendAnnotation(coordinate: coordinate, title: friendID, subtitle: nil, nearbyPlace: nearbyPlace, userName: userName, locationLastUpdated: locationLastUpdated.dateValue(), bitmojiUrl: bitmojiUrl)
                                     self.mapView.addAnnotation(annotation)
                                 }
                             }
@@ -130,14 +137,3 @@ class MapState: ObservableObject {
 //}
 
 
-class FriendAnnotation: NSObject, MKAnnotation {
-    var coordinate: CLLocationCoordinate2D
-    var title: String?
-    var subtitle: String?
-
-    init(coordinate: CLLocationCoordinate2D, title: String?, subtitle: String?) {
-        self.coordinate = coordinate
-        self.title = title
-        self.subtitle = subtitle
-    }
-}

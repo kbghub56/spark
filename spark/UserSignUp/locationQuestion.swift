@@ -3,41 +3,34 @@ import CoreLocation
 
 class CustomLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
-
+    
+    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    
     override init() {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-    }
-
-    func requestLocationPermission() {
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.requestAlwaysAuthorization()
-    }
-
-    func requestAlwaysPermission() {
-        if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
-            locationManager.requestAlwaysAuthorization()
-        }
+        authorizationStatus = locationManager.authorizationStatus
     }
     
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        switch status {
-        case .authorizedWhenInUse:
-            // Optionally request 'always' authorization here
-            locationManager.requestAlwaysAuthorization()
-        case .authorizedAlways:
-            print("Location access granted: always")
-        default:
-            print("Location access: \(status.rawValue)")
-        }
+    func requestLocationPermission() {
+        locationManager.requestWhenInUseAuthorization()
     }
-
+    
+    func requestAlwaysPermission() {
+        locationManager.requestAlwaysAuthorization()
+    }
+    
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        authorizationStatus = manager.authorizationStatus
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         print("Current location: \(location)")
     }
 }
+
 
 
 struct LocationQuestion: View {
@@ -46,6 +39,8 @@ struct LocationQuestion: View {
     @State private var isAllowButtonPressed: Bool = false
     @EnvironmentObject var authViewModel: AuthViewModel
     @ObservedObject var locationManager = CustomLocationManager()
+    @State private var shouldNavigateToNextPage = false
+    @State private var showLocationDeniedAlert = false
 
     var body: some View {
         ZStack {
@@ -61,17 +56,14 @@ struct LocationQuestion: View {
             }
 
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    isAllowButtonPressed = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        isAllowButtonPressed = false
-                        locationManager.requestLocationPermission()
-                        authViewModel.userSignUpProgress = .bitmoji1
-                        print("SET TO TRUE")
-                    }
-
-                }
-            }) {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isAllowButtonPressed = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                    isAllowButtonPressed = false
+                                    locationManager.requestLocationPermission()
+                                }
+                            }
+                        }) {
                 ZStack {
                     Rectangle()
                         .foregroundColor(.clear)
@@ -151,6 +143,43 @@ struct LocationQuestion: View {
         }
         .frame(width: 430, height: 932)
         .background(Color.black)
+        .onChange(of: locationManager.authorizationStatus) { status in
+                    switch status {
+                    case .notDetermined:
+                        locationManager.requestLocationPermission()
+                    case .authorizedWhenInUse:
+                        locationManager.requestAlwaysPermission()
+                    case .authorizedAlways:
+                        print("Location access granted: always")
+                        shouldNavigateToNextPage = true
+                    case .denied:
+                        print("Location access denied")
+                        showLocationDeniedAlert = true
+                    case .restricted:
+                        print("Location access restricted")
+                        showLocationDeniedAlert = true
+                    @unknown default:
+                        print("Unknown location authorization status")
+                    }
+                }
+                .onChange(of: shouldNavigateToNextPage) { shouldNavigate in
+                    if shouldNavigate {
+                        authViewModel.userSignUpProgress = .bitmoji1
+                        print("SET TO TRUE")
+                    }
+                }
+                .alert(isPresented: $showLocationDeniedAlert) {
+                    Alert(
+                        title: Text("Location Access Denied"),
+                        message: Text("Please allow location access to continue."),
+                        primaryButton: .default(Text("Open Settings")) {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        },
+                        secondaryButton: .cancel()
+                    )
+                }
     }
 }
 

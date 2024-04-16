@@ -96,8 +96,6 @@ class Coordinator: NSObject, MKMapViewDelegate {
                     try! await Task.sleep(nanoseconds: 100000)
                 }
                 
-                
-                
                 // Assume FriendAnnotation has a 'userId' property to match keys in friendsBitmojiWalkingUrls
                 if let userId = friendAnnotation.title,
                    let bitmojiUrlString = self.authViewModel.friendsBitmojiWalkingUrls[userId],
@@ -214,6 +212,8 @@ class Coordinator: NSObject, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         print("Annotation selected: \(String(describing: view.annotation?.title))")
+        printTimestamp()
+        
         
         if let eventAnnotation = view.annotation as? EventAnnotation {
             // Find the corresponding Event based on the annotation's id
@@ -221,10 +221,31 @@ class Coordinator: NSObject, MKMapViewDelegate {
             
             DispatchQueue.main.async {
                // withAnimation(.easeInOut(duration: 0.1)) {
-                self.parent.selectedEvent = self.parent.eventsViewModel.allEvents.first { $0.id == eventAnnotation.id }
+                self.parent.selectedEvent = eventAnnotation
               //  }
             }
         }
+        
+        else if let friendAnnotation = view.annotation as? FriendAnnotation {
+            DispatchQueue.main.async {
+                // withAnimation(.easeInOut(duration: 0.1)) {
+                self.parent.selectedFriend = friendAnnotation
+                
+                self.printTimestamp()
+                //  }
+            }
+        }
+        
+        
+        
+    }
+    
+    func printTimestamp() {
+        let currentDate = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        let dateString = formatter.string(from: currentDate)
+        print("Timestamp: \(dateString)")
     }
 
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
@@ -232,6 +253,13 @@ class Coordinator: NSObject, MKMapViewDelegate {
             DispatchQueue.main.async {
                 withAnimation(.easeInOut(duration: 0.1)) {
                     self.parent.selectedEvent = nil
+                }
+            }
+        }
+        else if view.annotation is FriendAnnotation {
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut (duration: 0.1)){
+                    self.parent.selectedFriend = nil
                 }
             }
         }
@@ -315,5 +343,4 @@ class LikeButton: UIButton {
         }
     }
 }
-
 

@@ -17,6 +17,8 @@ class EventAnnotation: NSObject, MKAnnotation, Identifiable {
     let visibility: String  // Add this line
     let locSub: String
     let locTitle: String
+    let startDate: Date
+    let endDate: Date
     
 
     init(event: Event) {
@@ -29,6 +31,8 @@ class EventAnnotation: NSObject, MKAnnotation, Identifiable {
         self.locSub = event.locSubtitle
         self.locTitle = event.locTitle
         self.likedBy = event.likedBy
+        self.startDate = event.startDate
+        self.endDate = event.endDate
         
     }
 }

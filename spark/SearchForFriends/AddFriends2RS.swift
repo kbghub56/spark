@@ -35,6 +35,8 @@ struct AddFrTwo: View {
                         .foregroundColor(.white)
                 }
                 
+                
+                
                 Text("Keep in mind your friends can see what you're up to - this is for that group chat and those friends.")
                     .font(.system(size: 17))
                     .foregroundColor(.gray)
@@ -48,11 +50,11 @@ struct AddFrTwo: View {
                     Text("Continue")
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(.white)
+                        .cornerRadius(25)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(.white)
-                .cornerRadius(25)
                 .padding(.top, 25)
                 .padding(.horizontal, 64)
             }

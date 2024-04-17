@@ -138,6 +138,8 @@ class Coordinator: NSObject, MKMapViewDelegate {
                 imageName = "EveryoneBare"
             case "Friends Only":
                 imageName = "FriendsBare"
+                view.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+
             case "Friends and Mutuals Only":
                 imageName = "FriendsAndMutualsBare"
             default:

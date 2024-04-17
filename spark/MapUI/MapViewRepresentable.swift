@@ -52,6 +52,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     
     func updateUIView(_ uiView: MKMapView, context: Context) {
         updateAnnotations(uiView, with: eventsViewModel.filteredEvents)
+        fetchFriendsLocationsIfNeeded()
         print("updating")
     }
 

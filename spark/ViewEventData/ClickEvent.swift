@@ -201,10 +201,11 @@ struct ClickEvent: View {
     }
     
     func shareEvent() {
-        let eventDetails = "\(event.title)\n\n" +
-        "Invite Status: \(event.visibility ?? "Invite Status")\n" +
-        "Location: \(event.locTitle ?? "Location Title")\n\n" +
-        "\(event.subtitle ?? "Description")"
+        let eventDetails = "\(event.title ?? "Event Title")\n" +
+        "\(event.visibility ?? "Invite Status") [invited]\n" +
+        "@ \(event.locTitle ?? "Location Title")\n" +
+        "\(event.locSub ?? "Additional Location Info")\n" +
+        "\(event.subtitle ?? "Description")\n\n" + "Sent from SparkRice⚡"
         
         let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
         

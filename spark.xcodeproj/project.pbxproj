@@ -49,6 +49,7 @@
 		9914F8F42BCD06ED00F33482 /* addEventsTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8F32BCD06ED00F33482 /* addEventsTester.swift */; };
 		9914F8F62BCD0D6D00F33482 /* AddFriends1Tester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8F52BCD0D6D00F33482 /* AddFriends1Tester.swift */; };
 		9914F8F82BCF811000F33482 /* SideMenuTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8F72BCF811000F33482 /* SideMenuTransition.swift */; };
+		9914F8FC2BCFDDDD00F33482 /* landingPageDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8FB2BCFDDDD00F33482 /* landingPageDemo.swift */; };
 		9935AB1C2B8EF0FB003994AE /* LocationSearchGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */; };
 		9935AB1E2B8EF14A003994AE /* UserLoginGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */; };
 		9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB202B8EF402003994AE /* MainPageRS.swift */; };
@@ -117,6 +118,7 @@
 		9914F8F32BCD06ED00F33482 /* addEventsTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addEventsTester.swift; sourceTree = "<group>"; };
 		9914F8F52BCD0D6D00F33482 /* AddFriends1Tester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFriends1Tester.swift; sourceTree = "<group>"; };
 		9914F8F72BCF811000F33482 /* SideMenuTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuTransition.swift; sourceTree = "<group>"; };
+		9914F8FB2BCFDDDD00F33482 /* landingPageDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = landingPageDemo.swift; sourceTree = "<group>"; };
 		9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchGPT.swift; sourceTree = "<group>"; };
 		9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginGPT.swift; sourceTree = "<group>"; };
 		9935AB202B8EF402003994AE /* MainPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPageRS.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 				99086FC92B7B49FD00FC00B2 /* LocationSearch */,
 				99086F982B76E3BB00FC00B2 /* Assets.xcassets */,
 				99086F9A2B76E3BB00FC00B2 /* Preview Content */,
+				9914F8FB2BCFDDDD00F33482 /* landingPageDemo.swift */,
 			);
 			path = spark;
 			sourceTree = "<group>";
@@ -547,6 +550,7 @@
 				9914F8E62BC802D400F33482 /* MainPageRS2.swift in Sources */,
 				9914F8F62BCD0D6D00F33482 /* AddFriends1Tester.swift in Sources */,
 				99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */,
+				9914F8FC2BCFDDDD00F33482 /* landingPageDemo.swift in Sources */,
 				9993E3EA2B8DC2CA007443BE /* addEventsRS.swift in Sources */,
 				9935AB272B909C95003994AE /* AddFriends2RS.swift in Sources */,
 				9914F8D22BC3E56900F33482 /* EventAnnotationView.swift in Sources */,
@@ -709,7 +713,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -745,7 +749,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (

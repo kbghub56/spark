@@ -804,7 +804,7 @@ struct SideMenu: View {
             return
         }
         
-        let activityViewController = UIActivityViewController(activityItems: ["Check out my SparkID: \(sparkID)"], applicationActivities: nil)
+        let activityViewController = UIActivityViewController(activityItems: ["Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"], applicationActivities: nil)
         
         // Exclude certain activity types if desired
         activityViewController.excludedActivityTypes = [.addToReadingList, .assignToContact]
@@ -1113,10 +1113,10 @@ struct RankedEventsListView: View {
     
     func shareEvent(event: Event) {
         let eventDetails = "\(event.title ?? "Event Title")\n" +
-        "Invite Status: \(event.visibility ?? "Invite Status")\n" +
-        "Location: \(event.locTitle ?? "Location Title")\n" +
+        "\(event.visibility ?? "Invite Status") [invited]\n" +
+        "@ \(event.locTitle ?? "Location Title")\n" +
         "\(event.locSubtitle ?? "Additional Location Info")\n" +
-        "\(event.description ?? "Description")"
+        "\(event.description ?? "Description")\n\n" + "Sent from SparkRice⚡"
         
         let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
         
@@ -1186,7 +1186,8 @@ struct FriendsDistanceListView: View {
         if userManager.friendsDistances.isEmpty {
             ScrollView {
                 VStack {
-                    Button(action: {showingAddFriendView = true}
+                    Button(action: {showingAddFriendView = true
+                    }
                     ){
                         Text("Click here to find your friends")
                             .font(.system(size: 24, weight: .bold))

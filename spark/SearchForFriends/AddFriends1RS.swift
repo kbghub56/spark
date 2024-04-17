@@ -166,7 +166,7 @@ struct AddFriends: View {
             print("No Spark ID available")
             return
         }
-        let shareContent = "My Spark ID: \(sparkID)"
+        let shareContent = "Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
 
         // Presenting the share sheet

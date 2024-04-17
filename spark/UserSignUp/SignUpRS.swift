@@ -141,6 +141,11 @@ struct SignUpView: View {
             if success {
                 self.navigateToSnapAvatar = true
             }
+            else {
+                DispatchQueue.main.async {
+                               self.errorMessage = "Please enter a valid Rice email."
+                           }
+            }
         }
     }
 }

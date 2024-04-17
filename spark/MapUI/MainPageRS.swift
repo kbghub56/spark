@@ -21,7 +21,8 @@ struct HomeMapView: View {
     @State private var showFriendProf = false
     @Namespace private var animationNamespace
     @State private var modalOffset: CGFloat = 0
-    
+    @State private var didSelectUserAnnotation = true
+
     
     
     @State private var isForYouSelected = false
@@ -57,7 +58,7 @@ struct HomeMapView: View {
                     .environmentObject(authViewModel)
             } else {
                 
-                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend)
+                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation)
                     .edgesIgnoringSafeArea(.all)
                     .environment(\.colorScheme, .dark)
                     .onReceive(timer) { _ in
@@ -83,7 +84,7 @@ struct HomeMapView: View {
                 VStack(){
                     Spacer()
                     if showExpandedBlackScreen {
-                    } else if !showMenu {
+                    } else /*if !showMenu */{
                         let swipeUpThreshold: CGFloat = -50
                         
                         RoundedRectangle(cornerRadius: 35)
@@ -135,7 +136,12 @@ struct HomeMapView: View {
                 }.ignoresSafeArea(.all)
                 
              //   if showMenu {
-                    SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, locationManager: locationManager, namespace: animationNamespace)
+                SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
+                        // Dismiss the side menu
+                        withAnimation {
+                            showMenu = false
+                        }
+                    })
                      //   .transition(.move(edge: .trailing))
                         .environmentObject(userManager)
                         .environmentObject(authViewModel)
@@ -175,10 +181,12 @@ struct HomeMapView: View {
                 else if let selectedFriend = selectedFriend, showFriendProf {
                     FriendPopup(isPresented: $showFriendProf, friend: selectedFriend) {
                         // Handle tap outside event
-                        withAnimation {
+                        self.selectedFriend = nil
+                      //  withAnimation {
                             showFriendProf = false
-                        }
+                     //   }
                     }
+                    .zIndex(1)
                 }
             }
         )
@@ -402,6 +410,7 @@ struct HomeMapView: View {
     var circleButton: some View {
         Button(action: {
             withAnimation {
+                didSelectUserAnnotation = false
                 showMenu = true
             }
         }) {
@@ -557,12 +566,16 @@ struct SideMenu: View {
     @Binding var showingLocationOffView: Bool
     @EnvironmentObject var userManager: UserManager
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Binding var didSelectUserAnnotation: Bool // Add this binding
     var locationManager = LocationManager(userManager: UserManager())
     var namespace: Namespace.ID
+    var dismiss: () -> Void // Add this closure
+
+    
     var body: some View {
         ZStack {
             // Semi-transparent background with tap gesture to hide the menu
-            if showMenu {
+            if showMenu && !didSelectUserAnnotation{
                 Color.black.opacity(showMenu ? 0.5 : 0).edgesIgnoringSafeArea(.all)
                                 .onTapGesture {
                                     withAnimation(.easeInOut) {
@@ -596,6 +609,8 @@ struct SideMenu: View {
             }
         }
         .edgesIgnoringSafeArea(.all)
+        .modifier(SideMenuTransition(isPresented: showMenu, onCompletion: dismiss)) // Apply the modifier
+
     }
     var profileSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -631,24 +646,40 @@ struct SideMenu: View {
 //                                .background(Color.white)
 //                                .cornerRadius(50)
 //                        })
-//                        .offset(x: 0, y: 38)
-//                    )
-                VStack(alignment: .leading) {
+                //                        .offset(x: 0, y: 38)
+                //                    )
+                VStack(alignment: .leading, spacing: 5) {
                     if let username = userManager.currentUser?.userName {
                         Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
                             .font(.system(size: 20).bold())
                             .foregroundColor(.white)
-                            .padding(.top, 10)
                     } else {
                         Text("Unknown User").font(.system(size: 28).bold()).foregroundColor(.white)
                             .font(.system(size: 20).bold())
                             .foregroundColor(.white)
-                            .padding(.top, 10)
                     }
-                        
+                    HStack{
+                        Text("SparkID:")
+                            .font(.system(size: 17))
+                            .bold()
+                            .foregroundColor(.white)
+                        Text(userManager.currentUser?.uniqueUserID ?? "Not Found")
+                            .font(.system(size: 17))
+                            .bold()
+                            .underline()
+                            .foregroundColor(.white)
+                        Button(action: {
+                            shareSparkID()
+                        }) {
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(.white)
+                        }
+                    }
+                    
                     Text(locationManager.nearbyPlace ?? "Unknown Place")
                         .font(.system(size: 17).bold())
                         .foregroundColor(.white)
+                    
                 }
             }
             .padding(.top, 20)
@@ -766,7 +797,27 @@ struct SideMenu: View {
             .cornerRadius(50)
         }.frame(maxWidth: .infinity)
     }
+    
+    func shareSparkID() {
+        guard let sparkID = userManager.currentUser?.uniqueUserID else {
+            print("SparkID not found")
+            return
+        }
+        
+        let activityViewController = UIActivityViewController(activityItems: ["Check out my SparkID: \(sparkID)"], applicationActivities: nil)
+        
+        // Exclude certain activity types if desired
+        activityViewController.excludedActivityTypes = [.addToReadingList, .assignToContact]
+        
+        // Present the share sheet
+        if let windowScene = UIApplication.shared.windows.first?.windowScene {
+            windowScene.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+        }
+    }
 }
+
+
+
 struct FollowRequestPopup: View {
     @EnvironmentObject var userManager: UserManager
     var request: FollowRequest

@@ -12,45 +12,50 @@ import FirebaseFirestore
 import MapKit
 
 class LocationManager: NSObject, ObservableObject {
-    private let userManager: UserManager // Changed from var to let to indicate it's set once and doesn't change
+    private let userManager: UserManager
     private let locationManager = CLLocationManager()
     @Published var currentLocation: CLLocation?
     @Published var isLocationSharingEnabled = true
     @Published var nearbyPlace: String?
     private var lastIdentificationTime: Date?
+    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
 
-
-    // Modified init to accept a UserManager instance
     init(userManager: UserManager) {
         self.userManager = userManager
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        authorizationStatus = locationManager.authorizationStatus
+        requestLocationPermission()
+    }
+    
+    func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
+    }
+    
+    func requestAlwaysPermission() {
+        locationManager.requestAlwaysAuthorization()
     }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        self.currentLocation = location // Update the current location
-        updateCurrentUserLocation(location: location) // Update Firestore
-        
-        // Check if it's been more than 5 minutes since the last identification
+        self.currentLocation = location
+        updateCurrentUserLocation(location: location)
         
         if shouldIdentifyPlace() {
             identifyNearbyPlace(for: location)
-            lastIdentificationTime = Date() // Update the last identification time
+            lastIdentificationTime = Date()
         }
     }
     
     private func shouldIdentifyPlace() -> Bool {
         guard let lastIdentification = lastIdentificationTime else {
-            return true // No identification has been done yet
+            return true
         }
         let timeInterval = Date().timeIntervalSince(lastIdentification)
-        return timeInterval >= 30 // 300 seconds = 5 minutes
+        return timeInterval >= 30
     }
 
     private func updateCurrentUserLocation(location: CLLocation?) {
@@ -58,12 +63,11 @@ extension LocationManager: CLLocationManagerDelegate {
         let db = Firestore.firestore()
         
         if let location = location, self.isLocationSharingEnabled {
-            // Location sharing is enabled and location is available, update latitude and longitude
             db.collection("users").document(currentUserID).updateData([
                 "latitude": location.coordinate.latitude,
                 "longitude": location.coordinate.longitude,
                 "locationLastUpdated": FieldValue.serverTimestamp(),
-                "locationOff": false  // Ensure to set locationOff to false
+                "locationOff": false
             ]) { error in
                 if let error = error {
                     print("Error updating user location: \(error.localizedDescription)")
@@ -72,11 +76,10 @@ extension LocationManager: CLLocationManagerDelegate {
                 }
             }
         } else {
-            // Location sharing is disabled or location is nil, set latitude and longitude to null
             db.collection("users").document(currentUserID).updateData([
-                "latitude": FieldValue.delete(),  // Remove the latitude field
-                "longitude": FieldValue.delete(),  // Remove the longitude field
-                "locationOff": true  // Ensure to set locationOff to true
+                "latitude": FieldValue.delete(),
+                "longitude": FieldValue.delete(),
+                "locationOff": true
             ]) { error in
                 if let error = error {
                     print("Error setting user location to null: \(error.localizedDescription)")
@@ -87,16 +90,20 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
 
-
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        authorizationStatus = manager.authorizationStatus
+        
         switch manager.authorizationStatus {
         case .notDetermined:
-            manager.requestWhenInUseAuthorization()
+            requestLocationPermission()
+        case .authorizedWhenInUse:
+            requestAlwaysPermission()
+        case .authorizedAlways:
+            manager.startUpdatingLocation()
         case .restricted, .denied:
+            
             // Handle case where user has denied the app location access
             break
-        case .authorizedAlways, .authorizedWhenInUse:
-            manager.startUpdatingLocation()
         @unknown default:
             break
         }
@@ -111,7 +118,6 @@ extension LocationManager: CLLocationManagerDelegate {
             }
             
             if let placemark = placemarks?.first {
-                // Extracting address components
                 var addressParts: [String] = []
                 if let subThoroughfare = placemark.subThoroughfare {
                     addressParts.append(subThoroughfare)
@@ -156,7 +162,4 @@ extension LocationManager: CLLocationManagerDelegate {
             }
         }
     }
-
-
-
 }

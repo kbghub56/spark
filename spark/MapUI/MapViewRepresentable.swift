@@ -9,6 +9,8 @@ struct MapViewRepresentable: UIViewRepresentable {
     @ObservedObject var mapState: MapState
     @Binding var selectedEvent: EventAnnotation?
     @Binding var selectedFriend: FriendAnnotation?
+    @Binding var showMenu: Bool
+    @Binding var didSelectUserAnnotation: Bool
     var authViewModel: AuthViewModel
     var userManager: UserManager
 
@@ -21,7 +23,8 @@ struct MapViewRepresentable: UIViewRepresentable {
          authViewModel: AuthViewModel,
          userManager: UserManager,
          selectedEvent: Binding<EventAnnotation?>,
-         selectedFriend: Binding<FriendAnnotation?>){
+         selectedFriend: Binding<FriendAnnotation?>,
+         showMenu: Binding<Bool>, didSelectUserAnnotation: Binding<Bool>){
         
         self.eventsViewModel = eventsViewModel
         self.locationManager = locationManager
@@ -30,6 +33,8 @@ struct MapViewRepresentable: UIViewRepresentable {
         self.userManager = userManager
         self._selectedEvent = selectedEvent
         self._selectedFriend = selectedFriend
+        self._showMenu = showMenu
+        self._didSelectUserAnnotation = didSelectUserAnnotation
     }
 
     func makeUIView(context: Context) -> MKMapView {

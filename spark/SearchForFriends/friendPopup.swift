@@ -17,11 +17,11 @@ struct FriendPopup: View {
     //let onCompletion: () -> Void
     var body: some View {
         ZStack {
-            Color.black.opacity(0.5)
-                           .edgesIgnoringSafeArea(.all)
-                           .onTapGesture {
-                               onTapOutside()
-                           }
+//            Color.black.opacity(0.5)
+//                           .edgesIgnoringSafeArea(.all)
+//                           .onTapGesture {
+//                               onTapOutside()
+//                           }
             
             VStack {
                 Spacer()
@@ -40,6 +40,7 @@ struct FriendPopup: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .modifier(EventPopupTransition(isPresented: isPresented, onCompletion: onTapOutside))
             
             if showRemoveFriendPopup {
                             RemoveFriendPopup(friendID: friend.title!,

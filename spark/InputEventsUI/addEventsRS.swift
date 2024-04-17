@@ -28,6 +28,7 @@ struct AddEvents: View {
     @StateObject var viewModelLoc = LocationSearchViewModel()
     @State private var isDescriptionTooLong = false
     @State private var isShowingSetTimePopup = false
+    @State private var errorMessage: String?
 
     @Environment(\.presentationMode) var presentationMode
     
@@ -38,6 +39,14 @@ struct AddEvents: View {
                     .foregroundColor(.red)
                     .offset(y: -375)
             }
+            if let errorMessage = errorMessage {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .transition(.slide)
+                            .zIndex(1)
+                            .offset(y: -350)
+                    }
             VStack(alignment: .leading, spacing: 32.5) {
                 
 
@@ -250,6 +259,9 @@ struct AddEvents: View {
         geocoder.geocodeAddressString(location) { (placemarks, error) in
             if let error = error {
                 print("Geocoding error: \(error)")
+                DispatchQueue.main.async {
+                                self.errorMessage = "Location not found"
+                            }
                 return
             }
             
@@ -279,6 +291,9 @@ struct AddEvents: View {
                 eventRef.setValue(eventData) { error, _ in
                     if let error = error {
                         print("Error adding event: \(error)")
+                        DispatchQueue.main.async {
+                                            self.errorMessage = "Error adding event"
+                                        }
                     } else {
                         print("Event added successfully")
                         presentationMode.wrappedValue.dismiss()

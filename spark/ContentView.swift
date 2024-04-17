@@ -17,7 +17,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView()  // Show a progress indicator while loading
+                LandingPage()  // Show a progress indicator while loading
             } else {
                 if authViewModel.isUserAuthenticated {
                     if userManager.isLocationOff {

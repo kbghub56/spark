@@ -22,15 +22,21 @@ class CustomLocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = manager.authorizationStatus
-    }
+            authorizationStatus = manager.authorizationStatus
+            if authorizationStatus == .authorizedAlways || authorizationStatus == .authorizedWhenInUse {
+                // Trigger navigation to the next page
+                NotificationCenter.default.post(name: .locationAuthorizationChanged, object: nil)
+            }
+        }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         print("Current location: \(location)")
     }
 }
-
+extension Notification.Name {
+    static let locationAuthorizationChanged = Notification.Name("LocationAuthorizationChanged")
+}
 
 
 struct LocationQuestion: View {
@@ -147,16 +153,9 @@ struct LocationQuestion: View {
                     switch status {
                     case .notDetermined:
                         locationManager.requestLocationPermission()
-                    case .authorizedWhenInUse:
-                        locationManager.requestAlwaysPermission()
-                    case .authorizedAlways:
-                        print("Location access granted: always")
+                    case .authorizedWhenInUse, .authorizedAlways:
                         shouldNavigateToNextPage = true
-                    case .denied:
-                        print("Location access denied")
-                        showLocationDeniedAlert = true
-                    case .restricted:
-                        print("Location access restricted")
+                    case .denied, .restricted:
                         showLocationDeniedAlert = true
                     @unknown default:
                         print("Unknown location authorization status")
@@ -180,9 +179,11 @@ struct LocationQuestion: View {
                         secondaryButton: .cancel()
                     )
                 }
-    }
-}
-
+                .onReceive(NotificationCenter.default.publisher(for: .locationAuthorizationChanged)) { _ in
+                    shouldNavigateToNextPage = true
+                }
+            }
+        }
 struct LocationQuestion_Previews: PreviewProvider {
     static var previews: some View {
         LocationQuestion()

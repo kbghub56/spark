@@ -212,7 +212,6 @@ class Coordinator: NSObject, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         print("Annotation selected: \(String(describing: view.annotation?.title))")
-        printTimestamp()
         
         
         if let eventAnnotation = view.annotation as? EventAnnotation {
@@ -230,22 +229,22 @@ class Coordinator: NSObject, MKMapViewDelegate {
             DispatchQueue.main.async {
                 // withAnimation(.easeInOut(duration: 0.1)) {
                 self.parent.selectedFriend = friendAnnotation
-                
-                self.printTimestamp()
-                //  }
+                                //  }
             }
         }
         
+        else if view.annotation is MKUserLocation {
+                DispatchQueue.main.async {
+                    self.parent.didSelectUserAnnotation = true
+                    withAnimation {
+                        self.parent.showMenu = true
+                    }
+                }
+            }
         
         
-    }
-    
-    func printTimestamp() {
-        let currentDate = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        let dateString = formatter.string(from: currentDate)
-        print("Timestamp: \(dateString)")
+        
+        
     }
 
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {

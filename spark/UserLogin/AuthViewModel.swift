@@ -85,6 +85,7 @@ extension AuthViewModel {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let user = authResult?.user, error == nil else {
                 print("Error signing up: \(error!.localizedDescription)")
+                completion(false)
                 return
             }
             self.userSignUpProgress = .signedUp

@@ -88,7 +88,7 @@ struct LoginView: View {
     func loginUser(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = "User not found"
             } else {
                 self.authViewModel.isUserAuthenticated = true
                 self.authViewModel.loggedInThroughLoginPage = true

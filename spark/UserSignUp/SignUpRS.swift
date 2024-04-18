@@ -24,7 +24,7 @@ struct SignUpView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
-        NavigationView {
+       // NavigationView {
             ZStack {
                 VStack(spacing: 40) {
                     Text("Sign Up")
@@ -113,7 +113,7 @@ struct SignUpView: View {
                 LoginView()
                     .environmentObject(authViewModel)
             }
-        }
+      //  }
     }
     
     func signUp() {

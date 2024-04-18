@@ -149,6 +149,7 @@
 		99FFE2D42B9989F600070686 /* WhenLocationOff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenLocationOff.swift; sourceTree = "<group>"; };
 		99FFE2D62B998E8E00070686 /* LandingPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingPageRS.swift; sourceTree = "<group>"; };
 		99FFE2DA2B9E69E800070686 /* EventAnnotationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventAnnotationModel.swift; sourceTree = "<group>"; };
+		B74F75412BD03346006DE27D /* spark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spark.entitlements; sourceTree = "<group>"; };
 		C93A2158E741FCD4D48C7802 /* Pods-spark.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spark.release.xcconfig"; path = "Target Support Files/Pods-spark/Pods-spark.release.xcconfig"; sourceTree = "<group>"; };
 		EBD351C1A9B813254BCB2C25 /* Pods_spark.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_spark.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -202,6 +203,7 @@
 		99086F932B76E3BA00FC00B2 /* spark */ = {
 			isa = PBXGroup;
 			children = (
+				B74F75412BD03346006DE27D /* spark.entitlements */,
 				9914F8C82BBEC0AD00F33482 /* UserSignUp */,
 				9914F8C32BB533EF00F33482 /* ViewEventData */,
 				9993E3DC2B87506B007443BE /* FollowRequestView */,
@@ -699,6 +701,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = spark/spark.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"spark/Preview Content\"";
@@ -735,6 +738,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = spark/spark.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"spark/Preview Content\"";

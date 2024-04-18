@@ -182,6 +182,14 @@ struct AddFriends: View {
         shouldNavigate = false
         isShowingResults = false
         
+        // Check if the searchUserID is the same as the current user's uniqueUserID
+        if let currentUserID = userManager.currentUser?.uniqueUserID, currentUserID == searchUserID {
+            errorMessage = "Cannot add this Spark ID"
+            foundUser = nil
+            isShowingResults = true
+            return
+        }
+        
         userManager.searchForUser(by: searchUserID) { result in
             switch result {
             case .success(let user):

@@ -141,6 +141,15 @@ struct InitFriends: View {
     // Search for user based on ID
     func searchForUser() {
         isShowingSheet = false
+        
+        // Check if the userInput is the same as the current user's uniqueUserID
+           if let currentUserID = userManager.currentUser?.uniqueUserID, currentUserID == userInput {
+               errorMessage = "Cannot add this Spark ID"
+               foundUser = nil
+               isShowingSheet = false
+               return
+           }
+    
         userManager.searchForUser(by: userInput) { result in
             switch result {
             case .success(let user):

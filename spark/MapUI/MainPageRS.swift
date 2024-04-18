@@ -570,6 +570,7 @@ struct SideMenu: View {
     var locationManager = LocationManager(userManager: UserManager())
     var namespace: Namespace.ID
     var dismiss: () -> Void // Add this closure
+    @State private var showDeleteConfirmation = false
 
     
     var body: some View {
@@ -593,8 +594,10 @@ struct SideMenu: View {
                         locationToggle
                         collagesSection
                         signOutButton
+                        deleteAccountButton
+                        Spacer()
                     }
-                    .frame(width: 385, height: 450)
+                    .frame(width: 385, height: 500)
                     .background(Color.black)
                     .cornerRadius(20)
                     .shadow(radius: 5)
@@ -785,7 +788,7 @@ struct SideMenu: View {
     }
     var signOutButton: some View {
         VStack{
-            Spacer()
+    //        Spacer()
             Button("Sign Out") {
                 authViewModel.logOut()
             }
@@ -795,7 +798,44 @@ struct SideMenu: View {
             .padding(.horizontal, 5)
             .background(Color.black)
             .cornerRadius(50)
+            
+            Spacer().frame(height: 5) // Add a spacer with a fixed height
+
         }.frame(maxWidth: .infinity)
+
+    }
+    
+    var deleteAccountButton: some View {
+        VStack {
+            Button("Delete Account") {
+                // Show confirmation popup
+                showDeleteConfirmation = true
+            }
+            .font(.system(size: 12))
+            .foregroundColor(.white)
+            .padding(10)
+            .padding(.horizontal, 5)
+            .background(Color.black)
+            .cornerRadius(50)
+            
+        }
+        .frame(maxWidth: .infinity)
+        .alert(isPresented: $showDeleteConfirmation) {
+            Alert(
+                title: Text("Delete Account"),
+                message: Text("Are you sure you want to delete your account? This action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    // Call the deleteAccount function from AuthViewModel
+                    authViewModel.deleteAccount { success in
+                        if success {
+                            // Navigate back to the sign-up view
+                            authViewModel.isUserAuthenticated = false
+                        }
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
     }
     
     func shareSparkID() {
@@ -814,6 +854,8 @@ struct SideMenu: View {
             windowScene.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
         }
     }
+    
+    
 }
 
 

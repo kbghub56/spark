@@ -126,8 +126,8 @@
             filePath = "spark/MapUI/MainPageRS.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "793"
-            endingLineNumber = "793"
+            startingLineNumber = "796"
+            endingLineNumber = "796"
             landmarkName = "signOutButton"
             landmarkType = "24">
          </BreakpointContent>

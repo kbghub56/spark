@@ -50,6 +50,7 @@
 		9914F8F62BCD0D6D00F33482 /* AddFriends1Tester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8F52BCD0D6D00F33482 /* AddFriends1Tester.swift */; };
 		9914F8F82BCF811000F33482 /* SideMenuTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8F72BCF811000F33482 /* SideMenuTransition.swift */; };
 		9914F8FC2BCFDDDD00F33482 /* landingPageDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8FB2BCFDDDD00F33482 /* landingPageDemo.swift */; };
+		9914F9002BD1001900F33482 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9914F8FF2BD1001900F33482 /* Launch Screen.storyboard */; };
 		9935AB1C2B8EF0FB003994AE /* LocationSearchGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */; };
 		9935AB1E2B8EF14A003994AE /* UserLoginGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */; };
 		9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB202B8EF402003994AE /* MainPageRS.swift */; };
@@ -119,6 +120,7 @@
 		9914F8F52BCD0D6D00F33482 /* AddFriends1Tester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFriends1Tester.swift; sourceTree = "<group>"; };
 		9914F8F72BCF811000F33482 /* SideMenuTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuTransition.swift; sourceTree = "<group>"; };
 		9914F8FB2BCFDDDD00F33482 /* landingPageDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = landingPageDemo.swift; sourceTree = "<group>"; };
+		9914F8FF2BD1001900F33482 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchGPT.swift; sourceTree = "<group>"; };
 		9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginGPT.swift; sourceTree = "<group>"; };
 		9935AB202B8EF402003994AE /* MainPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPageRS.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				B74F75412BD03346006DE27D /* spark.entitlements */,
+				9914F8FF2BD1001900F33482 /* Launch Screen.storyboard */,
 				9914F8C82BBEC0AD00F33482 /* UserSignUp */,
 				9914F8C32BB533EF00F33482 /* ViewEventData */,
 				9993E3DC2B87506B007443BE /* FollowRequestView */,
@@ -460,6 +463,7 @@
 			files = (
 				99086FBE2B79F7CE00FC00B2 /* GoogleService-Info.plist in Resources */,
 				99086F9C2B76E3BB00FC00B2 /* Preview Assets.xcassets in Resources */,
+				9914F9002BD1001900F33482 /* Launch Screen.storyboard in Resources */,
 				99086F992B76E3BB00FC00B2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -714,7 +718,7 @@
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Let your friends keep a tab on you";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
@@ -751,7 +755,7 @@
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Let your friends keep a tab on you";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow us to acces your location to show you nearby friends and events";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;

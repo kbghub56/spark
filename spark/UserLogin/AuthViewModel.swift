@@ -272,6 +272,63 @@ extension AuthViewModel {
                 }
             }
         }
+    
+    func deleteAccount(completion: @escaping (Bool) -> Void) {
+        guard let userId = currentUserID else {
+            completion(false)
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let userDocRef = db.collection("users").document(userId)
+        
+        // Fetch the user's friends list
+        userDocRef.getDocument { [weak self] (document, error) in
+            guard let self = self, let document = document, document.exists,
+                  let friendsIds = document.data()?["friends"] as? [String] else {
+                completion(false)
+                return
+            }
+            
+            // Remove the user's ID from their friends' "friends" arrays
+            let batchRemoveFriend = db.batch()
+            friendsIds.forEach { friendId in
+                let friendDocRef = db.collection("users").document(friendId)
+                batchRemoveFriend.updateData(["friends": FieldValue.arrayRemove([userId])], forDocument: friendDocRef)
+            }
+            
+            // Commit the batch write for removing friends
+            batchRemoveFriend.commit { (error) in
+                if let error = error {
+                    print("Error removing user from friends' lists: \(error)")
+                    completion(false)
+                    return
+                }
+                
+                // Delete the user's document from the "users" collection
+                userDocRef.delete { (error) in
+                    if let error = error {
+                        print("Error deleting user document: \(error)")
+                        completion(false)
+                        return
+                    }
+                    
+                    // Delete any additional user-related data (e.g., follow requests, other collections)
+                    // ...
+                    
+                    // Delete the user's authentication record
+                    Auth.auth().currentUser?.delete { (error) in
+                        if let error = error {
+                            print("Error deleting user authentication: \(error)")
+                            completion(false)
+                        } else {
+                            completion(true)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 }
 

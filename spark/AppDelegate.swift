@@ -1,11 +1,3 @@
-//
-//  AppDelegate.swift
-//  spark
-//
-//  Created by Kabir Borle on 2/12/24.
-//
-
-
 import UIKit
 import Firebase
 import SCSDKLoginKit

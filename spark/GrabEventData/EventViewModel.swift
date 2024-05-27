@@ -17,6 +17,7 @@ class EventsViewModel: ObservableObject {
     @Published var filteredEvents: [Event] = []
     @Published var forFriendsAndMutualsState: Bool = false
     @Published var eventsForYou: [Event] = []
+    @Published var blockedUsers: [String] = []
 
     
     private var authViewModel: AuthViewModel
@@ -39,7 +40,10 @@ class EventsViewModel: ObservableObject {
     private func refreshData(for userID: String) {
         fetchFriends { [weak self] in
             self?.fetchMutualFriends {
-                self?.fetchEvents()
+                self?.authViewModel.fetchBlockedUsers { blockedUsers in
+                    self?.blockedUsers = blockedUsers
+                    self?.fetchEvents()
+                }
             }
         }
     }
@@ -205,6 +209,9 @@ class EventsViewModel: ObservableObject {
        if event.organizerID == currentUserID {
            return true
        }
+        if blockedUsers.contains(event.organizerID) {
+                return false
+            }
 
         if event.visibility == "Everyone"{
             return true

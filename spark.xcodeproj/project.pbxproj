@@ -51,6 +51,7 @@
 		9914F8F82BCF811000F33482 /* SideMenuTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8F72BCF811000F33482 /* SideMenuTransition.swift */; };
 		9914F8FC2BCFDDDD00F33482 /* landingPageDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F8FB2BCFDDDD00F33482 /* landingPageDemo.swift */; };
 		9914F9002BD1001900F33482 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9914F8FF2BD1001900F33482 /* Launch Screen.storyboard */; };
+		9914F9022BD20B0B00F33482 /* blockFriendPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914F9012BD20B0B00F33482 /* blockFriendPopup.swift */; };
 		9935AB1C2B8EF0FB003994AE /* LocationSearchGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */; };
 		9935AB1E2B8EF14A003994AE /* UserLoginGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */; };
 		9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9935AB202B8EF402003994AE /* MainPageRS.swift */; };
@@ -121,6 +122,7 @@
 		9914F8F72BCF811000F33482 /* SideMenuTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuTransition.swift; sourceTree = "<group>"; };
 		9914F8FB2BCFDDDD00F33482 /* landingPageDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = landingPageDemo.swift; sourceTree = "<group>"; };
 		9914F8FF2BD1001900F33482 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		9914F9012BD20B0B00F33482 /* blockFriendPopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blockFriendPopup.swift; sourceTree = "<group>"; };
 		9935AB1B2B8EF0FB003994AE /* LocationSearchGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchGPT.swift; sourceTree = "<group>"; };
 		9935AB1D2B8EF14A003994AE /* UserLoginGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLoginGPT.swift; sourceTree = "<group>"; };
 		9935AB202B8EF402003994AE /* MainPageRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPageRS.swift; sourceTree = "<group>"; };
@@ -268,7 +270,6 @@
 			children = (
 				99086FC02B7A087900FC00B2 /* MapViewRepresentable.swift */,
 				99FFE2DA2B9E69E800070686 /* EventAnnotationModel.swift */,
-				9914F8F12BCBDC2E00F33482 /* removeFriendPopup.swift */,
 				9935AB202B8EF402003994AE /* MainPageRS.swift */,
 				9914F8E52BC802D400F33482 /* MainPageRS2.swift */,
 				9993E3E72B8B2D9D007443BE /* CoordinatorClass.swift */,
@@ -360,7 +361,9 @@
 			isa = PBXGroup;
 			children = (
 				9993E3D62B86FC5F007443BE /* SearchFriendView.swift */,
+				9914F8F12BCBDC2E00F33482 /* removeFriendPopup.swift */,
 				9935AB242B8F11AB003994AE /* AddFriends1RS.swift */,
+				9914F9012BD20B0B00F33482 /* blockFriendPopup.swift */,
 				9914F8F52BCD0D6D00F33482 /* AddFriends1Tester.swift */,
 				9914F8D32BC408AA00F33482 /* KeyBoardResponder.swift */,
 				9993E3D12B81E84D007443BE /* UserModel.swift */,
@@ -574,6 +577,7 @@
 				9993E3D22B81E84D007443BE /* UserModel.swift in Sources */,
 				9914F8D02BC3DE2800F33482 /* EventPopupTransition.swift in Sources */,
 				9914F8E82BC8133D00F33482 /* initFriendsTester.swift in Sources */,
+				9914F9022BD20B0B00F33482 /* blockFriendPopup.swift in Sources */,
 				99FFE2D12B96093C00070686 /* FriendRequestRS.swift in Sources */,
 				9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */,
 				99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */,

@@ -253,7 +253,7 @@ struct AddEvents: View {
                 alignment: .topLeading
             )
     }
-    
+    //click on block button on friend prof
     private func addEvent() {
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(location) { (placemarks, error) in

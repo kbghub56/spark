@@ -12,11 +12,9 @@ struct AddFrTwo: View {
     var userManager: UserManager
     @State private var errorMessage: String?
     @GestureState private var swipeGesture = false
-    @Binding var isPresented: Bool // Add this line
+    @Binding var isPresented: Bool
     @Environment(\.presentationMode) var presentationMode
 
-
-    
     var body: some View {
         ZStack {
             VStack(spacing: 80) {
@@ -34,15 +32,13 @@ struct AddFrTwo: View {
                         .font(.system(size: 17))
                         .foregroundColor(.white)
                 }
-                
-                
-                
+
                 Text("Keep in mind your friends can see what you're up to - this is for that group chat and those friends.")
                     .font(.system(size: 17))
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 64)
-                
+
                 Button(action: {
                     followFoundUser()
                     isPresented = false
@@ -74,12 +70,8 @@ struct AddFrTwo: View {
             }
             print("THIS IS WHAT IS SHOWING UP: \(currentUser.docID)")
             userManager.sendFollowRequest(from: currentUser.uniqueUserID, to: foundUser.uniqueUserID, fromUser: currentUser.userName ?? "", fromUserDocID: currentUser.docID ?? "")
-            isPresented = false // Dismiss the AddFrTwo view
+            isPresented = false
             presentationMode.wrappedValue.dismiss()
-
-
         }
     }
 }
-
-

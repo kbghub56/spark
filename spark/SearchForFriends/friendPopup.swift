@@ -9,8 +9,10 @@ import SwiftUI
 
 struct FriendPopup: View {
     @EnvironmentObject var userManager: UserManager
+    @EnvironmentObject var authViewModel: AuthViewModel
     @Binding var isPresented: Bool
     @State private var showRemoveFriendPopup = false
+    @State private var showBlockFriendPopup = false
 
     let friend: FriendAnnotation
     let onTapOutside: () -> Void
@@ -29,6 +31,7 @@ struct FriendPopup: View {
                     profileSection
                     collagesSection
                     removeFriendButton
+                    blockFriendButton
                 }
                 .frame(width: 385, height: 450)
                 .background(Color.black)
@@ -47,6 +50,13 @@ struct FriendPopup: View {
                                               friendName: friend.userName ?? "Unknown User",
                                               showPopup: $showRemoveFriendPopup)
                                 .environmentObject(userManager)
+                        }
+            if showBlockFriendPopup {
+                            BlockFriendPopup(friendID: friend.title!,
+                                             friendName: friend.userName ?? "Unknown User",
+                                             showPopup: $showBlockFriendPopup)
+                                .environmentObject(userManager)
+                                .environmentObject(authViewModel)
                         }
             
         }
@@ -168,4 +178,18 @@ struct FriendPopup: View {
             .cornerRadius(50)
         }.frame(maxWidth: .infinity)
     }
+    
+    var blockFriendButton: some View {
+            VStack {
+                Button("Block User") {
+                    showBlockFriendPopup = true
+                }
+                .font(.headline)
+                .foregroundColor(.red) // Set the text color to red
+                .padding(10)
+                .padding(.horizontal, 5)
+                .background(Color.black)
+                .cornerRadius(50)
+            }.frame(maxWidth: .infinity)
+        }
 }

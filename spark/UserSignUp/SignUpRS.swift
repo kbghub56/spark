@@ -8,8 +8,6 @@
 import SwiftUI
 import SCSDKLoginKit
 
-import SwiftUI
-
 struct SignUpView: View {
     @State private var userName: String = ""
     @State private var email: String = ""

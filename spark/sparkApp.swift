@@ -14,16 +14,18 @@ struct SparkApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authViewModel = AuthViewModel()
     @StateObject var userManager = UserManager()
-    // You don't need to initialize eventsViewModel here with the currentUserID
+    @State private var incomingURL: URL?
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(incomingURL: $incomingURL)
                 .environmentObject(authViewModel)
                 .environmentObject(userManager)
-                // Inject the existing authViewModel into eventsViewModel
                 .environmentObject(EventsViewModel(authViewModel: authViewModel))
-               // .environmentObject(locationManager)
+                .onOpenURL { url in
+                    print("RECEIVED \(url)")
+                    incomingURL = url
+                }
         }
     }
 }

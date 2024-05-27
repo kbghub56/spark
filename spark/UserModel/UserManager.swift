@@ -208,9 +208,11 @@ class UserManager: ObservableObject {
                 // Now you have both Firebase UIDs, you can update the friends lists
                 let currentUserRef = db.collection("users").document(currentUserUID)
                 let friendUserRef = db.collection("users").document(friendUID)
-
+                
+                // Update the current user's friends list and remove the friend from blockedUsers
                 currentUserRef.updateData([
-                    "friends": FieldValue.arrayUnion([friendUID])
+                    "friends": FieldValue.arrayUnion([friendUID]),
+                    "blockedUsers": FieldValue.arrayRemove([friendUID])
                 ]) { error in
                     if let error = error {
                         print("Error updating current user's friends list: \(error.localizedDescription)")
@@ -219,8 +221,10 @@ class UserManager: ObservableObject {
                     }
                 }
                 
+                // Update the friend user's friends list and remove the current user from blockedUsers
                 friendUserRef.updateData([
-                    "friends": FieldValue.arrayUnion([currentUserUID])
+                    "friends": FieldValue.arrayUnion([currentUserUID]),
+                    "blockedUsers": FieldValue.arrayRemove([currentUserUID])
                 ]) { error in
                     if let error = error {
                         print("Error updating friend user's friends list: \(error.localizedDescription)")
@@ -231,7 +235,6 @@ class UserManager: ObservableObject {
             }
         }
     }
-    
     func updateUserLocationOffStatus(isLocationOff: Bool) {
         if(isLocationOff){
             self.setLocationToNullForCurrentUser()
@@ -407,6 +410,36 @@ class UserManager: ObservableObject {
             }
         }
     }
+    
+    func blockUser(currentUserID: String, userToBlockID: String) {
+        let db = Firestore.firestore()
+        
+        // Add the user to block to the current user's blockedUsers array
+        db.collection("users").document(currentUserID).updateData([
+            "blockedUsers": FieldValue.arrayUnion([userToBlockID])
+        ]) { error in
+            if let error = error {
+                print("Error blocking user: \(error.localizedDescription)")
+            } else {
+                print("User blocked successfully")
+                
+                // Remove the blocked user from the current user's friends list
+                self.removeAsFriend(currentUserUniqueID: self.currentUser!.uniqueUserID, friendID: userToBlockID)
+                
+                // Add the current user's ID to the blocked user's blockedUsers array
+                db.collection("users").document(userToBlockID).updateData([
+                    "blockedUsers": FieldValue.arrayUnion([currentUserID])
+                ]) { error in
+                    if let error = error {
+                        print("Error updating blocked user's blockedUsers: \(error.localizedDescription)")
+                    } else {
+                        print("Blocked user's blockedUsers updated successfully")
+                    }
+                }
+            }
+        }
+    }
+    
 }
 
 

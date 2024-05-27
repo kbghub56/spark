@@ -7,17 +7,19 @@
 
 import SwiftUI
 
-
 struct ContentView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var userManager: UserManager
-    @State private var isLoading = true  // Indicates if the app is currently loading data
+    @State private var isLoading = true
     @State private var showInitFriendsSheet = false
+    @State private var showAddFriendView = false
+    @State private var foundUser: User?
+    @Binding var incomingURL: URL?
 
     var body: some View {
         Group {
             if isLoading {
-                LandingPage()  // Show a progress indicator while loading
+                LandingPage()
             } else {
                 if authViewModel.isUserAuthenticated {
                     if userManager.isLocationOff {
@@ -27,8 +29,7 @@ struct ContentView: View {
                     } else {
                         if authViewModel.loggedInThroughLoginPage || authViewModel.hasBitmoji {
                             HomeMapView()
-                        } 
-                        else {
+                        } else {
                             switch authViewModel.userSignUpProgress {
                             case .initial:
                                 SignUpView()
@@ -62,8 +63,39 @@ struct ContentView: View {
             userManager.fetchUserLocationOffStatus { isLocationOff in
                 DispatchQueue.main.async {
                     userManager.isLocationOff = isLocationOff
-                    isLoading = false  // Data has been fetched, hide the progress indicator
+                    isLoading = false
                 }
+            }
+            handleIncomingURL()
+        }
+        .onChange(of: incomingURL) { url in
+            handleIncomingURL()
+        }
+        .sheet(isPresented: $showAddFriendView) {
+            AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $showAddFriendView)
+        }
+    }
+
+    private func handleIncomingURL() {
+        guard let url = incomingURL else { return }
+        let pathComponents = url.pathComponents
+        if pathComponents.count > 2, pathComponents[1] == "users" {
+            let friendCode = pathComponents[2]
+            fetchUserWithFriendCode(friendCode)
+        }
+        incomingURL = nil
+    }
+
+    private func fetchUserWithFriendCode(_ code: String) {
+        userManager.searchForUser(by: code) { result in
+            switch result {
+            case .success(let user):
+                DispatchQueue.main.async {
+                    foundUser = user
+                }
+                showAddFriendView = true
+            case .failure(let error):
+                print("Failed to find user with code: \(error.localizedDescription)")
             }
         }
     }

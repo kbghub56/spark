@@ -329,6 +329,23 @@ extension AuthViewModel {
             }
         }
     }
+    
+    func fetchBlockedUsers(completion: @escaping ([String]) -> Void) {
+        guard let currentUserID = currentUserID else {
+            completion([])
+            return
+        }
+        
+        let db = Firestore.firestore()
+        db.collection("users").document(currentUserID).getDocument { (document, error) in
+            if let document = document, document.exists {
+                let blockedUsers = document.get("blockedUsers") as? [String] ?? []
+                completion(blockedUsers)
+            } else {
+                completion([])
+            }
+        }
+    }
 
 }
 

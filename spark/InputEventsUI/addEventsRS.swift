@@ -26,7 +26,6 @@ struct AddEvents: View {
     @State private var friendsOnlyText: String = "Friends Only"
     @ObservedObject var viewModel = EventDateTimeViewModel()
     @StateObject var viewModelLoc = LocationSearchViewModel()
-    @State private var isDescriptionTooLong = false
     @State private var isShowingSetTimePopup = false
     @State private var errorMessage: String?
 
@@ -34,11 +33,6 @@ struct AddEvents: View {
     
     var body: some View {
         ZStack {
-            if isDescriptionTooLong {
-                Text("Description must be 80 characters or less")
-                    .foregroundColor(.red)
-                    .offset(y: -375)
-            }
             if let errorMessage = errorMessage {
                         Text(errorMessage)
                             .font(.caption)
@@ -72,10 +66,7 @@ struct AddEvents: View {
                     .background(Color.gray)
                     .cornerRadius(10)
                     .foregroundColor(.white)
-                    .onChange(of: eventDescription) { newValue in
-                            isDescriptionTooLong = newValue.count > 80
-                        }
-                
+    
                 locationSearchView().zIndex(1)
                 
                 HStack {
@@ -178,12 +169,11 @@ struct AddEvents: View {
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
-                        .background(isDescriptionTooLong ? Color.gray : Color.white)
+                        .background(Color.white)
                         .cornerRadius(40)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 25)
-                .disabled(isDescriptionTooLong)
             }
             .padding(.horizontal, 16)
             

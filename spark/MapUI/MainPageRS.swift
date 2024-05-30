@@ -330,19 +330,23 @@ struct HomeMapView: View {
         .transition(.move(edge: .bottom))
         .offset(y: modalOffset)
         .gesture(
-                DragGesture()
-                    .onChanged { value in
-                        modalOffset = value.translation.height
-                    }
-                    .onEnded { value in
-                        withAnimation {
-                            if value.translation.height > 100 {
-                                showExpandedBlackScreen = false
-                                showEmojis = true
+            DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                modalOffset = value.translation.height
+                            } else {
+                                modalOffset = 0
                             }
-                            modalOffset = 0
                         }
-                    }
+                        .onEnded { value in
+                            withAnimation {
+                                if value.translation.height > 100 {
+                                    showExpandedBlackScreen = false
+                                    showEmojis = true
+                                }
+                                modalOffset = 0
+                            }
+                        }
             )
             .gesture(
                 DragGesture().onEnded { value in
@@ -1393,3 +1397,5 @@ extension String {
     }
 }
 //opacity(0.2/0.3)
+
+

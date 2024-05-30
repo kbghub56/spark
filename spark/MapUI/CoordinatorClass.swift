@@ -12,7 +12,7 @@ import FirebaseAuth
 
 
 
-class Coordinator: NSObject, MKMapViewDelegate {
+class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
     var parent: MapViewRepresentable
     var authViewModel: AuthViewModel
     var userLocationView: MKAnnotationView?
@@ -23,6 +23,8 @@ class Coordinator: NSObject, MKMapViewDelegate {
     init(parent: MapViewRepresentable, authViewModel: AuthViewModel) {
         self.parent = parent
         self.authViewModel = authViewModel
+        super.init()
+        addGestureRecognizerToMapView() // Add this line
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -41,14 +43,14 @@ class Coordinator: NSObject, MKMapViewDelegate {
             
             
             Task.detached {
-                while self.authViewModel.snapchatBitmojiWalkingUrl == nil {
+                while await self.authViewModel.snapchatBitmojiWalkingUrl == nil {
                     try! await Task.sleep(nanoseconds: 10000)
                 }
                 
-                print("GET WALK URL: \(self.authViewModel.snapchatBitmojiWalkingUrl)")
+                print("GET WALK URL: \(await self.authViewModel.snapchatBitmojiWalkingUrl)")
                 
                 // Use the Bitmoji URL from the AuthViewModel
-                if let bitmojiUrlString = self.authViewModel.snapchatBitmojiWalkingUrl, let bitmojiUrl = URL(string: bitmojiUrlString) {
+                if let bitmojiUrlString = await self.authViewModel.snapchatBitmojiWalkingUrl, let bitmojiUrl = URL(string: bitmojiUrlString) {
                     print("[MDB] GET BITMOJI")
                     URLSession.shared.dataTask(with: bitmojiUrl) { data, response, error in
                         guard let data = data, error == nil, let image = UIImage(data: data) else {
@@ -92,13 +94,13 @@ class Coordinator: NSObject, MKMapViewDelegate {
             }
             
             Task.detached {
-                while self.authViewModel.friendsBitmojiWalkingUrls == [:] {
+                while await self.authViewModel.friendsBitmojiWalkingUrls == [:] {
                     try! await Task.sleep(nanoseconds: 100000)
                 }
                 
                 // Assume FriendAnnotation has a 'userId' property to match keys in friendsBitmojiWalkingUrls
                 if let userId = friendAnnotation.title,
-                   let bitmojiUrlString = self.authViewModel.friendsBitmojiWalkingUrls[userId],
+                   let bitmojiUrlString = await self.authViewModel.friendsBitmojiWalkingUrls[userId],
                    let bitmojiUrl = URL(string: bitmojiUrlString) {
                     
                     URLSession.shared.dataTask(with: bitmojiUrl) { data, response, error in
@@ -199,6 +201,21 @@ class Coordinator: NSObject, MKMapViewDelegate {
         }
     }
     
+    func addGestureRecognizerToMapView() {
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        gestureRecognizer.numberOfTapsRequired = 1
+        gestureRecognizer.numberOfTouchesRequired = 1
+        gestureRecognizer.delegate = self
+        parent.mapView.addGestureRecognizer(gestureRecognizer)
+    }
+    
+    @objc func handleTap(_ sender: UITapGestureRecognizer? = nil) {
+        // Disable zoom, so the didSelect triggers immediately
+        parent.mapView.isZoomEnabled = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.parent.mapView.isZoomEnabled = true
+        }
+    }
     
     // Calculate and return the map's zoom level based on the longitude span of its current region
     private func calculateZoomLevel(mapView: MKMapView) -> Double {

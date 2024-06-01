@@ -9,6 +9,12 @@ import UIKit
 import MapKit
 import Combine
 
+struct NilButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+    }
+}
+
 struct HomeMapView: View {
     @EnvironmentObject var eventsViewModel: EventsViewModel
     @StateObject private var mapState = MapState()
@@ -21,72 +27,137 @@ struct HomeMapView: View {
     @State private var showClickEvent = false
     @State private var showFriendProf = false
     @Namespace private var animationNamespace
-    @State private var modalOffset: CGFloat = UIScreen.main.bounds.height * 0.75 // Initially 1/4 of the screen height
+    @State private var modalOffset: CGFloat = 0
     @State private var didSelectUserAnnotation = true
+
+    
+    
     @State private var isForYouSelected = false
     @State private var showMenu = false
-    @State private var showMapModal = true
+    @State private var showExpandedBlackScreen = false
     @State private var selectedTab = 0
     @State private var trackingMode: MapUserTrackingMode = .follow
     @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194), span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
     @State private var isSwitchOn = true
-    @State private var showingLocationOffView = false
+    @State private var showingLocationOffView = false // State to control the presentation of the WhenLocationOff view
     @State private var showingAddFriendView = false
     @State private var currentRequestIndex = 0
     @State private var followRequests: [FollowRequest] = []
     @State private var showEmojis = true
-    @State private var selectedDetent: PresentationDetent = .fraction(0.1)
-
+    
     private func handleFollowRequestVisibility() {
         if followRequests.isEmpty {
             showingFollowRequestPopup = false
-            currentRequestIndex = 0
+            currentRequestIndex = 0  // Reset the index for any future follow requests
         }
     }
-
-    let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
-
+    
+    
+    let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()  // 300 seconds equals 5 minutes
+    
+    
     var body: some View {
         ZStack {
             if showingLocationOffView {
+                // WhenLocationOff view is shown directly in the main view hierarchy
                 WhenLocationOff(showingLocationOffView: $showingLocationOffView)
                     .environmentObject(userManager)
                     .environmentObject(authViewModel)
             } else {
+                
                 MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation)
                     .edgesIgnoringSafeArea(.all)
                     .environment(\.colorScheme, .dark)
                     .onReceive(timer) { _ in
-                        eventsViewModel.fetchEvents()
-                    }
-
+                                        eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
+                                    }
+                
                 VStack(spacing: 0) {
-                    HStack {
-                        Spacer(minLength: 0)
-                        circleButton
-                    }.padding(.horizontal, 16)
-                     .padding(.bottom, 25)
-
-                    HStack {
-                        Spacer(minLength: 0)
-                        toggleSection
-                    }.padding(.horizontal, 16)
-
-                    Spacer(minLength: 0)
-                }.padding(.bottom, 90)
-                 .padding(.top, 16)
-
-    
-                SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
-                    withAnimation {
-                        showMenu = false
+                                HStack {
+                                    Spacer(minLength: 0)
+                                    circleButton
+                                }.padding(.horizontal, 16)
+                                 .padding(.bottom, 25)
+                                
+                                HStack {
+                                    Spacer(minLength: 0)
+                                    toggleSection
+                                }.padding(.horizontal, 16)
+                                
+                                Spacer(minLength: 0)
+                            }.padding(.bottom, 90)
+                             .padding(.top, 16)
+                
+                VStack(){
+                    Spacer()
+                    if showExpandedBlackScreen {
+                    } else /*if !showMenu */{
+                        let swipeUpThreshold: CGFloat = -50
+                        
+                        RoundedRectangle(cornerRadius: 35)
+                            .fill(Color.black)
+                            .frame(height: (UIScreen.main.bounds.height / 7.5))
+                            .edgesIgnoringSafeArea(.bottom)
+                            .overlay(
+                                VStack(){
+                                    RoundedRectangle(cornerRadius: 2.5)
+                                        .frame(width: 40, height: 5, alignment: .center)
+                                        .padding(.top, 11)
+                                        .foregroundColor(Color(white:0.8))
+                                    Spacer()
+                                }
+                            )
+                          //  .animation(.easeOut(duration: 1), value: showMenu)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { gesture in
+                                        if gesture.translation.height < swipeUpThreshold {
+                                       //     withAnimation {
+                                                showExpandedBlackScreen = true
+                                                showEmojis = false
+                                     //       }
+                                        }
+                                    }
+                            )
+                            .onTapGesture {
+                        //        withAnimation {
+                                    showExpandedBlackScreen = true
+                                    showEmojis = false
+                        //        }
+                            }
                     }
-                })
-                .environmentObject(userManager)
-                .environmentObject(authViewModel)
-                .animation(.easeInOut, value: showMenu)
-                .offset(x: showMenu ? 0 : UIScreen.main.bounds.width)
+                }.edgesIgnoringSafeArea(.all)
 
+                GeometryReader { _ in
+                    VStack {
+                        Spacer()
+                        if showExpandedBlackScreen{
+                            ZStack{
+                                mapModal
+                            }
+                        } else {
+                            RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y:400).onTapGesture{withAnimation{showExpandedBlackScreen = true}}
+                        }
+                        //  mapModal
+                    }.padding(.horizontal, 0)
+                }.ignoresSafeArea(.all)
+                
+             //   if showMenu {
+                SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
+                        // Dismiss the side menu
+                        withAnimation {
+                            showMenu = false
+                        }
+                    })
+                     //   .transition(.move(edge: .trailing))
+                        .environmentObject(userManager)
+                        .environmentObject(authViewModel)
+                        .animation(.easeInOut, value: showMenu)
+                        .offset(x: showMenu ? 0 : UIScreen.main.bounds.width)
+                     //   .matchedGeometryEffect(id: "circle", in: namespace)
+             //   }
+                
+                // Usage in HomeMapView
                 if showingFollowRequestPopup && !followRequests.isEmpty {
                     let request = followRequests[currentRequestIndex]
                     FollowRequestPopup(
@@ -101,6 +172,9 @@ struct HomeMapView: View {
                         }
                     )
                 }
+                
+                
+                
             }
         }
         .overlay(
@@ -110,85 +184,191 @@ struct HomeMapView: View {
                         self.selectedEvent = nil
                     }
                     .zIndex(1)
-                } else if let selectedFriend = selectedFriend, showFriendProf {
+                }
+                else if let selectedFriend = selectedFriend, showFriendProf {
                     FriendPopup(isPresented: $showFriendProf, friend: selectedFriend) {
+                        // Handle tap outside event
                         self.selectedFriend = nil
-                        showFriendProf = false
+                      //  withAnimation {
+                            showFriendProf = false
+                     //   }
                     }
                     .zIndex(1)
                 }
             }
         )
-        .sheet(isPresented: $showMapModal) {
-                    MapModalView(selectedTab: $selectedTab)
-                        .environmentObject(eventsViewModel)
-                        .environmentObject(userManager)
-                        .environmentObject(locationManager)
-                        .presentationDetents([.fraction(0.1), .fraction(0.75)], selection: $selectedDetent)
-                        .interactiveDismissDisabled()
-                        .presentationBackgroundInteraction(.enabled)
-                        .presentationCornerRadius(35)
-                        .presentationDragIndicator(.visible)
-                        .ignoresSafeArea()
-                }
         .onChange(of: selectedEvent) { newValue in
+              //  withAnimation {
             showClickEvent = newValue != nil
+      //      }
         }
         .onChange(of: selectedFriend) { newValue in
             showFriendProf = newValue != nil
         }
         .onTapGesture {
-            if showMapModal {
-                showMapModal = false
-                showEmojis = true
-            }
-            if showMenu {
-                showMenu = false
-            }
+           // withAnimation {
+                if showExpandedBlackScreen {
+                    showExpandedBlackScreen = false
+                    showEmojis = true
+                }
+                if showMenu {
+                    showMenu = false
+                }
+         //   }
         }
         .onAppear {
+            // This might be redundant if you're already setting the user in UserManager's init
             userManager.getCurrentUser { _ in }
         }
         .onReceive(userManager.$currentUser) { user in
             if let uniqueUserID = user?.uniqueUserID {
                 userManager.fetchFollowRequests(forUserID: uniqueUserID) { requests in
                     followRequests = requests
+                    print("FR: \(followRequests)")
                     showingFollowRequestPopup = !requests.isEmpty
                 }
+                
             }
         }
-        .onChange(of: showMapModal) { isOpen in
+        .onChange(of: showExpandedBlackScreen) { isOpen in
             if isOpen {
+                // If the expanded view is open and there's a valid current location, update friends' distances
                 if let currentLocation = locationManager.currentLocation {
                     userManager.updateFriendsDistances(currentLocation: currentLocation)
                 }
             }
         }
+        
         .onChange(of: currentRequestIndex) { _ in
             if followRequests.isEmpty {
                 showingFollowRequestPopup = false
             }
             handleFollowRequestVisibility()
         }
+        
+        
+        
     }
-
+    
     private var isFollowRequestAvailable: Bool {
         currentRequestIndex < followRequests.count
     }
-
+    
+    // A new function in HomeMapView to encapsulate moving to the next request or dismissing the popup
     private func moveToNextOrDismiss() {
         if currentRequestIndex < followRequests.count - 1 {
+            // Move to the next request
             DispatchQueue.main.async {
                 currentRequestIndex += 1
             }
         } else {
+            // No more requests, dismiss the popup
             DispatchQueue.main.async {
                 showingFollowRequestPopup = false
-                currentRequestIndex = 0
+                currentRequestIndex = 0 // Reset for the next time requests are shown
             }
         }
     }
-
+    
+    var mapModal: some View {
+        VStack {
+            RoundedRectangle(cornerRadius: 2.5)
+                .frame(width: 40, height: 5, alignment: .center)
+                .padding(.top, 7)
+                .foregroundColor(Color(white: 0.8))
+            
+            HStack {
+                Text("Friends")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(selectedTab == 0 ? Color.white : Color.gray)
+                    .onTapGesture {
+                        withAnimation {
+                            selectedTab = 0
+                        }
+                    }
+                
+                Spacer()
+                
+                Text("Events")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(selectedTab == 1 ? Color.white : Color.gray)
+                    .onTapGesture {
+                        withAnimation {
+                            selectedTab = 1
+                        }
+                    }
+            }
+            .frame(maxWidth: 250)
+            .padding(.top, 10)
+            
+            TabView(selection: $selectedTab) {
+                VStack {
+                    FriendsDistanceListView()
+                        .environmentObject(userManager)
+                        .environmentObject(locationManager)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .padding(.top)
+                    
+                    FriendsView().frame(height: 100)
+                        .padding(.bottom)
+                }
+                .tag(0)
+                
+                VStack {
+                    RankedEventsListView()
+                        .environmentObject(eventsViewModel)
+                        .environmentObject(locationManager)
+                        .padding(.horizontal)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .padding(.top)
+                    
+                    EventsView().frame(height: 100)
+                        .padding(.bottom)
+                }
+                .tag(1)
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        }
+        .frame(height: 650)
+        .background(Color.black)
+        .cornerRadius(30)
+        .transition(.move(edge: .bottom))
+        .offset(y: modalOffset)
+        .gesture(
+            DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                modalOffset = value.translation.height
+                            } else {
+                                modalOffset = 0
+                            }
+                        }
+                        .onEnded { value in
+                            withAnimation {
+                                if value.translation.height > 100 {
+                                    showExpandedBlackScreen = false
+                                    showEmojis = true
+                                }
+                                modalOffset = 0
+                            }
+                        }
+            )
+            .gesture(
+                DragGesture().onEnded { value in
+                    withAnimation {
+                        if value.translation.width < 0 {
+                            selectedTab = min(selectedTab + 1, 1)
+                        } else if value.translation.width > 0 {
+                            selectedTab = max(selectedTab - 1, 0)
+                        }
+                    }
+                }
+            )
+            .onTapGesture {}
+    }
+    
     
     var toggleSection: some View {
         HStack(spacing: 10) {
@@ -340,96 +520,6 @@ struct HomeMapView: View {
     
     
 }
-
-struct MapModalView: View {
-    @Binding var selectedTab: Int
-    @EnvironmentObject var eventsViewModel: EventsViewModel
-    @EnvironmentObject var userManager: UserManager
-    @EnvironmentObject var locationManager: LocationManager
-
-    var body: some View {
-        ZStack{
-            Color.black
-            .edgesIgnoringSafeArea(.all)
-            VStack {
-                RoundedRectangle(cornerRadius: 2.5)
-                    .frame(width: 40, height: 5, alignment: .center)
-                    .padding(.top, 7)
-                    .foregroundColor(Color(white: 0.8))
-                
-                HStack {
-                    Text("Friends")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(selectedTab == 0 ? Color.white : Color.gray)
-                        .onTapGesture {
-                            withAnimation {
-                                selectedTab = 0
-                            }
-                        }
-                    
-                    Spacer()
-                    
-                    Text("Events")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(selectedTab == 1 ? Color.white : Color.gray)
-                        .onTapGesture {
-                            withAnimation {
-                                selectedTab = 1
-                            }
-                        }
-                }
-                .frame(maxWidth: 250)
-                .padding(.top, 10)
-                
-                TabView(selection: $selectedTab) {
-                    VStack {
-                        FriendsDistanceListView()
-                            .environmentObject(userManager)
-                            .environmentObject(locationManager)
-                            .background(Color.black.opacity(0.7))
-                            .cornerRadius(10)
-                            .padding(.top)
-                        
-                        FriendsView().frame(height: 100)
-                            .padding(.bottom)
-                    }
-                    .tag(0)
-                    
-                    VStack {
-                        RankedEventsListView()
-                            .environmentObject(eventsViewModel)
-                            .environmentObject(locationManager)
-                            .padding(.horizontal)
-                            .background(Color.black.opacity(0.7))
-                            .cornerRadius(10)
-                            .padding(.top)
-                        
-                        EventsView().frame(height: 100)
-                            .padding(.bottom)
-                    }
-                    .tag(1)
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            }
-            .frame(height: 650)
-            .background(Color.black)
-            .cornerRadius(30)
-            .transition(.move(edge: .bottom))
-            .gesture(
-                DragGesture().onEnded { value in
-                    withAnimation {
-                        if value.translation.width < 0 {
-                            selectedTab = min(selectedTab + 1, 1)
-                        } else if value.translation.width > 0 {
-                            selectedTab = max(selectedTab - 1, 0)
-                        }
-                    }
-                }
-            )
-        }
-    }
-}
-
 struct FriendsView: View {
     @State private var showingAddFriendView = false
     @EnvironmentObject var userManager: UserManager

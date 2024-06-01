@@ -48,21 +48,53 @@ struct AddFriends: View {
 
     var userID: String = "UserUniqueIdentifier"
     var qrCodeImage: UIImage {
-        let urlString = "https://example.com/user/\(userID)"
-        return generateDarkModeQRCode(from: urlString)
-    }
+            let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
+            let urlString = "https://www.sparkapps.org/users/\(uniqueUserID)"
+            return generateDarkModeQRCode(from: urlString)
+        }
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 30) {
-                    VStack(spacing: 5) {
+                    VStack(spacing: 8) {
+                        HStack {
+                            let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
+                            let urlString = "http://www.sparkapps.org/users/" + uniqueUserID
+                            Text("Spark link: \(urlString)")
+                                .font(.system(size: 17))
+                                .foregroundColor(.white) // Set the text color to white
+                                .tint(.white)
+                                .textSelection(.enabled) //disables directly clicking on own link
+                               // .lineLimit(1) // Limit the text to a single line
+                                .textContentType(.none) // Treat the text as plain text, not as a link
+                                .multilineTextAlignment(.leading)
+                                .padding(.trailing, 60)
+                            
+                            Spacer()
+                            
+                            ZStack {
+                                VStack {
+                                    Button(action: {
+                                        withAnimation {
+                                            self.isShared.toggle()
+                                            shareSparkLink()
+                                        }
+                                    }) {
+                                        Image(systemName: "square.and.arrow.up")
+                                            .font(.system(size: 24))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                        }
                         HStack {
                             Text("Spark-ID: \(userManager.currentUser?.uniqueUserID ?? "")")
                                 .font(.system(size: 17))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.leading)
+                                .textSelection(.enabled)
                                 .padding(.trailing, 60)
                             
                             Spacer()
@@ -85,34 +117,12 @@ struct AddFriends: View {
                     }
                     .padding(.horizontal, 16)
                     
-                    Image(uiImage: generateDarkModeQRCode(from: "UserSpecificString"))
+                    Image(uiImage: qrCodeImage)
                         .resizable()
                         .interpolation(.none)
                         .scaledToFit()
                         .cornerRadius(50)
                         .padding(.horizontal, 16)
-                        .overlay(
-                            VStack {
-                                Spacer()
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.black)
-                                        .opacity(0.8)
-                                    VStack {
-                                        Image(systemName: "lock.fill")
-                                            .font(.title)
-                                            .foregroundColor(.white)
-                                            .scaleEffect(1.2)
-                                        Text("coming soon ...")
-                                            .font(.subheadline)
-                                            .foregroundColor(.white)
-                                            .scaleEffect(1.2)
-                                    }
-                                    .padding()
-                                }
-                                Spacer()
-                            }
-                        )
                         .frame(maxWidth: .infinity)
                     
                     Text("Add Friend:")
@@ -178,6 +188,26 @@ struct AddFriends: View {
             }
         }
     }
+    
+    func shareSparkLink() {
+        guard let sparkID = userManager.currentUser?.uniqueUserID else {
+            print("No Spark ID available")
+            return
+        }
+        let sparkLink = "https://www.sparkapps.org/users/\(sparkID)"
+        let shareContent = "Add me on Spark: \(sparkLink)\n\nSent from SparkRice⚡"
+        let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
+
+        // Presenting the share sheet
+        if let keyWindow = UIApplication.shared.keyWindow {
+            if let presentedViewController = keyWindow.rootViewController?.presentedViewController {
+                presentedViewController.present(activityViewController, animated: true, completion: nil)
+            } else {
+                keyWindow.rootViewController?.present(activityViewController, animated: true, completion: nil)
+            }
+        }
+    }
+    
     func searchForUser() {
         shouldNavigate = false
         isShowingResults = false

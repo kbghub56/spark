@@ -38,22 +38,26 @@ struct InitFriends: View {
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.leading)
                     
+                    let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
+                    let urlString = "http://www.sparkapps.org/users/" + uniqueUserID
+                    
                     Text("Your link:")
                         .font(.system(size: 17))
                         .bold()
                         .foregroundColor(.white)
                     
                     HStack {
-                        Text("spark.sampleurl.personxyzpenispe")
+                        Text(urlString)
                             .font(.system(size: 17))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.leading)
                             .padding(.trailing, 60)
+                            .textSelection(.enabled)
                         
                         ZStack {
                             VStack {
                                 Button(action: {
-                                    self.isPressed.toggle()
+                                    shareSparkLink() // Call shareSparkLink() when the button is tapped
                                 }) {
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.system(size: 24))
@@ -68,11 +72,26 @@ struct InitFriends: View {
                         .bold()
                         .foregroundColor(.white)
                     
-                    Text(userManager.currentUser?.uniqueUserID ?? "Not Found")
-                        .font(.system(size: 17))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.leading)
-                        .padding(.trailing, 60)
+                    HStack {
+                        Text(userManager.currentUser?.uniqueUserID ?? "Not Found")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.leading)
+                            .padding(.trailing, 60)
+                            .textSelection(.enabled)
+                        //UNCOMMENT BELOW IF WANT TO INCLUDE SHARE BUTTON
+//                        ZStack {
+//                            VStack {
+//                                Button(action: {
+//                                    shareSparkID() // Call shareSparkID() when the button is tapped
+//                                }) {
+//                                    Image(systemName: "square.and.arrow.up")
+//                                        .font(.system(size: 24))
+//                                        .foregroundColor(.white)
+//                                }
+//                            }
+//                        }
+                    }
                     
                     Text("Add a SparkID:")
                         .font(.system(size: 17))
@@ -119,22 +138,22 @@ struct InitFriends: View {
             .background(.black)
         }
         .onChange(of: isShowingSheet) { newValue in
-                    if newValue {
-                        if let user = foundUser {
-                            print("Showing sheet with found user: \(user)")
-                        } else {
-                            print("foundUser is nil, not showing sheet")
-                        }
-                    }
+            if newValue {
+                if let user = foundUser {
+                    print("Showing sheet with found user: \(user)")
+                } else {
+                    print("foundUser is nil, not showing sheet")
                 }
-                .sheet(isPresented: $isShowingSheet) {
-                    if let user = foundUser {
-                        AddFrTwo(foundUser: user, userManager: userManager, isPresented: $isShowingSheet)
-                            .onDisappear {
-                                presentationMode.wrappedValue.dismiss()
-                            }
+            }
+        }
+        .sheet(isPresented: $isShowingSheet) {
+            if let user = foundUser {
+                AddFrTwo(foundUser: user, userManager: userManager, isPresented: $isShowingSheet)
+                    .onDisappear {
+                        presentationMode.wrappedValue.dismiss()
                     }
-                }
+            }
+        }
     }
     
     
@@ -143,13 +162,13 @@ struct InitFriends: View {
         isShowingSheet = false
         
         // Check if the userInput is the same as the current user's uniqueUserID
-           if let currentUserID = userManager.currentUser?.uniqueUserID, currentUserID == userInput {
-               errorMessage = "Cannot add this Spark ID"
-               foundUser = nil
-               isShowingSheet = false
-               return
-           }
-    
+        if let currentUserID = userManager.currentUser?.uniqueUserID, currentUserID == userInput {
+            errorMessage = "Cannot add this Spark ID"
+            foundUser = nil
+            isShowingSheet = false
+            return
+        }
+        
         userManager.searchForUser(by: userInput) { result in
             switch result {
             case .success(let user):
@@ -164,5 +183,41 @@ struct InitFriends: View {
             }
         }
     }
+    func shareSparkID() {
+            guard let sparkID = userManager.currentUser?.uniqueUserID else {
+                print("No Spark ID available")
+                return
+            }
+            let shareContent = "Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"
+            let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
+
+            // Presenting the share sheet
+            if let keyWindow = UIApplication.shared.keyWindow {
+                if let presentedViewController = keyWindow.rootViewController?.presentedViewController {
+                    presentedViewController.present(activityViewController, animated: true, completion: nil)
+                } else {
+                    keyWindow.rootViewController?.present(activityViewController, animated: true, completion: nil)
+                }
+            }
+        }
+        
+        func shareSparkLink() {
+            guard let sparkID = userManager.currentUser?.uniqueUserID else {
+                print("No Spark ID available")
+                return
+            }
+            let sparkLink = "https://www.sparkapps.org/users/\(sparkID)"
+            let shareContent = "Add me on Spark: \(sparkLink)\n\nSent from SparkRice⚡"
+            let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
+
+            // Presenting the share sheet
+            if let keyWindow = UIApplication.shared.keyWindow {
+                if let presentedViewController = keyWindow.rootViewController?.presentedViewController {
+                    presentedViewController.present(activityViewController, animated: true, completion: nil)
+                } else {
+                    keyWindow.rootViewController?.present(activityViewController, animated: true, completion: nil)
+                }
+            }
+        }
 }
 

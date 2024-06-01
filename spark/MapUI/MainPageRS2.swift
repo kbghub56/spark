@@ -1,11 +1,6 @@
 import SwiftUI
 import MapKit
 
-struct NilButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-    }
-}
 
 struct MainPage2: View {
     @State private var isForYouSelected = true

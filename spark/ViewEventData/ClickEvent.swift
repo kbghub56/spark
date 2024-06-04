@@ -15,7 +15,7 @@ struct ClickEvent: View {
     var body: some View {
         ZStack {
             VStack(spacing: 10) {
-                VStack {
+                VStack (spacing: 5) {
                         Image(getEventImage(event))
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -121,7 +121,7 @@ struct ClickEvent: View {
                     } else {
                         Text("liked by .... & more")
                             .font(.system(size: 15))
-                            .foregroundColor(.red)
+                            .foregroundColor(Color.black.opacity(0.9))
                         //.background(Color.black.opacity(0.9))
                             .padding(.horizontal)
                     }

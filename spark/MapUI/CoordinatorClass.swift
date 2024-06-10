@@ -61,7 +61,7 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
                             view.image = image
                             
                             // Apply a scale transform to the view to adjust the size
-                            //   self.updateScaleFactorFor(view: view, at: self.zoomLevel)
+                            self.updateScaleFactorFor(view: view, at: self.zoomLevel)
                             
                             print("UPDATING BITMOJI (KB CODES)")
                             
@@ -361,4 +361,4 @@ class LikeButton: UIButton {
         }
     }
 }
-
+  

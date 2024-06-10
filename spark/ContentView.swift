@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var showAddFriendView = false
     @State private var foundUser: User?
     @Binding var incomingURL: URL?
+    @State private var showMapModal = true
 
     var body: some View {
         Group {

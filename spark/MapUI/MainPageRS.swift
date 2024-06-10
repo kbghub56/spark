@@ -4,16 +4,17 @@
 //
 //  Created by Kabir Borle on 2/27/24.
 //
-import SwiftUI
-import UIKit
-import MapKit
-import Combine
 
 struct NilButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
     }
 }
+
+import SwiftUI
+import UIKit
+import MapKit
+import Combine
 
 struct HomeMapView: View {
     @EnvironmentObject var eventsViewModel: EventsViewModel
@@ -87,60 +88,15 @@ struct HomeMapView: View {
                                 Spacer(minLength: 0)
                             }.padding(.bottom, 90)
                              .padding(.top, 16)
-                
-                VStack(){
-                    Spacer()
-                    if showExpandedBlackScreen {
-                    } else /*if !showMenu */{
-                        let swipeUpThreshold: CGFloat = -50
-                        
-                        RoundedRectangle(cornerRadius: 35)
-                            .fill(Color.black)
-                            .frame(height: (UIScreen.main.bounds.height / 7.5))
-                            .edgesIgnoringSafeArea(.bottom)
-                            .overlay(
-                                VStack(){
-                                    RoundedRectangle(cornerRadius: 2.5)
-                                        .frame(width: 40, height: 5, alignment: .center)
-                                        .padding(.top, 11)
-                                        .foregroundColor(Color(white:0.8))
-                                    Spacer()
-                                }
-                            )
-                          //  .animation(.easeOut(duration: 1), value: showMenu)
-                            .gesture(
-                                DragGesture()
-                                    .onChanged { gesture in
-                                        if gesture.translation.height < swipeUpThreshold {
-                                       //     withAnimation {
-                                                showExpandedBlackScreen = true
-                                                showEmojis = false
-                                     //       }
-                                        }
-                                    }
-                            )
-                            .onTapGesture {
-                        //        withAnimation {
-                                    showExpandedBlackScreen = true
-                                    showEmojis = false
-                        //        }
-                            }
-                    }
-                }.edgesIgnoringSafeArea(.all)
 
-                GeometryReader { _ in
-                    VStack {
-                        Spacer()
-                        if showExpandedBlackScreen{
-                            ZStack{
-                                mapModal
-                            }
-                        } else {
-                            RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y:400).onTapGesture{withAnimation{showExpandedBlackScreen = true}}
-                        }
-                        //  mapModal
-                    }.padding(.horizontal, 0)
-                }.ignoresSafeArea(.all)
+//                GeometryReader { _ in
+//                    VStack {
+//                        Spacer()
+//                        mapModal
+//                    }
+//                }
+//                .ignoresSafeArea(.all)
+                
                 
              //   if showMenu {
                 SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
@@ -177,6 +133,23 @@ struct HomeMapView: View {
                 
             }
         }
+        .bottomDrawerView(
+            bottomDrawerHeight: 80,
+            drawerTopCornerRadius: 16,
+            ignoreTopSafeAreas: false,
+            drawerContent: {
+                mapModal
+            },
+            pullUpView: { shouldGoUp in
+                RoundedRectangle(cornerRadius: 16)
+                    .frame(height: 80)
+                    .foregroundColor(.black)
+                    .overlay(
+                        Image(systemName: shouldGoUp ? "chevron.up" : "chevron.down")
+                            .foregroundColor(.white)
+                    )
+            }
+        )
         .overlay(
             Group {
                 if let selectedEvent = selectedEvent, showClickEvent {
@@ -227,7 +200,6 @@ struct HomeMapView: View {
                     print("FR: \(followRequests)")
                     showingFollowRequestPopup = !requests.isEmpty
                 }
-                
             }
         }
         .onChange(of: showExpandedBlackScreen) { isOpen in
@@ -245,9 +217,6 @@ struct HomeMapView: View {
             }
             handleFollowRequestVisibility()
         }
-        
-        
-        
     }
     
     private var isFollowRequestAvailable: Bool {
@@ -336,25 +305,25 @@ struct HomeMapView: View {
         .cornerRadius(30)
         .transition(.move(edge: .bottom))
         .offset(y: modalOffset)
-        .gesture(
-            DragGesture()
-                        .onChanged { value in
-                            if value.translation.height > 0 {
-                                modalOffset = value.translation.height
-                            } else {
-                                modalOffset = 0
-                            }
-                        }
-                        .onEnded { value in
-                            withAnimation {
-                                if value.translation.height > 100 {
-                                    showExpandedBlackScreen = false
-                                    showEmojis = true
-                                }
-                                modalOffset = 0
-                            }
-                        }
-            )
+//        .gesture(
+//            DragGesture()
+//                        .onChanged { value in
+//                            if value.translation.height > 0 {
+//                                modalOffset = value.translation.height
+//                            } else {
+//                                modalOffset = 0
+//                            }
+//                        }
+//                        .onEnded { value in
+//                            withAnimation {
+//                                if value.translation.height > 100 {
+//                                    showExpandedBlackScreen = false
+//                                    showEmojis = true
+//                                }
+//                                modalOffset = 0
+//                            }
+//                        }
+//            )
             .gesture(
                 DragGesture().onEnded { value in
                     withAnimation {

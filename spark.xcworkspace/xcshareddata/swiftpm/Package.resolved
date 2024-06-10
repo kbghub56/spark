@@ -1,5 +1,5 @@
 {
-  "originHash" : "c63c63846d9c539229e96de38d6af51417e28c0ee9a0bc48bd0f0f19d923c329",
+  "originHash" : "d5767d107f31ea1f3ccacf0ddf97702d7ba4479130ba1b19bb1140f559d6487e",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "3e464dad87dad2d29bb29a97836789bf0f8f67d2",
         "version" : "10.18.1"
+      }
+    },
+    {
+      "identity" : "edgesbottomdrawer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AlexMochalov/EdgesBottomDrawer.git",
+      "state" : {
+        "revision" : "12920fb91a0e55887118a67bb5565448b4bbd155",
+        "version" : "0.0.4"
       }
     },
     {

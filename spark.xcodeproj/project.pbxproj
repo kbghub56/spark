@@ -74,6 +74,8 @@
 		9993E3EC2B8DC601007443BE /* EventDateTimeViewModelRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3EB2B8DC601007443BE /* EventDateTimeViewModelRS.swift */; };
 		9993E3EE2B8DC9C2007443BE /* SetTimeRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3ED2B8DC9C2007443BE /* SetTimeRS.swift */; };
 		9993E3F02B8DD44E007443BE /* addEventsGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3EF2B8DD44E007443BE /* addEventsGPT.swift */; };
+		99BBD6182C0FFC790051C3F0 /* bottomDrawerForModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BBD6172C0FFC790051C3F0 /* bottomDrawerForModal.swift */; };
+		99BBD61B2C1005B50051C3F0 /* EdgesBottomDrawer in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */; };
 		99FFE2CF2B96064000070686 /* initFriendsRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2CE2B96064000070686 /* initFriendsRS.swift */; };
 		99FFE2D12B96093C00070686 /* FriendRequestRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D02B96093C00070686 /* FriendRequestRS.swift */; };
 		99FFE2D32B99824000070686 /* LoginRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D22B99824000070686 /* LoginRS.swift */; };
@@ -147,6 +149,7 @@
 		9993E3EB2B8DC601007443BE /* EventDateTimeViewModelRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDateTimeViewModelRS.swift; sourceTree = "<group>"; };
 		9993E3ED2B8DC9C2007443BE /* SetTimeRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetTimeRS.swift; sourceTree = "<group>"; };
 		9993E3EF2B8DD44E007443BE /* addEventsGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addEventsGPT.swift; sourceTree = "<group>"; };
+		99BBD6172C0FFC790051C3F0 /* bottomDrawerForModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bottomDrawerForModal.swift; sourceTree = "<group>"; };
 		99FFE2CE2B96064000070686 /* initFriendsRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = initFriendsRS.swift; sourceTree = "<group>"; };
 		99FFE2D02B96093C00070686 /* FriendRequestRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestRS.swift; sourceTree = "<group>"; };
 		99FFE2D22B99824000070686 /* LoginRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRS.swift; sourceTree = "<group>"; };
@@ -168,6 +171,7 @@
 				99086FAB2B78065B00FC00B2 /* FirebaseAnalytics in Frameworks */,
 				99086FB62B79F32500FC00B2 /* FirebaseFirestore in Frameworks */,
 				99086FAD2B78065B00FC00B2 /* FirebaseCrashlytics in Frameworks */,
+				99BBD61B2C1005B50051C3F0 /* EdgesBottomDrawer in Frameworks */,
 				99086FD72B7C98B000FC00B2 /* FirebaseAuth in Frameworks */,
 				99086FB82B79F32C00FC00B2 /* FirebaseFirestoreSwift in Frameworks */,
 				3B20BACB40479AE126693754 /* Pods_spark.framework in Frameworks */,
@@ -281,6 +285,7 @@
 				9959E5D02B8EE08400D2A9DE /* MapUIGPT.swift */,
 				99FFE2D42B9989F600070686 /* WhenLocationOff.swift */,
 				9914F8EF2BCBC20F00F33482 /* FriendAnnotation.swift */,
+				99BBD6172C0FFC790051C3F0 /* bottomDrawerForModal.swift */,
 			);
 			path = MapUI;
 			sourceTree = "<group>";
@@ -418,6 +423,7 @@
 				99086FB52B79F32500FC00B2 /* FirebaseFirestore */,
 				99086FB72B79F32C00FC00B2 /* FirebaseFirestoreSwift */,
 				99086FD62B7C98B000FC00B2 /* FirebaseAuth */,
+				99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */,
 			);
 			productName = spark;
 			productReference = 99086F912B76E3BA00FC00B2 /* spark.app */;
@@ -449,6 +455,7 @@
 			mainGroup = 99086F882B76E3BA00FC00B2;
 			packageReferences = (
 				99086FA92B78065B00FC00B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				99BBD6192C1005B50051C3F0 /* XCRemoteSwiftPackageReference "EdgesBottomDrawer" */,
 			);
 			productRefGroup = 99086F922B76E3BA00FC00B2 /* Products */;
 			projectDirPath = "";
@@ -541,6 +548,7 @@
 				99086FBA2B79F4C000FC00B2 /* AppDelegate.swift in Sources */,
 				99086FC42B7A112800FC00B2 /* LocationManager.swift in Sources */,
 				9993E3D42B85C2AB007443BE /* UserManager.swift in Sources */,
+				99BBD6182C0FFC790051C3F0 /* bottomDrawerForModal.swift in Sources */,
 				9993E3F02B8DD44E007443BE /* addEventsGPT.swift in Sources */,
 				9935AB252B8F11AB003994AE /* AddFriends1RS.swift in Sources */,
 				9914F8C52BB5345F00F33482 /* ClickEvent.swift in Sources */,
@@ -809,6 +817,14 @@
 				minimumVersion = 10.0.0;
 			};
 		};
+		99BBD6192C1005B50051C3F0 /* XCRemoteSwiftPackageReference "EdgesBottomDrawer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AlexMochalov/EdgesBottomDrawer.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -846,6 +862,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99086FA92B78065B00FC00B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99BBD6192C1005B50051C3F0 /* XCRemoteSwiftPackageReference "EdgesBottomDrawer" */;
+			productName = EdgesBottomDrawer;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

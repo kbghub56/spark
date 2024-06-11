@@ -920,36 +920,23 @@ struct FollowRequestPopup: View {
     }
 }
 
-extension URLCache {
-    static let imageCache = URLCache(memoryCapacity: 512_000_000, diskCapacity: 10_000_000_000)
-}
-
 struct LargeBitmojiView: View {
     let bitmojiUrl: String
     
     var body: some View {
         if let url = URL(string: bitmojiUrl) {
-            CachedAsyncImage(url: url) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                        .frame(width: 100, height: 100)
-                case .success(let image):
-                    image.resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                case .failure:
-                    Circle()
-                        .fill(Color.gray)
-                        .frame(width: 100, height: 100)
-                @unknown default:
-                    EmptyView()
-                }
+            AsyncImage(url: url) { image in
+                image.resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 100, height: 100) // Adjust the size as needed
+                    .clipShape(Circle())
+            } placeholder: {
+                Circle().fill(Color.gray).frame(width: 100, height: 100) // Adjust the size as needed
             }
         }
     }
 }
+
 struct FollowRequestButtonStyle: ButtonStyle {
     var backgroundColor: Color
     

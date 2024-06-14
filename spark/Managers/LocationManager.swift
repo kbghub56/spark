@@ -19,6 +19,7 @@ class LocationManager: NSObject, ObservableObject {
     @Published var nearbyPlace: String?
     private var lastIdentificationTime: Date?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    @Published var isLocationNoAuth: Bool = false
 
     init(userManager: UserManager) {
         self.userManager = userManager
@@ -27,6 +28,7 @@ class LocationManager: NSObject, ObservableObject {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         authorizationStatus = locationManager.authorizationStatus
         requestLocationPermission()
+        checkLocationAuthorizationStatus()
     }
     
     func requestLocationPermission() {
@@ -36,7 +38,33 @@ class LocationManager: NSObject, ObservableObject {
     func requestAlwaysPermission() {
         locationManager.requestAlwaysAuthorization()
     }
+
+private func checkLocationAuthorizationStatus() {
+    if CLLocationManager.locationServicesEnabled() {
+        switch locationManager.authorizationStatus {
+        case .notDetermined, .restricted, .denied:
+            userManager.isLocationNoAuth = true
+            userManager.isLocationOff = false
+        case .authorizedAlways, .authorizedWhenInUse:
+            userManager.isLocationNoAuth = false
+            userManager.isLocationOff = false
+        @unknown default:
+            userManager.isLocationNoAuth = true
+            userManager.isLocationOff = false
+        }
+    } else {
+        userManager.isLocationOff = true
+        userManager.isLocationNoAuth = false
+    }
 }
+    
+    func checkIfLocationNoAuth() -> Bool {
+        return isLocationNoAuth
+    }
+}
+
+
+
 
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -57,6 +85,7 @@ extension LocationManager: CLLocationManagerDelegate {
         let timeInterval = Date().timeIntervalSince(lastIdentification)
         return timeInterval >= 30
     }
+    
 
     private func updateCurrentUserLocation(location: CLLocation?) {
         guard let currentUserID = Auth.auth().currentUser?.uid else { return }
@@ -89,7 +118,7 @@ extension LocationManager: CLLocationManagerDelegate {
             }
         }
     }
-
+    
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         authorizationStatus = manager.authorizationStatus
         
@@ -101,8 +130,9 @@ extension LocationManager: CLLocationManagerDelegate {
         case .authorizedAlways:
             manager.startUpdatingLocation()
         case .restricted, .denied:
-            
-            // Handle case where user has denied the app location access
+            authorizationStatus = manager.authorizationStatus
+            isLocationNoAuth = true
+            print("is this shit even going thru")
             break
         @unknown default:
             break

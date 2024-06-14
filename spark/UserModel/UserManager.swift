@@ -17,6 +17,7 @@ class UserManager: ObservableObject {
     @Published var currentUser: User?
     @Published var friendsDistances: [FriendDistance] = []
     @Published var isLocationOff: Bool = false
+    @Published var isLocationNoAuth: Bool = false
     
     init() {
             getCurrentUser { [weak self] user in

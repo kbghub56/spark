@@ -21,7 +21,8 @@ struct HomeMapView: View {
     @StateObject private var mapState = MapState()
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var userManager: UserManager
-    @StateObject private var locationManager = LocationManager(userManager: UserManager())
+    private var locationManager = LocationManager(userManager: UserManager()) //Used to be a state object jun 15
+    @State private var isCurrentLocationAvailable = false
     @State private var showingFollowRequestPopup = false
     @State private var selectedEvent: EventAnnotation?
     @State private var selectedFriend: FriendAnnotation?
@@ -31,8 +32,8 @@ struct HomeMapView: View {
     @State private var modalOffset: CGFloat = 0
     @State private var didSelectUserAnnotation = true
     @State private var shouldRecenterMap = false
-    
-    
+
+
     @State private var isForYouSelected = false
     @State private var showMenu = false
     @State private var showExpandedBlackScreen = false
@@ -46,6 +47,7 @@ struct HomeMapView: View {
     @State private var followRequests: [FollowRequest] = []
     @State private var showEmojis = true
     @State private var initialRegionSet = false
+    @State private var cancellables = Set<AnyCancellable>()
 
     private func handleFollowRequestVisibility() {
         if followRequests.isEmpty {
@@ -53,11 +55,11 @@ struct HomeMapView: View {
             currentRequestIndex = 0  // Reset the index for any future follow requests
         }
     }
-    
-    
+
+
     let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()  // 300 seconds equals 5 minutes
-    
-    
+
+
     var body: some View {
         ZStack {
             if showingLocationOffView {
@@ -66,43 +68,47 @@ struct HomeMapView: View {
                     .environmentObject(userManager)
                     .environmentObject(authViewModel)
             } else {
-                
-                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap, initialRegionSet: $initialRegionSet)
-                    .edgesIgnoringSafeArea(.all)
-                    .environment(\.colorScheme, .dark)
-                    .onReceive(timer) { _ in
-                                        eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
-                                    }
-                
+                if isCurrentLocationAvailable {
+                    
+                    
+                    
+                    MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap, initialRegionSet: $initialRegionSet)
+                        .edgesIgnoringSafeArea(.all)
+                        .environment(\.colorScheme, .dark)
+                        .onReceive(timer) { _ in
+                            eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
+                        }
+                }
+
                 VStack(spacing: 0) {
                                 HStack {
                                     Spacer(minLength: 0)
                                     circleButton
                                 }.padding(.horizontal, 16)
                                  .padding(.bottom, 25)
-                                
+
                                 HStack {
                                     Spacer(minLength: 0)
                                     toggleSection
                                 }.padding(.horizontal, 16)
                                 .padding(.bottom, 25)
-                    
+
                                 HStack {
                                     Spacer(minLength: 0)
                                    // Spacer()
                                     recenterButton
                                 }.padding(.horizontal, 16)
-                                
+
                                 Spacer(minLength: 0)
                             }.padding(.bottom, 90)
                              .padding(.top, 16)
-                
+
                 VStack(){
                     Spacer()
                     if showExpandedBlackScreen {
                     } else /*if !showMenu */{
                         let swipeUpThreshold: CGFloat = -50
-                        
+
                         RoundedRectangle(cornerRadius: 35)
                             .fill(Color.black)
                             .frame(height: (UIScreen.main.bounds.height / 7.5))
@@ -150,7 +156,7 @@ struct HomeMapView: View {
                         //  mapModal
                     }.padding(.horizontal, 0)
                 }.ignoresSafeArea(.all)
-                
+
              //   if showMenu {
                 SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
                         // Dismiss the side menu
@@ -165,7 +171,7 @@ struct HomeMapView: View {
                         .offset(x: showMenu ? 0 : UIScreen.main.bounds.width)
                      //   .matchedGeometryEffect(id: "circle", in: namespace)
              //   }
-                
+
                 // Usage in HomeMapView
                 if showingFollowRequestPopup && !followRequests.isEmpty {
                     let request = followRequests[currentRequestIndex]
@@ -181,9 +187,9 @@ struct HomeMapView: View {
                         }
                     )
                 }
-                
-                
-                
+
+
+
             }
         }
         .overlay(
@@ -228,6 +234,17 @@ struct HomeMapView: View {
         .onAppear {
             // This might be redundant if you're already setting the user in UserManager's init
             userManager.getCurrentUser { _ in }
+            locationManager.requestLocationPermission()
+                
+                // Wait for the current location to be available
+                locationManager.$currentLocation
+                    .sink { location in
+                        if location != nil {
+                            isCurrentLocationAvailable = true
+                        }
+                    }
+                    .store(in: &cancellables)
+            
             if let currentLocation = locationManager.currentLocation {
                     region = MKCoordinateRegion(center: currentLocation.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
                     initialRegionSet = true
@@ -241,7 +258,7 @@ struct HomeMapView: View {
                     print("FR: \(followRequests)")
                     showingFollowRequestPopup = !requests.isEmpty
                 }
-                
+
             }
         }
         .onChange(of: showExpandedBlackScreen) { isOpen in
@@ -252,22 +269,22 @@ struct HomeMapView: View {
                 }
             }
         }
-        
+
         .onChange(of: currentRequestIndex) { _ in
             if followRequests.isEmpty {
                 showingFollowRequestPopup = false
             }
             handleFollowRequestVisibility()
         }
-        
-        
-        
+
+
+
     }
-    
+
     private var isFollowRequestAvailable: Bool {
         currentRequestIndex < followRequests.count
     }
-    
+
     // A new function in HomeMapView to encapsulate moving to the next request or dismissing the popup
     private func moveToNextOrDismiss() {
         if currentRequestIndex < followRequests.count - 1 {
@@ -283,14 +300,14 @@ struct HomeMapView: View {
             }
         }
     }
-    
+
     var mapModal: some View {
         VStack {
             RoundedRectangle(cornerRadius: 2.5)
                 .frame(width: 40, height: 5, alignment: .center)
                 .padding(.top, 7)
                 .foregroundColor(Color(white: 0.8))
-            
+
             HStack {
                 Text("Friends")
                     .font(.system(size: 22, weight: .bold))
@@ -300,9 +317,9 @@ struct HomeMapView: View {
                             selectedTab = 0
                         }
                     }
-                
+
                 Spacer()
-                
+
                 Text("Events")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(selectedTab == 1 ? Color.white : Color.gray)
@@ -314,7 +331,7 @@ struct HomeMapView: View {
             }
             .frame(maxWidth: 250)
             .padding(.top, 10)
-            
+
             TabView(selection: $selectedTab) {
                 VStack {
                     FriendsDistanceListView()
@@ -323,12 +340,12 @@ struct HomeMapView: View {
                         .background(Color.black.opacity(0.7))
                         .cornerRadius(10)
                         .padding(.top)
-                    
+
                     FriendsView().frame(height: 100)
                         .padding(.bottom)
                 }
                 .tag(0)
-                
+
                 VStack {
                     RankedEventsListView()
                         .environmentObject(eventsViewModel)
@@ -337,7 +354,7 @@ struct HomeMapView: View {
                         .background(Color.black.opacity(0.7))
                         .cornerRadius(10)
                         .padding(.top)
-                    
+
                     EventsView().frame(height: 100)
                         .padding(.bottom)
                 }
@@ -382,8 +399,8 @@ struct HomeMapView: View {
             )
             .onTapGesture {}
     }
-    
-    
+
+
     var toggleSection: some View {
         HStack(spacing: 10) {
             VStack(alignment: .trailing, spacing: 0) {
@@ -415,7 +432,7 @@ struct HomeMapView: View {
                 .buttonStyle(NilButtonStyle())
         }.frame(height: 90)
     }
-    
+
 //    var toggleSection: some View {
 //        ZStack {
 //            Rectangle().foregroundColor(.clear).frame(width: 100, height: 50).background(Color.white.opacity(0.6)).cornerRadius(50).offset(x: -125, y: -380)
@@ -442,7 +459,7 @@ struct HomeMapView: View {
             ZStack {
                 Circle().fill(Color.white) // White circle background
                     .frame(width: 50, height: 50) // Size of the white circle
-                
+
                 // Check if a Bitmoji URL exists and is valid
                 if let bitmojiUrl = authViewModel.snapchatBitmojiAvatarUrl, let url = URL(string: bitmojiUrl) {
                     AsyncImage(url: url) { imagePhase in
@@ -462,7 +479,7 @@ struct HomeMapView: View {
             }
         }
     }
-    
+
     var recenterButton: some View {
         Button(action: {
             recenterMap()
@@ -474,7 +491,7 @@ struct HomeMapView: View {
                 .foregroundColor(.white)
         }
     }
-    
+
     func recenterMap() {
         if let currentLocation = locationManager.currentLocation {
             region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
@@ -512,7 +529,7 @@ struct FriendsView: View {
 }
 struct EventsView: View {
     @State private var showingEventInputView = false
-    
+
     var body: some View {
         VStack {
             Spacer()
@@ -547,7 +564,7 @@ struct SideMenu: View {
     var dismiss: () -> Void // Add this closure
     @State private var showDeleteConfirmation = false
 
-    
+
     var body: some View {
         ZStack {
             // Semi-transparent background with tap gesture to hide the menu
@@ -563,7 +580,7 @@ struct SideMenu: View {
             if showMenu {
                 VStack {
                     Spacer()
-                    
+
                     VStack(alignment: .leading) {
                         profileSection
                         locationToggle
@@ -578,7 +595,7 @@ struct SideMenu: View {
                     .shadow(radius: 5)
                     // Empty gesture to 'capture' taps without triggering the background's gesture
                     .onTapGesture {}
-                    
+
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -613,7 +630,7 @@ struct SideMenu: View {
                         }
                     }
                 }
-                
+
 //                    .overlay(
 //                        Button(action: {}, label: {
 //                            Text("Change")
@@ -653,11 +670,11 @@ struct SideMenu: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    
+
                     Text(locationManager.nearbyPlace ?? "Unknown Place")
                         .font(.system(size: 17).bold())
                         .foregroundColor(.white)
-                    
+
                 }
             }
             .padding(.top, 20)
@@ -669,26 +686,26 @@ struct SideMenu: View {
             Text("Location:")
                 .font(.system(size: 24).bold())
                 .foregroundColor(.white)
-            
+
             Spacer()
-            
+
             ZStack {
                 RoundedRectangle(cornerRadius: 25)
                     .fill(Color.white.opacity(0.6))
                     .frame(width: 100, height: 50)
-                
+
                 Circle()
                     .fill(Color.white)
                     .frame(width: 45, height: 45)
                     .offset(x: isSwitchOn ? -25 : 25)
-                
+
                 HStack {
                     Text("On")
                         .font(.system(size: 13).bold())
                         .foregroundColor(isSwitchOn ? .white : .gray)
-                    
+
                     Text(" ")
-                    
+
                     Text("Off")
                         .font(.system(size: 13).bold())
                         .foregroundColor(isSwitchOn ? .gray : .white)
@@ -773,13 +790,13 @@ struct SideMenu: View {
             .padding(.horizontal, 5)
             .background(Color.black)
             .cornerRadius(50)
-            
+
             Spacer().frame(height: 5) // Add a spacer with a fixed height
 
         }.frame(maxWidth: .infinity)
 
     }
-    
+
     var deleteAccountButton: some View {
         VStack {
             Button("Delete Account") {
@@ -792,7 +809,7 @@ struct SideMenu: View {
             .padding(.horizontal, 5)
             .background(Color.black)
             .cornerRadius(50)
-            
+
         }
         .frame(maxWidth: .infinity)
         .alert(isPresented: $showDeleteConfirmation) {
@@ -812,25 +829,25 @@ struct SideMenu: View {
             )
         }
     }
-    
+
     func shareSparkID() {
         guard let sparkID = userManager.currentUser?.uniqueUserID else {
             print("SparkID not found")
             return
         }
-        
+
         let activityViewController = UIActivityViewController(activityItems: ["Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"], applicationActivities: nil)
-        
+
         // Exclude certain activity types if desired
         activityViewController.excludedActivityTypes = [.addToReadingList, .assignToContact]
-        
+
         // Present the share sheet
         if let windowScene = UIApplication.shared.windows.first?.windowScene {
             windowScene.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
         }
     }
-    
-    
+
+
 }
 
 
@@ -840,17 +857,17 @@ struct FollowRequestPopup: View {
     var request: FollowRequest
     var onAccept: () -> Void // Closure called when accept is tapped
     var onReject: () -> Void // Closure called when reject is tapped
-    
+
     var body: some View {
         VStack(spacing:40){
             Text("New Friends?")
                 .font(.title)
                 .foregroundColor(.black)
                 .multilineTextAlignment(.center)
-            
+
             HStack {
                             LargeBitmojiView(bitmojiUrl: request.bitmojiUrl)
-                            
+
                             Text(request.fromUsername)
                                 .font(.largeTitle)
                                 .bold()
@@ -858,7 +875,7 @@ struct FollowRequestPopup: View {
                         }
             .padding(.trailing)
             .frame(maxWidth: .infinity, alignment: .center) // Add frame modifier
-            
+
             HStack(spacing: 45) {
                 Button("Accept") {
                     onAccept() // Call the accept closure provided by the parent view
@@ -869,7 +886,7 @@ struct FollowRequestPopup: View {
                 .scaleEffect(0.8)
                 .background(Color.black)
                 .cornerRadius(10)
-                
+
                 Button("Reject") {
                     onReject() // Call the reject closure provided by the parent view
                 }
@@ -891,7 +908,7 @@ struct FollowRequestPopup: View {
 
 struct LargeBitmojiView: View {
     let bitmojiUrl: String
-    
+
     var body: some View {
         if let url = URL(string: bitmojiUrl) {
             AsyncImage(url: url) { image in
@@ -908,7 +925,7 @@ struct LargeBitmojiView: View {
 
 struct FollowRequestButtonStyle: ButtonStyle {
     var backgroundColor: Color
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
@@ -929,8 +946,8 @@ struct RankedEventsListView: View {
     @EnvironmentObject var locationManager: LocationManager
     @State private var showClickEvent: Bool = false
     @State private var selectedEvent: EventAnnotation? = nil
-    
-    
+
+
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -956,19 +973,19 @@ struct RankedEventsListView: View {
                                     .frame(width: 60, height: 60)
                                     .padding(.leading, 10)
                             }
-                            
-                            
+
+
                             VStack(alignment: .leading, spacing: 4) {
-                                
+
                                 Text(event.title)
                                     .bold()
                                     .font(.title3)
                                     .foregroundColor(.white)
                                     .offset(y:-9)
-                                
-                                
-                                
-                                
+
+
+
+
                                 Text(truncateLocation(event.locTitle, event.locSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white)
@@ -979,7 +996,7 @@ struct RankedEventsListView: View {
                                     .offset(y: -9)
                                 HStack {
                                     Spacer()
-                                    
+
                                     Button(action: {
                                         self.selectedEvent = EventAnnotation(event: event)
                                         self.showClickEvent = true
@@ -990,21 +1007,21 @@ struct RankedEventsListView: View {
                                     }
                                     .buttonStyle(PlainButtonStyle())
                                     .overlay(Rectangle().frame(height: 2).foregroundColor(Color.blue), alignment: .bottom)
-                                    
+
                                     Spacer()
                                 }
                             }
                             .padding(.leading, 10)
-                            
-                            
+
+
                             Spacer()
-                            
+
                             VStack{
                                 HStack(spacing: 12) {
                                     Button(action: {
                                         let currentUserID = self.authViewModel.currentUserID ?? ""
                                         let isLiked = event.likedBy.contains(currentUserID)
-                                        
+
                                         if isLiked {
                                             eventsViewModel.unlikeEvent(eventID: event.id, currentUserID: currentUserID)
                                         } else {
@@ -1018,7 +1035,7 @@ struct RankedEventsListView: View {
                                     }
                                     .padding(.top, 4)
                                     .offset(y: -9)
-                                    
+
                                     // Share button
                                     Button(action: {
                                         self.shareEvent(event: event)
@@ -1035,19 +1052,19 @@ struct RankedEventsListView: View {
                                 // Likes count text
                                 // HStack for Bitmojis of friends who liked the event
                                 if !event.likedBy.filter({ eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }).isEmpty {
-                                    
+
                                     HStack(spacing: 0){
                                         //
                                         //                                    Text("liked")//.padding(.trailing, 25)
                                         //                                        .font(.system(size: 12))
                                         //                                        .padding(.trailing, 3)
-                                        
+
                                         Image(systemName: "heart.fill")
                                             .foregroundColor(.red) // Set the color to red
                                             .font(.system(size: 12)) // Adjust the size as needed
                                         // .padding(.trailing, 4) // Add some space between the heart and the Bitmojis
                                         HStack(spacing: -10) {
-                                            
+
                                             ForEach(event.likedBy.filter { eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }, id: \.self) { userId in
                                                 if let bitmojiUrl = authViewModel.friendsBitmojiUrls[userId], let url = URL(string: bitmojiUrl) {
                                                     AsyncImage(url: url) { phase in
@@ -1072,17 +1089,17 @@ struct RankedEventsListView: View {
                                             .font(.system(size: 12))
                                         // Adjust padding as needed to align with your design
                                             .padding(.leading, 4)
-                                        
+
                                     }
                                 }
                             }
-                            
-                            
+
+
                         }
                         .padding(.vertical, 10)
-                        
-                        
-                        
+
+
+
                         // Light rectangular border below each event
                         Rectangle()
                             .fill(Color.white.opacity(0.2)) // Light-colored line
@@ -1129,16 +1146,16 @@ struct RankedEventsListView: View {
                     }
                 )
     }
-    
+
     func shareEvent(event: Event) {
         let eventDetails = "\(event.title ?? "Event Title")\n" +
         "\(event.visibility ?? "Invite Status") [invited]\n" +
         "@ \(event.locTitle ?? "Location Title")\n" +
         "\(event.locSubtitle ?? "Additional Location Info")\n" +
         "\(event.description ?? "Description")\n\n" + "Sent from SparkRice⚡"
-        
+
         let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
-        
+
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             window.rootViewController?.present(activityViewController, animated: true, completion: nil)
@@ -1156,17 +1173,17 @@ struct RankedEventsListView: View {
             return combined
         }
     }
-    
+
     // Function to calculate the distance to the event and format the string
     func calculateDistanceToEvent(event: Event) -> String {
         guard let userLocation = locationManager.currentLocation else {
             return "Distance unknown"
         }
-        
+
         let eventLocation = CLLocation(latitude: event.latitude, longitude: event.longitude)
         let distanceInMeters = userLocation.distance(from: eventLocation)
         let distanceInMiles = distanceInMeters / 1609.34 // Convert meters to miles
-        
+
         if distanceInMiles < 1 {
             return "< 1 mi away"
         } else {
@@ -1177,7 +1194,7 @@ struct RankedEventsListView: View {
 }
 struct FriendBitmojiView: View {
     let bitmojiUrl: String
-    
+
     var body: some View {
         if let url = URL(string: bitmojiUrl) {
             AsyncImage(url: url) { image in
@@ -1200,7 +1217,7 @@ struct FriendsDistanceListView: View {
  //   @State private var dragOffset: CGFloat = 0
     @State private var showFriendPopup = false
     @State private var selectedFriend: FriendDistance?
-    
+
     var body: some View {
         if userManager.friendsDistances.isEmpty {
             ScrollView {
@@ -1214,7 +1231,7 @@ struct FriendsDistanceListView: View {
                             .foregroundColor(.white)
                             .padding(.vertical, 20)
                     }
-                    
+
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
@@ -1243,14 +1260,14 @@ struct FriendsDistanceListView: View {
                                                                     showFriendPopup = true
                                                                 }
                             }
-                                
-                            
-                            
+
+
+
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(friendDistance.userName)
                                     .foregroundColor(.white)
                                     .font(.system(size: 25))
-                                
+
                                 Text(friendDistance.nearbyPlace?.trimmedAddress() ?? "")
                                     .foregroundColor(.gray)
                                     .font(.system(size: 14))
@@ -1258,9 +1275,9 @@ struct FriendsDistanceListView: View {
                                     .truncationMode(.tail)
                             }
                             .padding(.leading, 10)
-                            
+
                             Spacer()
-                            
+
                             VStack(alignment: .trailing) {
                                 // Distance display
                                 if friendDistance.distance / 1609.34 < 1 {
@@ -1271,14 +1288,14 @@ struct FriendsDistanceListView: View {
                                     Text("\(Int(miles)) mi away")
                                         .foregroundColor(.gray)
                                 }
-                                
+
                                 // Activity status
                                 let status = activityStatus(for: friendDistance.lastActive!)
                                 Text(status.text)
                                     .foregroundColor(status.color.opacity(status.opacity))
                                     .font(.system(size: 14))  // Font size for "Active/Away" captions
                             }
-                            
+
 //                            // Add remove button
 //                            Button(action: {
 //                                guard let currentUserUniqueID = userManager.currentUser?.uniqueUserID else {
@@ -1337,18 +1354,18 @@ struct FriendsDistanceListView: View {
                                         .transition(.scale)
                                         .scaleEffect(0.9)
                                     }
-                                
+
                                 }
                             }
                         )
 
         }
     }
-    
+
     private func activityStatus(for lastActiveDate: Date) -> (text: String, color: Color, opacity: Double) {
         let now = Date()
         let twelveHoursAgo = now.addingTimeInterval(-43200)  // 12 hours = 43,200 seconds
-        
+
         if lastActiveDate > twelveHoursAgo {
             // Muted green for "Active" status
             let activeColor = Color(red: 137 / 255, green: 198 / 255, blue: 142 / 255)

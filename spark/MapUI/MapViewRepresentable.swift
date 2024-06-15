@@ -57,10 +57,10 @@ struct MapViewRepresentable: UIViewRepresentable {
         // Fetch friends' locations initially
         fetchFriendsLocationsIfNeeded()
         
-//        if let currentLocation = locationManager.currentLocation {
-//            let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-//            mapView.setRegion(region, animated: false)
-//        }
+        if let currentLocation = locationManager.currentLocation {
+            let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+            mapView.setRegion(region, animated: false)
+        }
         
         return mapView
     }
@@ -86,17 +86,17 @@ struct MapViewRepresentable: UIViewRepresentable {
 //                }
 //            }
 
-//        if !initialRegionSet {
-//                if let currentLocation = locationManager.currentLocation {
-//                    print("Curr loc: \(locationManager.currentLocation)")
-//                    let initialRegion = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-//                    uiView.setRegion(initialRegion, animated: false)
-//                    DispatchQueue.main.async {
-//                        initialRegionSet = true
-//                    }
-//                    print("set init region, \(initialRegion)")
-//                }
-//            }
+        if !initialRegionSet {
+                if let currentLocation = locationManager.currentLocation {
+                    print("Curr loc: \(locationManager.currentLocation)")
+                    let initialRegion = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                    uiView.setRegion(initialRegion, animated: false)
+                    DispatchQueue.main.async {
+                        initialRegionSet = true
+                    }
+                    print("set init region, \(initialRegion)")
+                }
+            }
         
         //IMPORTANT FOR ZOOM IN WHEN YOU LOG ON
 //        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {

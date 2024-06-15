@@ -325,15 +325,7 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
 //                )
 //                parent.mapView.setRegion(region, animated: true)
 //    }
-    
-    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
-        if !parent.initialRegionSet {
-            let region = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-            mapView.setRegion(region, animated: false)
-            parent.initialRegionSet = true
-        }
-    }
-
+//    }
     @objc func handleLikeButtonTap(_ sender: LikeButton) {
         guard let currentUserID = Auth.auth().currentUser?.uid else {
             print("Current user ID not found")

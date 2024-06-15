@@ -1,12 +1,15 @@
 import UIKit
 import Firebase
 import SCSDKLoginKit
+import GoogleMaps
+
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure Firebase
         FirebaseApp.configure()
+        GMSServices.provideAPIKey("AIzaSyCTECbYPrMRighcsTJ-2on5jU7pckO6mnE")
         return true
     }
 

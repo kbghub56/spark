@@ -76,6 +76,7 @@
 		9993E3F02B8DD44E007443BE /* addEventsGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3EF2B8DD44E007443BE /* addEventsGPT.swift */; };
 		99BBD6182C0FFC790051C3F0 /* bottomDrawerForModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BBD6172C0FFC790051C3F0 /* bottomDrawerForModal.swift */; };
 		99BBD61B2C1005B50051C3F0 /* EdgesBottomDrawer in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */; };
+		99BBD61E2C17D3E10051C3F0 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61D2C17D3E10051C3F0 /* GoogleMaps */; };
 		99FFE2CF2B96064000070686 /* initFriendsRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2CE2B96064000070686 /* initFriendsRS.swift */; };
 		99FFE2D12B96093C00070686 /* FriendRequestRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D02B96093C00070686 /* FriendRequestRS.swift */; };
 		99FFE2D32B99824000070686 /* LoginRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D22B99824000070686 /* LoginRS.swift */; };
@@ -168,6 +169,7 @@
 			files = (
 				99086FB42B79E8DE00FC00B2 /* FirebaseDatabaseSwift in Frameworks */,
 				99086FB22B79E8D800FC00B2 /* FirebaseDatabase in Frameworks */,
+				99BBD61E2C17D3E10051C3F0 /* GoogleMaps in Frameworks */,
 				99086FAB2B78065B00FC00B2 /* FirebaseAnalytics in Frameworks */,
 				99086FB62B79F32500FC00B2 /* FirebaseFirestore in Frameworks */,
 				99086FAD2B78065B00FC00B2 /* FirebaseCrashlytics in Frameworks */,
@@ -424,6 +426,7 @@
 				99086FB72B79F32C00FC00B2 /* FirebaseFirestoreSwift */,
 				99086FD62B7C98B000FC00B2 /* FirebaseAuth */,
 				99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */,
+				99BBD61D2C17D3E10051C3F0 /* GoogleMaps */,
 			);
 			productName = spark;
 			productReference = 99086F912B76E3BA00FC00B2 /* spark.app */;
@@ -456,6 +459,7 @@
 			packageReferences = (
 				99086FA92B78065B00FC00B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				99BBD6192C1005B50051C3F0 /* XCRemoteSwiftPackageReference "EdgesBottomDrawer" */,
+				99BBD61C2C17D3E10051C3F0 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
 			);
 			productRefGroup = 99086F922B76E3BA00FC00B2 /* Products */;
 			projectDirPath = "";
@@ -825,6 +829,14 @@
 				minimumVersion = 0.0.4;
 			};
 		};
+		99BBD61C2C17D3E10051C3F0 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -867,6 +879,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99BBD6192C1005B50051C3F0 /* XCRemoteSwiftPackageReference "EdgesBottomDrawer" */;
 			productName = EdgesBottomDrawer;
+		};
+		99BBD61D2C17D3E10051C3F0 /* GoogleMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99BBD61C2C17D3E10051C3F0 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
+			productName = GoogleMaps;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

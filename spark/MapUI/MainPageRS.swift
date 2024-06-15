@@ -30,7 +30,7 @@ struct HomeMapView: View {
     @Namespace private var animationNamespace
     @State private var modalOffset: CGFloat = 0
     @State private var didSelectUserAnnotation = true
-
+    @State private var shouldRecenterMap = false
     
     
     @State private var isForYouSelected = false
@@ -66,7 +66,7 @@ struct HomeMapView: View {
                     .environmentObject(authViewModel)
             } else {
                 
-                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation)
+                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap)
                     .edgesIgnoringSafeArea(.all)
                     .environment(\.colorScheme, .dark)
                     .onReceive(timer) { _ in
@@ -84,19 +84,71 @@ struct HomeMapView: View {
                                     Spacer(minLength: 0)
                                     toggleSection
                                 }.padding(.horizontal, 16)
+                                .padding(.bottom, 25)
+                    
+                                HStack {
+                                    Spacer(minLength: 0)
+                                   // Spacer()
+                                    recenterButton
+                                }.padding(.horizontal, 16)
                                 
                                 Spacer(minLength: 0)
                             }.padding(.bottom, 90)
                              .padding(.top, 16)
-
-//                GeometryReader { _ in
-//                    VStack {
-//                        Spacer()
-//                        mapModal
-//                    }
-//                }
-//                .ignoresSafeArea(.all)
                 
+                VStack(){
+                    Spacer()
+                    if showExpandedBlackScreen {
+                    } else /*if !showMenu */{
+                        let swipeUpThreshold: CGFloat = -50
+                        
+                        RoundedRectangle(cornerRadius: 35)
+                            .fill(Color.black)
+                            .frame(height: (UIScreen.main.bounds.height / 7.5))
+                            .edgesIgnoringSafeArea(.bottom)
+                            .overlay(
+                                VStack(){
+                                    RoundedRectangle(cornerRadius: 2.5)
+                                        .frame(width: 40, height: 5, alignment: .center)
+                                        .padding(.top, 11)
+                                        .foregroundColor(Color(white:0.8))
+                                    Spacer()
+                                }
+                            )
+                          //  .animation(.easeOut(duration: 1), value: showMenu)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { gesture in
+                                        if gesture.translation.height < swipeUpThreshold {
+                                       //     withAnimation {
+                                                showExpandedBlackScreen = true
+                                                showEmojis = false
+                                     //       }
+                                        }
+                                    }
+                            )
+                            .onTapGesture {
+                        //        withAnimation {
+                                    showExpandedBlackScreen = true
+                                    showEmojis = false
+                        //        }
+                            }
+                    }
+                }.edgesIgnoringSafeArea(.all)
+
+                GeometryReader { _ in
+                    VStack {
+                        Spacer()
+                        if showExpandedBlackScreen{
+                            ZStack{
+                                mapModal
+                            }
+                        } else {
+                            RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y:400).onTapGesture{withAnimation{showExpandedBlackScreen = true}}
+                        }
+                        //  mapModal
+                    }.padding(.horizontal, 0)
+                }.ignoresSafeArea(.all)
                 
              //   if showMenu {
                 SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
@@ -133,23 +185,6 @@ struct HomeMapView: View {
                 
             }
         }
-        .bottomDrawerView(
-            bottomDrawerHeight: 80,
-            drawerTopCornerRadius: 16,
-            ignoreTopSafeAreas: false,
-            drawerContent: {
-                mapModal
-            },
-            pullUpView: { shouldGoUp in
-                RoundedRectangle(cornerRadius: 16)
-                    .frame(height: 80)
-                    .foregroundColor(.black)
-                    .overlay(
-                        Image(systemName: shouldGoUp ? "chevron.up" : "chevron.down")
-                            .foregroundColor(.white)
-                    )
-            }
-        )
         .overlay(
             Group {
                 if let selectedEvent = selectedEvent, showClickEvent {
@@ -200,6 +235,7 @@ struct HomeMapView: View {
                     print("FR: \(followRequests)")
                     showingFollowRequestPopup = !requests.isEmpty
                 }
+                
             }
         }
         .onChange(of: showExpandedBlackScreen) { isOpen in
@@ -217,6 +253,9 @@ struct HomeMapView: View {
             }
             handleFollowRequestVisibility()
         }
+        
+        
+        
     }
     
     private var isFollowRequestAvailable: Bool {
@@ -305,25 +344,25 @@ struct HomeMapView: View {
         .cornerRadius(30)
         .transition(.move(edge: .bottom))
         .offset(y: modalOffset)
-//        .gesture(
-//            DragGesture()
-//                        .onChanged { value in
-//                            if value.translation.height > 0 {
-//                                modalOffset = value.translation.height
-//                            } else {
-//                                modalOffset = 0
-//                            }
-//                        }
-//                        .onEnded { value in
-//                            withAnimation {
-//                                if value.translation.height > 100 {
-//                                    showExpandedBlackScreen = false
-//                                    showEmojis = true
-//                                }
-//                                modalOffset = 0
-//                            }
-//                        }
-//            )
+        .gesture(
+            DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                modalOffset = value.translation.height
+                            } else {
+                                modalOffset = 0
+                            }
+                        }
+                        .onEnded { value in
+                            withAnimation {
+                                if value.translation.height > 100 {
+                                    showExpandedBlackScreen = false
+                                    showEmojis = true
+                                }
+                                modalOffset = 0
+                            }
+                        }
+            )
             .gesture(
                 DragGesture().onEnded { value in
                     withAnimation {
@@ -416,79 +455,29 @@ struct HomeMapView: View {
                 }
             }
         }
-    //    .frame(width: 75, height: 75) // Set the frame for the entire button
-       // .offset(x: 133.50, y: -378.50) // Adjust the offset as needed
     }
     
-    
-    
-    var expandedBlackScreenView: some View {
-        VStack {
-            HStack(spacing: 20) {
-                Text("Friends").font(.system(size: 22, weight: selectedTab == 0 ? .bold : .regular))
-                    .foregroundColor(selectedTab == 0 ? .white : .gray).padding()
-                    .onTapGesture {
-                        withAnimation {
-                            selectedTab = 0
-                        }
-                    }
-                Spacer()
-                Text("Events").font(.system(size: 22, weight: selectedTab == 1 ? .bold : .regular))
-                    .foregroundColor(selectedTab == 1 ? .white : .gray).padding()
-                    .onTapGesture {
-                        withAnimation {
-                            selectedTab = 1
-                        }
-                    }
-            }.padding(.horizontal, 60)
-            
-            if selectedTab == 0 {
-                VStack {
-                    FriendsDistanceListView() // Add the FriendsDistanceListView here
-                        .environmentObject(userManager)
-                        .background(Color.black.opacity(0.7)) // Semi-transparent black background
-                        .cornerRadius(10)
-                        .padding(.top) // Add padding at the top if necessary
-                    FriendsView()
-                }
-            }
-            
-            // This will show the RankedEventsListView when the Events tab is selected
-            if selectedTab == 1 {
-                VStack {
-                    RankedEventsListView()
-                        .environmentObject(eventsViewModel) // Make sure to pass the necessary environment objects
-                        .environmentObject(locationManager)
-                        .padding(.horizontal) // Add padding if necessary
-                        .background(Color.black.opacity(0.7)) // Semi-transparent black background
-                        .cornerRadius(10)
-                        .padding(.top) // Add padding at the top if necessary
-                    EventsView()
-                }
-            }
+    var recenterButton: some View {
+        Button(action: {
+            recenterMap()
+        }) {
+            Image(systemName: "paperplane.circle")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 44 - 3 * 2, height: 44 - 3 * 2)
+                .foregroundColor(.white)
         }
-        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 3 / 4)
-        .background(Color.black)
-        .cornerRadius(50)
-        .transition(.move(edge: .bottom))
-        .gesture(
-            DragGesture().onEnded { value in
-                if value.translation.width < 0 {
-                    withAnimation {
-                        selectedTab = 1
-                    }
-                } else if value.translation.width > 0 {
-                    withAnimation {
-                        selectedTab = 0
-                    }
-                }
-            }
-        )
-        .onTapGesture { }
     }
     
-    
+    func recenterMap() {
+        if let currentLocation = locationManager.currentLocation {
+            region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+            shouldRecenterMap = true
+        }
+    }
 }
+
+
 struct FriendsView: View {
     @State private var showingAddFriendView = false
     @EnvironmentObject var userManager: UserManager
@@ -893,6 +882,7 @@ struct FollowRequestPopup: View {
         .padding()
     }
 }
+
 struct LargeBitmojiView: View {
     let bitmojiUrl: String
     
@@ -909,6 +899,7 @@ struct LargeBitmojiView: View {
         }
     }
 }
+
 struct FollowRequestButtonStyle: ButtonStyle {
     var backgroundColor: Color
     
@@ -1373,4 +1364,3 @@ extension String {
     }
 }
 //opacity(0.2/0.3)
-

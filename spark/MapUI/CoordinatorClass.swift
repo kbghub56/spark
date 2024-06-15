@@ -245,10 +245,11 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
         }
         
         else if let friendAnnotation = view.annotation as? FriendAnnotation {
+            let region = MKCoordinateRegion(center: friendAnnotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+            mapView.setRegion(region, animated: true)
+            
             DispatchQueue.main.async {
-                // withAnimation(.easeInOut(duration: 0.1)) {
                 self.parent.selectedFriend = friendAnnotation
-                                //  }
             }
         }
         

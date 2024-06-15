@@ -218,7 +218,7 @@ struct AddEvents: View {
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding(.vertical, 4)
                                         .onTapGesture {
-                                            self.location = result.subtitle
+                                            self.location = result.title + ", " + result.subtitle
                                             viewModelLoc.queryFragment = result.title
                                             self.locationTitle = result.title
                                             self.locationSubtitle = result.subtitle
@@ -245,55 +245,119 @@ struct AddEvents: View {
     }
     //click on block button on friend prof
     private func addEvent() {
-        let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(location) { (placemarks, error) in
-            if let error = error {
-                print("Geocoding error: \(error)")
-                DispatchQueue.main.async {
-                                self.errorMessage = "Location not found"
-                            }
-                return
-            }
-            
-            if let placemark = placemarks?.first, let coordinate = placemark.location?.coordinate {
-                guard let organizerID = Auth.auth().currentUser?.uid else {
-                    print("Failed to retrieve organizer ID")
+        print("[KB]: ", self.location, ":", self.locationTitle, ":", self.locationSubtitle)
+            geocodeAddress(address: location) { coordinate, error in
+                if let error = error {
+                    print("Geocoding error: \(error)")
+                    DispatchQueue.main.async {
+                        self.errorMessage = "Location not found"
+                    }
                     return
                 }
                 
-                let eventData: [String: Any] = [
-                    "title": eventName,
-                    "description": eventDescription,
-                    "startDate": viewModel.startTime.timeIntervalSince1970,
-                    "endDate": viewModel.endTime.timeIntervalSince1970,
-                    "latitude": coordinate.latitude,
-                    "longitude": coordinate.longitude,
-                    "visibility": selection ?? "Everyone",
-                    "organizerID": organizerID,
-                    "likes": 0,
-                    "likedBy": [""],
-                    "locationTitle": locationTitle,
-                    "locationSubtitle": locationSubtitle,
-                ]
-                
-                let ref = Database.database().reference()
-                let eventRef = ref.child("events").childByAutoId()
-                eventRef.setValue(eventData) { error, _ in
-                    if let error = error {
-                        print("Error adding event: \(error)")
-                        DispatchQueue.main.async {
-                                            self.errorMessage = "Error adding event"
-                                        }
-                    } else {
-                        print("Event added successfully")
-                        presentationMode.wrappedValue.dismiss()
+                if let coordinate = coordinate {
+                    guard let organizerID = Auth.auth().currentUser?.uid else {
+                        print("Failed to retrieve organizer ID")
+                        return
                     }
+                    
+                    let eventData: [String: Any] = [
+                        "title": eventName,
+                        "description": eventDescription,
+                        "startDate": viewModel.startTime.timeIntervalSince1970,
+                        "endDate": viewModel.endTime.timeIntervalSince1970,
+                        "latitude": coordinate.latitude,
+                        "longitude": coordinate.longitude,
+                        "visibility": selection ?? "Everyone",
+                        "organizerID": organizerID,
+                        "likes": 0,
+                        "likedBy": [""],
+                        "locationTitle": locationTitle,
+                        "locationSubtitle": locationSubtitle,
+                    ]
+                    
+                    let ref = Database.database().reference()
+                    let eventRef = ref.child("events").childByAutoId()
+                    eventRef.setValue(eventData) { error, _ in
+                        if let error = error {
+                            print("Error adding event: \(error)")
+                            DispatchQueue.main.async {
+                                self.errorMessage = "Error adding event"
+                            }
+                        } else {
+                            print("Event added successfully")
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
+                } else {
+                    print("No valid coordinates found for the address")
                 }
-            } else {
-                print("No valid coordinates found for the address")
             }
         }
+        
+    private func geocodeAddress(address: String, completion: @escaping (CLLocationCoordinate2D?, Error?) -> Void) {
+        let apiKey = "AIzaSyCTECbYPrMRighcsTJ-2on5jU7pckO6mnE"
+        print("[KB]\(address)")
+        let urlString = "https://maps.googleapis.com/maps/api/geocode/json?address=\(address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&key=\(apiKey)"
+        
+        print(urlString)
+        
+        guard let url = URL(string: urlString) else {
+            completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+            
+            guard let data = data else {
+                completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data received"]))
+                return
+            }
+            
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let results = json["results"] as? [[String: Any]] {
+                    
+                    // Filter the results to find the one with 'street_number'
+                    let specificResult = results.first { result in
+                        if let addressComponents = result["address_components"] as? [[String: Any]] {
+                            return addressComponents.contains { component in
+                                if let types = component["types"] as? [String] {
+                                    return types.contains("street_number")
+                                }
+                                return false
+                            }
+                        }
+                        return false
+                    }
+                    
+                    // Use the specific result if found, otherwise fallback to the first result
+                    let resultToUse = specificResult ?? results.first
+                    
+                    if let geometry = resultToUse?["geometry"] as? [String: Any],
+                       let location = geometry["location"] as? [String: Any],
+                       let lat = location["lat"] as? Double,
+                       let lng = location["lng"] as? Double {
+                        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+                        completion(coordinate, nil)
+                    } else {
+                        completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON structure"]))
+                    }
+                } else {
+                    completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON structure"]))
+                }
+            } catch {
+                completion(nil, error)
+            }
+        }
+        
+        task.resume()
     }
+
 }
 
 struct AddEvents_Previews: PreviewProvider {

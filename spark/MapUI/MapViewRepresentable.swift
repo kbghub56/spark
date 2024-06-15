@@ -11,6 +11,8 @@ struct MapViewRepresentable: UIViewRepresentable {
     @Binding var selectedFriend: FriendAnnotation?
     @Binding var showMenu: Bool
     @Binding var didSelectUserAnnotation: Bool
+    @Binding var region: MKCoordinateRegion
+    @Binding var shouldRecenterMap: Bool
     var authViewModel: AuthViewModel
     var userManager: UserManager
 
@@ -24,7 +26,10 @@ struct MapViewRepresentable: UIViewRepresentable {
          userManager: UserManager,
          selectedEvent: Binding<EventAnnotation?>,
          selectedFriend: Binding<FriendAnnotation?>,
-         showMenu: Binding<Bool>, didSelectUserAnnotation: Binding<Bool>){
+         showMenu: Binding<Bool>, 
+         didSelectUserAnnotation: Binding<Bool>,
+         region: Binding<MKCoordinateRegion>,
+         shouldRecenterMap: Binding<Bool>){
         
         self.eventsViewModel = eventsViewModel
         self.locationManager = locationManager
@@ -35,6 +40,8 @@ struct MapViewRepresentable: UIViewRepresentable {
         self._selectedFriend = selectedFriend
         self._showMenu = showMenu
         self._didSelectUserAnnotation = didSelectUserAnnotation
+        self._region = region
+        self._shouldRecenterMap = shouldRecenterMap
     }
 
     func makeUIView(context: Context) -> MKMapView {
@@ -46,6 +53,11 @@ struct MapViewRepresentable: UIViewRepresentable {
 
         // Fetch friends' locations initially
         fetchFriendsLocationsIfNeeded()
+        
+        if let currentLocation = locationManager.currentLocation {
+            let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+            mapView.setRegion(region, animated: false)
+        }
 
         return mapView
     }
@@ -53,6 +65,14 @@ struct MapViewRepresentable: UIViewRepresentable {
     func updateUIView(_ uiView: MKMapView, context: Context) {
         updateAnnotations(uiView, with: eventsViewModel.filteredEvents)
         fetchFriendsLocationsIfNeeded()
+        
+        if shouldRecenterMap {
+                uiView.setRegion(region, animated: true)
+                DispatchQueue.main.async {
+                    shouldRecenterMap = false
+                }
+            }
+        
         print("updating")
     }
 

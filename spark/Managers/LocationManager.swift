@@ -19,6 +19,7 @@ class LocationManager: NSObject, ObservableObject {
     @Published var nearbyPlace: String?
     private var lastIdentificationTime: Date?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    @Published var region: MKCoordinateRegion?
 
     init(userManager: UserManager) {
         self.userManager = userManager
@@ -31,7 +32,7 @@ class LocationManager: NSObject, ObservableObject {
     
     func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
-    }
+    } 
     
     func requestAlwaysPermission() {
         locationManager.requestAlwaysAuthorization()
@@ -42,6 +43,7 @@ extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         self.currentLocation = location
+        print("user loc set")
         updateCurrentUserLocation(location: location)
         
         if shouldIdentifyPlace() {

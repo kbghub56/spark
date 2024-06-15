@@ -13,6 +13,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     @Binding var didSelectUserAnnotation: Bool
     @Binding var region: MKCoordinateRegion
     @Binding var shouldRecenterMap: Bool
+    @Binding var initialRegionSet: Bool
     var authViewModel: AuthViewModel
     var userManager: UserManager
 
@@ -29,7 +30,8 @@ struct MapViewRepresentable: UIViewRepresentable {
          showMenu: Binding<Bool>, 
          didSelectUserAnnotation: Binding<Bool>,
          region: Binding<MKCoordinateRegion>,
-         shouldRecenterMap: Binding<Bool>){
+         shouldRecenterMap: Binding<Bool>,
+         initialRegionSet: Binding<Bool>){
         
         self.eventsViewModel = eventsViewModel
         self.locationManager = locationManager
@@ -42,23 +44,24 @@ struct MapViewRepresentable: UIViewRepresentable {
         self._didSelectUserAnnotation = didSelectUserAnnotation
         self._region = region
         self._shouldRecenterMap = shouldRecenterMap
+        self._initialRegionSet = initialRegionSet
     }
 
     func makeUIView(context: Context) -> MKMapView {
         //locationManager.userManager = userManager
         mapView.delegate = context.coordinator
-        mapView.isRotateEnabled = false
+        mapView.isRotateEnabled = true
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
 
         // Fetch friends' locations initially
         fetchFriendsLocationsIfNeeded()
         
-        if let currentLocation = locationManager.currentLocation {
-            let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-            mapView.setRegion(region, animated: false)
-        }
-
+//        if let currentLocation = locationManager.currentLocation {
+//            let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+//            mapView.setRegion(region, animated: false)
+//        }
+        
         return mapView
     }
     
@@ -67,13 +70,46 @@ struct MapViewRepresentable: UIViewRepresentable {
         fetchFriendsLocationsIfNeeded()
         
         if shouldRecenterMap {
-                uiView.setRegion(region, animated: true)
-                DispatchQueue.main.async {
-                    shouldRecenterMap = false
+                if let currentLocation = locationManager.currentLocation {
+                    let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                    uiView.setRegion(region, animated: true)
+                    DispatchQueue.main.async {
+                        shouldRecenterMap = false
+                    }
                 }
             }
         
-        print("updating")
+//        if shouldRecenterMap {
+//                uiView.setRegion(region, animated: true)
+//                DispatchQueue.main.async {
+//                    shouldRecenterMap = false
+//                }
+//            }
+
+//        if !initialRegionSet {
+//                if let currentLocation = locationManager.currentLocation {
+//                    print("Curr loc: \(locationManager.currentLocation)")
+//                    let initialRegion = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+//                    uiView.setRegion(initialRegion, animated: false)
+//                    DispatchQueue.main.async {
+//                        initialRegionSet = true
+//                    }
+//                    print("set init region, \(initialRegion)")
+//                }
+//            }
+        
+        //IMPORTANT FOR ZOOM IN WHEN YOU LOG ON
+//        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+//                    let region = MKCoordinateRegion(
+//                        center: CLLocationCoordinate2D(
+//                        latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude),
+//                        latitudinalMeters: 500,
+//                                longitudinalMeters: 500
+//    //                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+//                    )
+//            print("region set :D")
+//                    mapView.setRegion(region, animated: true)
+//        }
     }
 
     
@@ -88,7 +124,6 @@ struct MapViewRepresentable: UIViewRepresentable {
             uiView.removeAnnotation(annotation)
         }
         
-        print("ANNOTATINOS ARE BEING UPDATED")
         // Add annotations for new events
         for event in events where !currentEventIDs.contains(event.id) {
             let annotation = EventAnnotation(event: event)
@@ -141,6 +176,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self, authViewModel: authViewModel)
     }
+    
 }
     
 class MapState: ObservableObject {
@@ -149,17 +185,5 @@ class MapState: ObservableObject {
 
     
 
-
-////        //IMPORTANT FOR ZOOM IN WHEN YOU LOG ON
-////        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
-////                    let region = MKCoordinateRegion(
-////                        center: CLLocationCoordinate2D(
-////                        latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude),
-////                        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-////                    )
-////                    parent.mapView.setRegion(region, animated: true)
-////        }
-//    }
-//}
 
 

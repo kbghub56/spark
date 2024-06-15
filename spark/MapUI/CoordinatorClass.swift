@@ -245,19 +245,51 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
         }
         
         else if let friendAnnotation = view.annotation as? FriendAnnotation {
-            let region = MKCoordinateRegion(center: friendAnnotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-            mapView.setRegion(region, animated: true)
-            
-            DispatchQueue.main.async {
-                self.parent.selectedFriend = friendAnnotation
+                // Check if the map is already zoomed in to the friend's location
+                let isZoomedIn = mapView.region.span.latitudeDelta <= 0.01 && mapView.region.span.longitudeDelta <= 0.01
+                
+                if !isZoomedIn {
+                    // Zoom in on the friend's location
+                    let region = MKCoordinateRegion(center: friendAnnotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                    mapView.setRegion(region, animated: true)
+                    
+                    // Delay showing the popup to allow time for the zoom animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                        self.parent.selectedFriend = friendAnnotation
+                    }
+                } else {
+                    // If already zoomed in, show the popup immediately
+                    DispatchQueue.main.async {
+                        self.parent.selectedFriend = friendAnnotation
+                    }
+                }
             }
-        }
         
         else if view.annotation is MKUserLocation {
-                DispatchQueue.main.async {
-                    self.parent.didSelectUserAnnotation = true
-                    withAnimation {
-                        self.parent.showMenu = true
+                // Check if the map is already zoomed in to the user's location
+                let isZoomedIn = mapView.region.span.latitudeDelta <= 0.01 && mapView.region.span.longitudeDelta <= 0.01
+                
+                if !isZoomedIn {
+                    // Zoom in on the user's location
+                    if let userLocation = view.annotation as? MKUserLocation {
+                        let region = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                        mapView.setRegion(region, animated: true)
+                        
+                        // Delay showing the side menu to allow time for the zoom animation
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.parent.didSelectUserAnnotation = true
+                            withAnimation {
+                                self.parent.showMenu = true
+                            }
+                        }
+                    }
+                } else {
+                    // If already zoomed in, show the side menu immediately
+                    DispatchQueue.main.async {
+                        self.parent.didSelectUserAnnotation = true
+                        withAnimation {
+                            self.parent.showMenu = true
+                        }
                     }
                 }
             }
@@ -281,6 +313,24 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
                     self.parent.selectedFriend = nil
                 }
             }
+        }
+    }
+    
+    //IMPORTANT FOR ZOOM IN WHEN YOU LOG ON
+//    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+//                let region = MKCoordinateRegion(
+//                    center: CLLocationCoordinate2D(
+//                    latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude),
+//                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+//                )
+//                parent.mapView.setRegion(region, animated: true)
+//    }
+    
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+        if !parent.initialRegionSet {
+            let region = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+            mapView.setRegion(region, animated: false)
+            parent.initialRegionSet = true
         }
     }
 

@@ -45,7 +45,8 @@ struct HomeMapView: View {
     @State private var currentRequestIndex = 0
     @State private var followRequests: [FollowRequest] = []
     @State private var showEmojis = true
-    
+    @State private var initialRegionSet = false
+
     private func handleFollowRequestVisibility() {
         if followRequests.isEmpty {
             showingFollowRequestPopup = false
@@ -66,7 +67,7 @@ struct HomeMapView: View {
                     .environmentObject(authViewModel)
             } else {
                 
-                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap)
+                MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap, initialRegionSet: $initialRegionSet)
                     .edgesIgnoringSafeArea(.all)
                     .environment(\.colorScheme, .dark)
                     .onReceive(timer) { _ in
@@ -227,6 +228,11 @@ struct HomeMapView: View {
         .onAppear {
             // This might be redundant if you're already setting the user in UserManager's init
             userManager.getCurrentUser { _ in }
+            if let currentLocation = locationManager.currentLocation {
+                    region = MKCoordinateRegion(center: currentLocation.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+                    initialRegionSet = true
+                print("set init region")
+                }
         }
         .onReceive(userManager.$currentUser) { user in
             if let uniqueUserID = user?.uniqueUserID {

@@ -50,7 +50,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     func makeUIView(context: Context) -> MKMapView {
         //locationManager.userManager = userManager
         mapView.delegate = context.coordinator
-        mapView.isRotateEnabled = true
+        mapView.isRotateEnabled = false
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
 

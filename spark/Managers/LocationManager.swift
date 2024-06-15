@@ -19,7 +19,7 @@ class LocationManager: NSObject, ObservableObject {
     @Published var nearbyPlace: String?
     private var lastIdentificationTime: Date?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
-    @Published var region: MKCoordinateRegion?
+    @Published var isLocationNoAuth: Bool = false
 
     init(userManager: UserManager) {
         self.userManager = userManager
@@ -28,6 +28,7 @@ class LocationManager: NSObject, ObservableObject {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         authorizationStatus = locationManager.authorizationStatus
         requestLocationPermission()
+        checkLocationAuthorizationStatus()
     }
     
     func requestLocationPermission() {
@@ -37,6 +38,29 @@ class LocationManager: NSObject, ObservableObject {
     func requestAlwaysPermission() {
         locationManager.requestAlwaysAuthorization()
     }
+    
+    private func checkLocationAuthorizationStatus() {
+        if CLLocationManager.locationServicesEnabled() {
+            switch locationManager.authorizationStatus {
+            case .notDetermined, .restricted, .denied:
+                userManager.isLocationNoAuth = true
+                userManager.isLocationOff = false
+            case .authorizedAlways, .authorizedWhenInUse:
+                userManager.isLocationNoAuth = false
+                userManager.isLocationOff = false
+            @unknown default:
+                userManager.isLocationNoAuth = true
+                userManager.isLocationOff = false
+            }
+        } else {
+            userManager.isLocationOff = true
+            userManager.isLocationNoAuth = false
+        }
+    }
+    
+    func checkIfLocationNoAuth() -> Bool {
+            return isLocationNoAuth
+        }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
@@ -103,8 +127,9 @@ extension LocationManager: CLLocationManagerDelegate {
         case .authorizedAlways:
             manager.startUpdatingLocation()
         case .restricted, .denied:
-            
-            // Handle case where user has denied the app location access
+            authorizationStatus = manager.authorizationStatus
+            isLocationNoAuth = true
+            print("is this shit even going thru")
             break
         @unknown default:
             break

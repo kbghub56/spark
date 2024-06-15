@@ -19,6 +19,10 @@ class EventsViewModel: ObservableObject {
     @Published var eventsForYou: [Event] = []
     @Published var blockedUsers: [String] = []
 
+    @Published var rankedEventsByFriendsLikes: [Event] = []
+    var friendsList: [String] = [] // Assume this is populated accordingly
+    private var mutualFriendsList: Set<String> = []
+
     
     private var authViewModel: AuthViewModel
     private var cancellables = Set<AnyCancellable>()
@@ -49,9 +53,6 @@ class EventsViewModel: ObservableObject {
     }
 
 //    private(set) var currentUserID: String? // This will be set via the initializer
-    var friendsList: [String] = [] // Assume this is populated accordingly
-    private var mutualFriendsList: Set<String> = []
-    @Published var rankedEventsByFriendsLikes: [Event] = []
 
         // Call this method to fetch mutual friends
     // Method to fetch mutual friends

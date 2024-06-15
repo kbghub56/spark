@@ -77,6 +77,7 @@
 		99BBD6182C0FFC790051C3F0 /* bottomDrawerForModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BBD6172C0FFC790051C3F0 /* bottomDrawerForModal.swift */; };
 		99BBD61B2C1005B50051C3F0 /* EdgesBottomDrawer in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */; };
 		99BBD61E2C17D3E10051C3F0 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61D2C17D3E10051C3F0 /* GoogleMaps */; };
+		99BBD6202C1E0A370051C3F0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61F2C1E0A370051C3F0 /* FirebaseMessaging */; };
 		99FFE2CF2B96064000070686 /* initFriendsRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2CE2B96064000070686 /* initFriendsRS.swift */; };
 		99FFE2D12B96093C00070686 /* FriendRequestRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D02B96093C00070686 /* FriendRequestRS.swift */; };
 		99FFE2D32B99824000070686 /* LoginRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D22B99824000070686 /* LoginRS.swift */; };
@@ -176,6 +177,7 @@
 				99BBD61B2C1005B50051C3F0 /* EdgesBottomDrawer in Frameworks */,
 				99086FD72B7C98B000FC00B2 /* FirebaseAuth in Frameworks */,
 				99086FB82B79F32C00FC00B2 /* FirebaseFirestoreSwift in Frameworks */,
+				99BBD6202C1E0A370051C3F0 /* FirebaseMessaging in Frameworks */,
 				3B20BACB40479AE126693754 /* Pods_spark.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -427,6 +429,7 @@
 				99086FD62B7C98B000FC00B2 /* FirebaseAuth */,
 				99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */,
 				99BBD61D2C17D3E10051C3F0 /* GoogleMaps */,
+				99BBD61F2C1E0A370051C3F0 /* FirebaseMessaging */,
 			);
 			productName = spark;
 			productReference = 99086F912B76E3BA00FC00B2 /* spark.app */;
@@ -884,6 +887,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99BBD61C2C17D3E10051C3F0 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
 			productName = GoogleMaps;
+		};
+		99BBD61F2C1E0A370051C3F0 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99086FA92B78065B00FC00B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

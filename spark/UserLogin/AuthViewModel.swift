@@ -10,6 +10,7 @@ import Firebase
 import FirebaseAuth
 import FirebaseFirestoreSwift
 import FirebaseFirestore
+import FirebaseMessaging
 
 
 class AuthViewModel: ObservableObject {
@@ -75,6 +76,76 @@ class AuthViewModel: ObservableObject {
             print("Error signing out: %@", signOutError)
         }
     }
+    
+    func requestNotificationPermissionsAndStoreFCMToken() {
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                switch settings.authorizationStatus {
+                case .authorized, .provisional:
+                    // Notification permissions already granted, proceed to store FCM token
+                    print("NOTIFICATION = ALREADY AUTHORIZED")
+                    DispatchQueue.main.async {
+                        UIApplication.shared.registerForRemoteNotifications()
+                    }
+                    self.retrieveAndStoreFCMToken()
+                case .denied:
+                    // Notification permissions denied, handle accordingly (e.g., show a message to the user)
+                    print("NOTIFICATION = DENIED")
+                case .notDetermined:
+                    // Notification permissions not determined, request permissions
+                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { success, _ in
+                        if success {
+                            print("NOTIFICATION = SUCCESS")
+                            DispatchQueue.main.async {
+                                UIApplication.shared.registerForRemoteNotifications()
+                            }
+                            self.retrieveAndStoreFCMToken()
+                        } else {
+                            print("NOTIFICATION = FAIL")
+                        }
+                    }
+                @unknown default:
+                    break
+                }
+            }
+        }
+        
+        private func retrieveAndStoreFCMToken() {
+            Messaging.messaging().token { token, error in
+                if let error = error {
+                    print("Error retrieving FCM token: \(error)")
+                } else if let token = token {
+                    print("FCM token: \(token)")
+                    self.storeFCMToken(token)
+                }
+            }
+        }
+        
+        private func storeFCMToken(_ token: String) {
+            guard let userId = currentUserID else { return }
+            let userDocRef = Firestore.firestore().collection("users").document(userId)
+            
+            userDocRef.setData(["fcmToken": token], merge: true) { error in
+                if let error = error {
+                    print("Error storing FCM token: \(error)")
+                } else {
+                    print("FCM token stored successfully")
+                }
+            }
+        }
+    
+    func loginUser(email: String, password: String, completion: @escaping (Bool) -> Void) {
+            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+                if let error = error {
+                    print("Error logging in: \(error.localizedDescription)")
+                    completion(false)
+                } else {
+                    print("User logged in successfully")
+                    self.requestNotificationPermissionsAndStoreFCMToken()
+                    completion(true)
+                }
+            }
+        }
+    
 }
 
 //extension for following/unfollowing users
@@ -106,6 +177,8 @@ extension AuthViewModel {
     
     func completeSignUp() {
         userSignUpProgress = .signUpCompleted
+        self.requestNotificationPermissionsAndStoreFCMToken()
+
     }
     
     

@@ -86,15 +86,15 @@ struct LoginView: View {
     }
     
     func loginUser(email: String, password: String) {
-        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            if let error = error {
-                self.errorMessage = "User not found"
-            } else {
-                self.authViewModel.isUserAuthenticated = true
-                self.authViewModel.loggedInThroughLoginPage = true
+            authViewModel.loginUser(email: email, password: password) { success in
+                if success {
+                    self.authViewModel.isUserAuthenticated = true
+                    self.authViewModel.loggedInThroughLoginPage = true
+                } else {
+                    self.errorMessage = "User not found"
+                }
             }
         }
-    }
 }
 
 struct LogIn_Previews: PreviewProvider {

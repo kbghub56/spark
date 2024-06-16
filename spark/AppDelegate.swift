@@ -9,20 +9,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure Firebase
-        application.registerForRemoteNotifications()
         FirebaseApp.configure()
         GMSServices.provideAPIKey("AIzaSyCTECbYPrMRighcsTJ-2on5jU7pckO6mnE")
         
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { success, _ in
-            guard success else {
-                print("NOTIFICATION = FAIL")
-                return
-            }
-            print("NOTIFICATION = SUCCESS")
-        }
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
-        application.registerForRemoteNotifications()
         
         return true
     }
@@ -42,35 +33,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
     }
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-            print("Firebase token: \(String(describing: fcmToken))")
-            
-            if let fcmToken = fcmToken {
-                // Store the FCM token in Firestore for the current user
-                if let currentUser = Auth.auth().currentUser {
-                    let db = Firestore.firestore()
-                    db.collection("users").document(currentUser.uid).updateData(["fcmToken": fcmToken]) { error in
-                        if let error = error {
-                            print("Error updating FCM token: \(error)")
-                        } else {
-                            print("FCM token updated successfully")
-                        }
-                    }
-                }
-            }
-        }
-    
-//    @objc func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-//        print("Firebase token: \(String(describing: fcmToken))")
-//    }
-//    
-//    func messaging(_ messaging: Messaging, didReceiveRegisrtationToken fcmToken: String?) {
-//        messaging.token { token, _ in
-//            guard let token = token else {
-//                return
-//            }
-//            print("Token: \(token)")
-//        }
-//    }
+        print("Firebase token: \(String(describing: fcmToken))")
+    }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         if SCSDKLoginClient.application(app, open: url, options: options) {
@@ -79,8 +43,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
             return false
         }
     }
-    
-    // Add any additional app delegate methods here if needed
 }
-
-

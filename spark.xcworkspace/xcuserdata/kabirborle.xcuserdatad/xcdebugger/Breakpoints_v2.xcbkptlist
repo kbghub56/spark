@@ -46,8 +46,8 @@
             filePath = "spark/UserLogin/AuthViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
+            startingLineNumber = "165"
+            endingLineNumber = "165"
             landmarkName = "signUpUser(email:password:username:completion:)"
             landmarkType = "7">
          </BreakpointContent>

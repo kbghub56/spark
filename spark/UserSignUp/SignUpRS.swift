@@ -22,96 +22,98 @@ struct SignUpView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
-        //NavigationView {
-            ZStack {
-                VStack(spacing: 40) {
-                    Text("Sign Up")
-                        .font(.largeTitle)
-                        .bold()
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                    
-                    Group {
-                        HStack {
-                            TextField("Name", text: $userName)
+//        VStack {
+          //  ScrollView {
+                ZStack {
+                    VStack(spacing: 40) {
+                        Text("Sign Up")
+                            .font(.largeTitle)
+                            .bold()
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                        
+                        Group {
+                            HStack {
+                                TextField("Name", text: $userName)
+                                    .foregroundColor(.black)
+                                    .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                                    .background(.gray)
+                                    .cornerRadius(15)
+                            }
+                            
+                            HStack {
+                                TextField("Email", text: $email)
+                                    .foregroundColor(.black)
+                                    .autocapitalization(.none)
+                                    .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                                    .background(.gray)
+                                    .cornerRadius(15)
+                            }
+                            
+                            SecureField("Password", text: $password)
                                 .foregroundColor(.black)
+                                .autocapitalization(.none)
                                 .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
                                 .background(.gray)
                                 .cornerRadius(15)
-                        }
-                        
-                        HStack {
-                            TextField("Email", text: $email)
+                            
+                            SecureField("Confirm Password", text: $confirmPassword)
                                 .foregroundColor(.black)
                                 .autocapitalization(.none)
                                 .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
                                 .background(.gray)
                                 .cornerRadius(15)
                         }
+                        .padding(.horizontal, 16)
                         
-                        SecureField("Password", text: $password)
-                            .foregroundColor(.black)
-                            .autocapitalization(.none)
-                            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
-                            .background(.gray)
-                            .cornerRadius(15)
+                        Button(action: {
+                            signUp()
+                        }) {
+                            Text("Confirm")
+                                .font(.system(size: 17, weight: .bold))
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 15)
+                                .background(.white)
+                                .cornerRadius(40)
+                        }
+                        .padding(.top, 25)
+                        .padding(.horizontal, 16)
                         
-                        SecureField("Confirm Password", text: $confirmPassword)
-                            .foregroundColor(.black)
-                            .autocapitalization(.none)
-                            .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
-                            .background(.gray)
-                            .cornerRadius(15)
+                        Button(action: {
+                            showingLogIn = true
+                            authViewModel.logInThroughLogin = true
+                            print("Navigate to login screen")
+                        }) {
+                            Text("Already have an account?")
+                                .font(.system(size: 17))
+                                .underline()
+                                .foregroundColor(.white)
+                                .padding(40)
+                        }
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 120)
+                    .frame(width: 430, height: 932)
+                    .background(.black)
                     
-                    Button(action: {
-                        signUp()
-                    }) {
-                        Text("Confirm")
-                            .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(.black)
-                            .navigationTitle("")
-                            .background(Color.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 15)
-                            .background(.white)
-                            .cornerRadius(40)
-                            .padding(.top, 25)
-                    }
-                    .padding(.horizontal, 16)
-                    
-                    Button(action: {
-                        showingLogIn = true
-                        authViewModel.logInThroughLogin = true
-                        print("Navigate to login screen")
-                    }) {
-                        Text("Already have an account?")
-                            .font(.system(size: 17))
-                            .underline()
-                            .foregroundColor(.white)
-                            .padding(40)
+                    if let errorMessage = errorMessage {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .transition(.slide)
+                            .zIndex(1)
+                            .offset(y: -375)
                     }
                 }
-                .padding(.horizontal, 40)
-                .padding(.vertical, 120)
-                .frame(width: 430, height: 932)
-                .background(.black)
-                
-                if let errorMessage = errorMessage {
-                    Text(errorMessage)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .transition(.slide)
-                        .zIndex(1)
-                        .offset(y: -375)
+                .fullScreenCover(isPresented: $showingLogIn) {
+                    LoginView()
+                        .environmentObject(authViewModel)
                 }
-            }
-            .fullScreenCover(isPresented: $showingLogIn) {
-                LoginView()
-                    .environmentObject(authViewModel)
-            }
-        //}
+//            }
+//            .background(.black)
+//            .ignoresSafeArea(.keyboard)
+//        }
     }
     
     func signUp() {

@@ -28,6 +28,7 @@ struct AddEvents: View {
     @StateObject var viewModelLoc = LocationSearchViewModel()
     @State private var isShowingSetTimePopup = false
     @State private var errorMessage: String?
+    @State private var isLocationSelected: Bool = false
 
     @Environment(\.presentationMode) var presentationMode
     
@@ -185,6 +186,7 @@ struct AddEvents: View {
 //        .sheet(isPresented: $viewModel.isShowingSetTimeView) {
 //            SetTime(viewModel: viewModel)
 //        }
+        .ignoresSafeArea(.keyboard)
         .overlay(
                     Group {
                         if isShowingSetTimePopup {
@@ -203,14 +205,18 @@ struct AddEvents: View {
     
     @ViewBuilder
     private func locationSearchView() -> some View {
-        TextField("Location", text: $viewModelLoc.queryFragment)
+        TextField("Location", text: $viewModelLoc.queryFragment, onEditingChanged: { isEditing in
+            if isEditing {
+                isLocationSelected = false // Reset this state when user starts typing again
+            }
+        })
             .padding()
             .background(Color.gray)
             .cornerRadius(10)
             .foregroundColor(.white)
             .overlay(
                 Group {
-                    if !viewModelLoc.results.isEmpty {
+                    if !viewModelLoc.results.isEmpty && !isLocationSelected {
                         ScrollView {
                             VStack(alignment: .leading) {
                                 ForEach(viewModelLoc.results, id: \.self) { result in
@@ -226,7 +232,8 @@ struct AddEvents: View {
 //                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
 //                                                    viewModelLoc.clearResults()
 //                                                }
-                                            viewModelLoc.clearResults()
+                                            isLocationSelected = true
+                                            print("TAPPED")
                                         }
                                 }
                             }

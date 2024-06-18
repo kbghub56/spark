@@ -17,13 +17,12 @@ struct SignUpView: View {
     @State private var errorMessage: String?
     @State private var showingLogIn = false
     @State private var navigateToSnapAvatar = false
-
     @State private var isSnapchatLoggedIn: Bool = false
     @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
-//        VStack {
-          //  ScrollView {
+        NavigationView {
+            GeometryReader { geometry in
                 ZStack {
                     VStack(spacing: 40) {
                         Text("Sign Up")
@@ -94,7 +93,7 @@ struct SignUpView: View {
                     }
                     .padding(.horizontal, 40)
                     .padding(.vertical, 120)
-                    .frame(width: 430, height: 932)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                     .background(.black)
                     
                     if let errorMessage = errorMessage {
@@ -110,10 +109,9 @@ struct SignUpView: View {
                     LoginView()
                         .environmentObject(authViewModel)
                 }
-//            }
-//            .background(.black)
-//            .ignoresSafeArea(.keyboard)
-//        }
+            }
+            .ignoresSafeArea()
+        }
     }
     
     func signUp() {
@@ -143,8 +141,8 @@ struct SignUpView: View {
             }
             else {
                 DispatchQueue.main.async {
-                               self.errorMessage = "Please enter a valid Rice email."
-                           }
+                    self.errorMessage = "Please enter a valid Rice email."
+                }
             }
         }
     }

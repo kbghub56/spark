@@ -19,7 +19,7 @@ struct LoginView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
+            GeometryReader { geometry in
                 ZStack {
                     VStack(spacing: 40) {
                         Text("Log In")
@@ -71,7 +71,7 @@ struct LoginView: View {
                     }
                     .padding(.vertical, 160)
                     .padding(.horizontal, 48)
-                    .frame(width: 430, height: 932)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                     .background(.black)
                     
                     if let errorMessage = errorMessage {
@@ -84,21 +84,20 @@ struct LoginView: View {
                     }
                 }
             }
-            .background(.black)
             .ignoresSafeArea()
         }
     }
     
     func loginUser(email: String, password: String) {
-            authViewModel.loginUser(email: email, password: password) { success in
-                if success {
-                    self.authViewModel.isUserAuthenticated = true
-                    self.authViewModel.loggedInThroughLoginPage = true
-                } else {
-                    self.errorMessage = "User not found"
-                }
+        authViewModel.loginUser(email: email, password: password) { success in
+            if success {
+                self.authViewModel.isUserAuthenticated = true
+                self.authViewModel.loggedInThroughLoginPage = true
+            } else {
+                self.errorMessage = "User not found"
             }
         }
+    }
 }
 
 struct LogIn_Previews: PreviewProvider {

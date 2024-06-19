@@ -3,7 +3,7 @@ import Firebase
 import FirebaseDatabase
 import CoreLocation
 import FirebaseAuth
-// DateFormatter extension remains unchanged
+
 extension DateFormatter {
     static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -12,7 +12,6 @@ extension DateFormatter {
         return formatter
     }()
 }
-
 
 struct AddEvents: View {
     @State private var eventName: String = ""
@@ -29,22 +28,21 @@ struct AddEvents: View {
     @State private var isShowingSetTimePopup = false
     @State private var errorMessage: String?
     @State private var isLocationSelected: Bool = false
-
+    @State private var isFormValid: Bool = false
+    
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         ZStack {
             if let errorMessage = errorMessage {
-                        Text(errorMessage)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .transition(.slide)
-                            .zIndex(1)
-                            .offset(y: -350)
-                    }
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .transition(.slide)
+                    .zIndex(1)
+                    .offset(y: -350)
+            }
             VStack(alignment: .leading, spacing: 32.5) {
-                
-
                 HStack {
                     Spacer()
                     Text("Add Event")
@@ -61,13 +59,15 @@ struct AddEvents: View {
                     .background(Color.gray)
                     .cornerRadius(10)
                     .foregroundColor(.white)
+                    .onChange(of: eventName, perform: { _ in validateForm() })
                 
                 TextField("Theme, description, etc!", text: $eventDescription)
                     .padding()
                     .background(Color.gray)
                     .cornerRadius(10)
                     .foregroundColor(.white)
-    
+                    .onChange(of: eventDescription, perform: { _ in validateForm() })
+                
                 locationSearchView().zIndex(1)
                 
                 HStack {
@@ -86,15 +86,15 @@ struct AddEvents: View {
                         Spacer()
                     } else {
                         Button(action: {
-                                       isShowingSetTimePopup = true
-                                   }) {
-                                       Text("Set Time")
-                                           .foregroundColor(.black)
-                                           .bold()
-                                           .frame(width: 150, height: 50)
-                                           .background(Color.white)
-                                           .cornerRadius(30)
-                                   }
+                            isShowingSetTimePopup = true
+                        }) {
+                            Text("Set Time")
+                                .foregroundColor(.black)
+                                .bold()
+                                .frame(width: 150, height: 50)
+                                .background(Color.white)
+                                .cornerRadius(30)
+                        }
                         Spacer()
                     }
                 }
@@ -112,6 +112,7 @@ struct AddEvents: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             everyoneText = "Everyone"
                         }
+                        validateForm()
                     }) {
                         HStack {
                             Image(systemName: selection == "Everyone" ? "largecircle.fill.circle" : "circle")
@@ -131,6 +132,7 @@ struct AddEvents: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             friendsAndMutualsText = "Friends and Mutuals Only"
                         }
+                        validateForm()
                     }) {
                         HStack {
                             Image(systemName: selection == "Friends and Mutuals Only" ? "largecircle.fill.circle" : "circle")
@@ -150,6 +152,7 @@ struct AddEvents: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             friendsOnlyText = "Friends Only"
                         }
+                        validateForm()
                     }) {
                         HStack {
                             Image(systemName: selection == "Friends Only" ? "largecircle.fill.circle" : "circle")
@@ -170,138 +173,134 @@ struct AddEvents: View {
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
-                        .background(Color.white)
+                        .background(isFormValid ? Color.white : Color.gray)
                         .cornerRadius(40)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 25)
+                .disabled(!isFormValid)
             }
             .padding(.horizontal, 16)
-            
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
         .navigationBarHidden(true)
-//        .sheet(isPresented: $viewModel.isShowingSetTimeView) {
-//            SetTime(viewModel: viewModel)
-//        }
         .ignoresSafeArea(.keyboard)
         .overlay(
-                    Group {
-                        if isShowingSetTimePopup {
-                            Color.black.opacity(0.5)
-                                .edgesIgnoringSafeArea(.all)
-                                .onTapGesture {
-                                    isShowingSetTimePopup = false
-                                }
-                            
-                            SetTime(viewModel: viewModel, isShowingSetTimePopup: $isShowingSetTimePopup)
-                                .transition(.scale)
+            Group {
+                if isShowingSetTimePopup {
+                    Color.black.opacity(0.5)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            isShowingSetTimePopup = false
                         }
-                    }
-                )
+                    
+                    SetTime(viewModel: viewModel, isShowingSetTimePopup: $isShowingSetTimePopup)
+                        .transition(.scale)
+                }
+            }
+        )
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
     }
     
     @ViewBuilder
     private func locationSearchView() -> some View {
         TextField("Location", text: $viewModelLoc.queryFragment, onEditingChanged: { isEditing in
             if isEditing {
-                isLocationSelected = false // Reset this state when user starts typing again
+                isLocationSelected = false
             }
         })
-            .padding()
-            .background(Color.gray)
-            .cornerRadius(10)
-            .foregroundColor(.white)
-            .overlay(
-                Group {
-                    if !viewModelLoc.results.isEmpty && !isLocationSelected {
-                        ScrollView {
-                            VStack(alignment: .leading) {
-                                ForEach(viewModelLoc.results, id: \.self) { result in
-                                    LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding(.vertical, 4)
-                                        .onTapGesture {
-                                            self.location = result.title + ", " + result.subtitle
-                                            viewModelLoc.queryFragment = result.title
-                                            self.locationTitle = result.title
-                                            self.locationSubtitle = result.subtitle
-                                            // Delay the dismissal of the search results
-//                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                                                    viewModelLoc.clearResults()
-//                                                }
-                                            isLocationSelected = true
-                                            print("TAPPED")
-                                        }
-                                }
+        .padding()
+        .background(Color.gray)
+        .cornerRadius(10)
+        .foregroundColor(.white)
+        .overlay(
+            Group {
+                if !viewModelLoc.results.isEmpty && !isLocationSelected {
+                    ScrollView {
+                        VStack(alignment: .leading) {
+                            ForEach(viewModelLoc.results, id: \.self) { result in
+                                LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.vertical, 4)
+                                    .onTapGesture {
+                                        self.location = result.title + ", " + result.subtitle
+                                        viewModelLoc.queryFragment = result.title
+                                        self.locationTitle = result.title
+                                        self.locationSubtitle = result.subtitle
+                                        isLocationSelected = true
+                                        print("TAPPED")
+                                        validateForm()
+                                    }
                             }
                         }
-                        .padding(.vertical)
-                        .background(Color(.systemBackground))
-                        .cornerRadius(10)
-                        .shadow(radius: 5)
-                        .frame(height: 300)
-                        .offset(y: 45)
-                        .zIndex(1)
                     }
-                },
-                alignment: .topLeading
-            )
+                    .padding(.vertical)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .frame(height: 300)
+                    .offset(y: 45)
+                    .zIndex(1)
+                }
+            },
+            alignment: .topLeading
+        )
     }
-    //click on block button on friend prof
+    
     private func addEvent() {
         print("[KB]: ", self.location, ":", self.locationTitle, ":", self.locationSubtitle)
-            geocodeAddress(address: location) { coordinate, error in
-                if let error = error {
-                    print("Geocoding error: \(error)")
-                    DispatchQueue.main.async {
-                        self.errorMessage = "Location not found"
-                    }
+        geocodeAddress(address: location) { coordinate, error in
+            if let error = error {
+                print("Geocoding error: \(error)")
+                DispatchQueue.main.async {
+                    self.errorMessage = "Location not found"
+                }
+                return
+            }
+            
+            if let coordinate = coordinate {
+                guard let organizerID = Auth.auth().currentUser?.uid else {
+                    print("Failed to retrieve organizer ID")
                     return
                 }
                 
-                if let coordinate = coordinate {
-                    guard let organizerID = Auth.auth().currentUser?.uid else {
-                        print("Failed to retrieve organizer ID")
-                        return
-                    }
-                    
-                    let eventData: [String: Any] = [
-                        "title": eventName,
-                        "description": eventDescription,
-                        "startDate": viewModel.startTime.timeIntervalSince1970,
-                        "endDate": viewModel.endTime.timeIntervalSince1970,
-                        "latitude": coordinate.latitude,
-                        "longitude": coordinate.longitude,
-                        "visibility": selection ?? "Everyone",
-                        "organizerID": organizerID,
-                        "likes": 0,
-                        "likedBy": [""],
-                        "locationTitle": locationTitle,
-                        "locationSubtitle": locationSubtitle,
-                    ]
-                    
-                    let ref = Database.database().reference()
-                    let eventRef = ref.child("events").childByAutoId()
-                    eventRef.setValue(eventData) { error, _ in
-                        if let error = error {
-                            print("Error adding event: \(error)")
-                            DispatchQueue.main.async {
-                                self.errorMessage = "Error adding event"
-                            }
-                        } else {
-                            print("Event added successfully")
-                            presentationMode.wrappedValue.dismiss()
+                let eventData: [String: Any] = [
+                    "title": eventName,
+                    "description": eventDescription,
+                    "startDate": viewModel.startTime.timeIntervalSince1970,
+                    "endDate": viewModel.endTime.timeIntervalSince1970,
+                    "latitude": coordinate.latitude,
+                    "longitude": coordinate.longitude,
+                    "visibility": selection ?? "Everyone",
+                    "organizerID": organizerID,
+                    "likes": 0,
+                    "likedBy": [""],
+                    "locationTitle": locationTitle,
+                    "locationSubtitle": locationSubtitle,
+                ]
+                let ref = Database.database().reference()
+                let eventRef = ref.child("events").childByAutoId()
+                eventRef.setValue(eventData) { error, _ in
+                    if let error = error {
+                        print("Error adding event: \(error)")
+                        DispatchQueue.main.async {
+                            self.errorMessage = "Error adding event"
                         }
+                    } else {
+                        print("Event added successfully")
+                        presentationMode.wrappedValue.dismiss()
                     }
-                } else {
-                    print("No valid coordinates found for the address")
                 }
+            } else {
+                print("No valid coordinates found for the address")
             }
         }
-        
+    }
+    
     private func geocodeAddress(address: String, completion: @escaping (CLLocationCoordinate2D?, Error?) -> Void) {
         let apiKey = "AIzaSyCTECbYPrMRighcsTJ-2on5jU7pckO6mnE"
         print("[KB]\(address)")
@@ -329,7 +328,6 @@ struct AddEvents: View {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                    let results = json["results"] as? [[String: Any]] {
                     
-                    // Filter the results to find the one with 'street_number'
                     let specificResult = results.first { result in
                         if let addressComponents = result["address_components"] as? [[String: Any]] {
                             return addressComponents.contains { component in
@@ -342,7 +340,6 @@ struct AddEvents: View {
                         return false
                     }
                     
-                    // Use the specific result if found, otherwise fallback to the first result
                     let resultToUse = specificResult ?? results.first
                     
                     if let geometry = resultToUse?["geometry"] as? [String: Any],
@@ -364,7 +361,16 @@ struct AddEvents: View {
         
         task.resume()
     }
+    
+    private func validateForm() {
+        isFormValid = !eventName.isEmpty && !eventDescription.isEmpty && !location.isEmpty && viewModel.timeHasBeenSet && selection != nil
+    }
+}
 
+extension UIApplication {
+    func endEditing() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }
 
 struct AddEvents_Previews: PreviewProvider {

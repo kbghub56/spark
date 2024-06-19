@@ -33,7 +33,7 @@ class LocationManager: NSObject, ObservableObject {
     
     func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
-    } 
+    }
     
     func requestAlwaysPermission() {
         locationManager.requestAlwaysAuthorization()
@@ -140,7 +140,7 @@ extension LocationManager: CLLocationManagerDelegate {
         let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
             guard let self = self, error == nil else {
-                print("Reverse geocoding failed: \(error!.localizedDescription)")
+          //      print("Reverse geocoding failed: \(error!.localizedDescription)")
                 return
             }
             

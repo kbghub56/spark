@@ -118,7 +118,6 @@ struct MapViewRepresentable: UIViewRepresentable {
         let currentEventIDs = Set(currentAnnotations.map { $0.id })
         let newEventIDs = Set(events.map { $0.id })
         
-        
         // Remove annotations for events that are no longer present
         for annotation in currentAnnotations where !newEventIDs.contains(annotation.id) {
             uiView.removeAnnotation(annotation)

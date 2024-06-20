@@ -139,8 +139,12 @@ extension LocationManager: CLLocationManagerDelegate {
     func identifyNearbyPlace(for location: CLLocation) {
         let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
-            guard let self = self, error == nil else {
-                print("Reverse geocoding failed: \(error!.localizedDescription)")
+            guard let self = self else {
+                return
+            }
+            
+            if let error = error {
+                print("Reverse geocoding failed: \(error.localizedDescription)")
                 return
             }
             

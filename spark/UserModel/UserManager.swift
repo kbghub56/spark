@@ -302,6 +302,8 @@ class UserManager: ObservableObject {
             print("Current user ID not found.")
             return
         }
+        
+        print("FRIENDS DISTANCES BEING UPDATED")
 
         let db = Firestore.firestore()
         db.collection("users").document(currentUserID).getDocument { [weak self] (document, error) in

@@ -57,7 +57,7 @@ struct HomeMapView: View {
     }
     
     
-    let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()  // 300 seconds equals 5 minutes
+   // let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()  // 300 seconds equals 5 minutes
     
     
     var body: some View {
@@ -80,9 +80,9 @@ struct HomeMapView: View {
                         MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap, initialRegionSet: $initialRegionSet)
                             .edgesIgnoringSafeArea(.all)
                             .environment(\.colorScheme, .dark)
-                            .onReceive(timer) { _ in
-                                eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
-                            }
+                            //.onReceive(timer) { _ in
+                              //  eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
+                            //}
                     }
                     
                     VStack(spacing: 0) {
@@ -940,11 +940,8 @@ struct FollowRequestButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
     }
 }
-struct HomeMapView_Preview: PreviewProvider {
-    static var previews: some View {
-        HomeMapView()
-    }
-}
+
+
 struct RankedEventsListView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var eventsViewModel: EventsViewModel
@@ -1042,16 +1039,28 @@ struct RankedEventsListView: View {
                                     .offset(y: -9)
 
                                     // Share button
-                                    Button(action: {
-                                        self.shareEvent(event: event)
-                                    }) {
+                                    ShareLink(item: "\(event.title ?? "Event Title")\n" +
+                                              "\(event.visibility ?? "Invite Status") [invited]\n" +
+                                              "@ \(event.locTitle ?? "Location Title")\n" +
+                                              "\(event.locSubtitle ?? "Additional Location Info")\n" +
+                                              "\(event.description ?? "Description")\n\n" + "Sent from SparkRice⚡") {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.title)
-                                            .foregroundColor(.white) // Adjust color as needed
+                                            .foregroundColor(.white)
                                     }
                                     .padding(.trailing, 15) // Add padding to the right of the share button
                                     .padding(.top, 1)
                                     .offset(y: -11)
+//                                    Button(action: {
+//                                        self.shareEvent(event: event)
+//                                    }) {
+//                                        Image(systemName: "square.and.arrow.up")
+//                                            .font(.title)
+//                                            .foregroundColor(.white) // Adjust color as needed
+//                                    }
+//                                    .padding(.trailing, 15) // Add padding to the right of the share button
+//                                    .padding(.top, 1)
+//                                    .offset(y: -11)
                                 }
                                 Spacer() // Pushes the content to the top of the VStack
                                 // Likes count text
@@ -1159,8 +1168,9 @@ struct RankedEventsListView: View {
         "\(event.locSubtitle ?? "Additional Location Info")\n" +
         "\(event.description ?? "Description")\n\n" + "Sent from SparkRice⚡"
 
+   
         let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
-
+        
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             window.rootViewController?.present(activityViewController, animated: true, completion: nil)

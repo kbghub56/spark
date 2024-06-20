@@ -72,12 +72,7 @@ struct ClickEvent: View {
                                 }
                                 
                                 VStack {
-                                    Button(action: {
-                                        withAnimation {
-                                            self.isShared.toggle()
-                                            shareEvent()
-                                        }
-                                    }) {
+                                    ShareLink(item: eventDetailsString()) {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.system(size: 24))
                                             .foregroundColor(.white)
@@ -199,19 +194,14 @@ struct ClickEvent: View {
         }
     }
     
-    func shareEvent() {
+    private func eventDetailsString() -> String {
         let eventDetails = "\(event.title ?? "Event Title")\n" +
         "\(event.visibility ?? "Invite Status") invited\n" +
         "@ \(event.locTitle ?? "Location Title")\n" +
         "\(event.locSub ?? "Additional Location Info")\n" +
         "\(event.subtitle ?? "Description")\n\n" + "Sent from SparkRice⚡"
         
-        let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.rootViewController?.present(activityViewController, animated: true, completion: nil)
-        }
+        return eventDetails
     }
     
     // Helper function to format the date and time

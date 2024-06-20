@@ -668,9 +668,7 @@ struct SideMenu: View {
                             .bold()
                             .underline()
                             .foregroundColor(.white)
-                        Button(action: {
-                            shareSparkID()
-                        }) {
+                        ShareLink(item: sparkIdShareString()) {
                             Image(systemName: "square.and.arrow.up")
                                 .foregroundColor(.white)
                         }
@@ -834,23 +832,30 @@ struct SideMenu: View {
             )
         }
     }
-
-    func shareSparkID() {
+    
+    private func sparkIdShareString() -> String {
         guard let sparkID = userManager.currentUser?.uniqueUserID else {
-            print("SparkID not found")
-            return
+            return "SparkID not found"
         }
-
-        let activityViewController = UIActivityViewController(activityItems: ["Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"], applicationActivities: nil)
-
-        // Exclude certain activity types if desired
-        activityViewController.excludedActivityTypes = [.addToReadingList, .assignToContact]
-
-        // Present the share sheet
-        if let windowScene = UIApplication.shared.windows.first?.windowScene {
-            windowScene.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
-        }
+        return "Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"
     }
+
+//    func shareSparkID() {
+//        guard let sparkID = userManager.currentUser?.uniqueUserID else {
+//            print("SparkID not found")
+//            return
+//        }
+//
+//        let activityViewController = UIActivityViewController(activityItems: ["Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"], applicationActivities: nil)
+//
+//        // Exclude certain activity types if desired
+//        activityViewController.excludedActivityTypes = [.addToReadingList, .assignToContact]
+//
+//        // Present the share sheet
+//        if let windowScene = UIApplication.shared.windows.first?.windowScene {
+//            windowScene.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+//        }
+//    }
 
 
 }

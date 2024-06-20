@@ -19,7 +19,7 @@ func generateDarkModeQRCode(from string: String) -> UIImage {
        let cgImage = context.createCGImage(invertedImage, from: invertedImage.extent) {
         return UIImage(cgImage: cgImage)
     }
-
+    
     return UIImage(systemName: "xmark.circle") ?? UIImage()
 }
 
@@ -40,18 +40,17 @@ struct AddFriends: View {
     @State private var isShowingResults = false
     @State private var shouldNavigate = false
     @ObservedObject private var keyboard = KeyboardResponder()
-    @State private var isShared = false
     @State private var sparkID: String = ""
     @Binding var showingAddFriendView: Bool
     @State private var isShowingAddFrTwo = false
     @Environment(\.presentationMode) var presentationMode
-
+    
     var userID: String = "UserUniqueIdentifier"
     var qrCodeImage: UIImage {
-            let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
-            let urlString = "https://www.sparkapps.org/users/\(uniqueUserID)"
-            return generateDarkModeQRCode(from: urlString)
-        }
+        let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
+        let urlString = "https://www.sparkapps.org/users/\(uniqueUserID)"
+        return generateDarkModeQRCode(from: urlString)
+    }
     var body: some View {
         NavigationView {
             ZStack {
@@ -67,7 +66,7 @@ struct AddFriends: View {
                                 .foregroundColor(.white) // Set the text color to white
                                 .tint(.white)
                                 .textSelection(.enabled) //disables directly clicking on own link
-                               // .lineLimit(1) // Limit the text to a single line
+                            // .lineLimit(1) // Limit the text to a single line
                                 .textContentType(.none) // Treat the text as plain text, not as a link
                                 .multilineTextAlignment(.leading)
                                 .padding(.trailing, 60)
@@ -76,12 +75,7 @@ struct AddFriends: View {
                             
                             ZStack {
                                 VStack {
-                                    Button(action: {
-                                        withAnimation {
-                                            self.isShared.toggle()
-                                            shareSparkLink()
-                                        }
-                                    }) {
+                                    ShareLink(item: "Add me on Spark: \(urlString)\n\nSent from SparkRice⚡") {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.system(size: 24))
                                             .foregroundColor(.white)
@@ -101,12 +95,7 @@ struct AddFriends: View {
                             
                             ZStack {
                                 VStack {
-                                    Button(action: {
-                                        withAnimation {
-                                            self.isShared.toggle()
-                                            shareSparkID()
-                                        }
-                                    }) {
+                                    ShareLink(item: "Add my SparkID: \(userManager.currentUser?.uniqueUserID ?? "")\n\nSent from SparkRice⚡") {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.system(size: 24))
                                             .foregroundColor(.white)
@@ -178,7 +167,7 @@ struct AddFriends: View {
         }
         let shareContent = "Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
-
+        
         // Presenting the share sheet
         if let keyWindow = UIApplication.shared.keyWindow {
             if let presentedViewController = keyWindow.rootViewController?.presentedViewController {
@@ -197,7 +186,7 @@ struct AddFriends: View {
         let sparkLink = "https://www.sparkapps.org/users/\(sparkID)"
         let shareContent = "Add me on Spark: \(sparkLink)\n\nSent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
-
+        
         // Presenting the share sheet
         if let keyWindow = UIApplication.shared.keyWindow {
             if let presentedViewController = keyWindow.rootViewController?.presentedViewController {

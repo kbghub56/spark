@@ -56,9 +56,7 @@ struct InitFriends: View {
                         
                         ZStack {
                             VStack {
-                                Button(action: {
-                                    shareSparkLink() // Call shareSparkLink() when the button is tapped
-                                }) {
+                                ShareLink(item: "Add me on Spark: \(urlString)\n\nSent from SparkRice⚡") {
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.system(size: 24))
                                         .foregroundColor(.white)

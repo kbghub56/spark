@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3B20BACB40479AE126693754 /* Pods_spark.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBD351C1A9B813254BCB2C25 /* Pods_spark.framework */; };
+		5567104B2C23D41F006071F8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5567104A2C23D41F006071F8 /* Extensions.swift */; };
 		99086F952B76E3BA00FC00B2 /* sparkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086F942B76E3BA00FC00B2 /* sparkApp.swift */; };
 		99086F972B76E3BA00FC00B2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99086F962B76E3BA00FC00B2 /* ContentView.swift */; };
 		99086F992B76E3BB00FC00B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99086F982B76E3BB00FC00B2 /* Assets.xcassets */; };
@@ -88,6 +89,7 @@
 
 /* Begin PBXFileReference section */
 		028364F744332DC5EA937FB6 /* Pods-spark.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spark.debug.xcconfig"; path = "Target Support Files/Pods-spark/Pods-spark.debug.xcconfig"; sourceTree = "<group>"; };
+		5567104A2C23D41F006071F8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		99086F912B76E3BA00FC00B2 /* spark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		99086F942B76E3BA00FC00B2 /* sparkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sparkApp.swift; sourceTree = "<group>"; };
 		99086F962B76E3BA00FC00B2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -227,6 +229,7 @@
 				99086FA82B77FBF300FC00B2 /* GoogleService-Info.plist */,
 				9993E3D02B81E82B007443BE /* UserModel */,
 				99086F962B76E3BA00FC00B2 /* ContentView.swift */,
+				5567104A2C23D41F006071F8 /* Extensions.swift */,
 				99086FD32B7C982600FC00B2 /* UserLogin */,
 				99086FC22B7A111600FC00B2 /* Managers */,
 				99086FBF2B7A06CF00FC00B2 /* MapUI */,
@@ -589,6 +592,7 @@
 				9959E5CF2B8EE04D00D2A9DE /* GrabEventDataGPT.swift in Sources */,
 				9993E3E62B8AF4E5007443BE /* EventModel.swift in Sources */,
 				99086FD92B7C9A7D00FC00B2 /* AuthViewModel.swift in Sources */,
+				5567104B2C23D41F006071F8 /* Extensions.swift in Sources */,
 				9993E3D22B81E84D007443BE /* UserModel.swift in Sources */,
 				9914F8D02BC3DE2800F33482 /* EventPopupTransition.swift in Sources */,
 				9914F8E82BC8133D00F33482 /* initFriendsTester.swift in Sources */,

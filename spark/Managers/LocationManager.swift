@@ -33,7 +33,7 @@ class LocationManager: NSObject, ObservableObject {
     
     func requestLocationPermission() {
         locationManager.requestWhenInUseAuthorization()
-    } 
+    }
     
     func requestAlwaysPermission() {
         locationManager.requestAlwaysAuthorization()

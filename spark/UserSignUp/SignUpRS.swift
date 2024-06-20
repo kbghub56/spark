@@ -1,10 +1,3 @@
-//
-//  SignUpRS.swift
-//  spark
-//
-//  Created by Kabir Borle on 2/29/24.
-//
-
 import SwiftUI
 import SCSDKLoginKit
 
@@ -95,6 +88,9 @@ struct SignUpView: View {
                     .padding(.vertical, 120)
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     .background(.black)
+                    .onTapGesture {
+                        UIApplication.shared.endEditing()
+                    }
                     
                     if let errorMessage = errorMessage {
                         Text(errorMessage)
@@ -147,6 +143,7 @@ struct SignUpView: View {
         }
     }
 }
+
 
 struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {

@@ -73,6 +73,9 @@ struct LoginView: View {
                     .padding(.horizontal, 48)
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     .background(.black)
+                    .onTapGesture {
+                        UIApplication.shared.endEditing()
+                    }
                     
                     if let errorMessage = errorMessage {
                         Text(errorMessage)

@@ -234,13 +234,19 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
         
         
         if let eventAnnotation = view.annotation as? EventAnnotation {
-            // Find the corresponding Event based on the annotation's id
-            //let event = parent.eventsViewModel.allEvents.first { $0.id == eventAnnotation.id }
+            let isZoomedIn = mapView.region.span.latitudeDelta <= 0.01 && mapView.region.span.longitudeDelta <= 0.01
             
-            DispatchQueue.main.async {
-               // withAnimation(.easeInOut(duration: 0.1)) {
-                self.parent.selectedEvent = eventAnnotation
-              //  }
+            if !isZoomedIn {
+                let region = MKCoordinateRegion(center: eventAnnotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                mapView.setRegion(region, animated: true)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    self.parent.selectedEvent = eventAnnotation
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.parent.selectedEvent = eventAnnotation
+                }
             }
         }
         

@@ -63,8 +63,10 @@ struct MapViewRepresentable: UIViewRepresentable {
                 if let currentLocation = self.locationManager.currentLocation {
                     let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
                     DispatchQueue.main.async {
-                                    self.mapView.setRegion(region, animated: false)
-                                    self.initialRegionSet = true
+                        Task {
+                            self.mapView.setRegion(region, animated: false)
+                            self.initialRegionSet = true
+                        }
                                     print("[KB] SET CURR REGION")
                                     
                                 }
@@ -85,9 +87,12 @@ struct MapViewRepresentable: UIViewRepresentable {
         updateAnnotations(uiView, with: eventsViewModel.filteredEvents)
         fetchFriendsLocationsIfNeeded()
         
+        print("[KB] UPDATING UI VIEW")
+        
         if !initialRegionSet, let currentLocation = locationManager.currentLocation {
                 DispatchQueue.main.async {
                     let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                   // self.mapView.setRegion(region, animated: false) maybe this?
                     uiView.setRegion(region, animated: false)
                     initialRegionSet = true
                     print("[KB] UPDATING INITIAL REGION")

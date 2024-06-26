@@ -13,12 +13,13 @@ struct MapViewRepresentable: UIViewRepresentable {
     @Binding var didSelectUserAnnotation: Bool
     @Binding var region: MKCoordinateRegion
     @Binding var shouldRecenterMap: Bool
-    @Binding var initialRegionSet: Bool
     var authViewModel: AuthViewModel
     var userManager: UserManager
 
     var mapView = MKMapView()
     var friendsLocationsCache: [String: CLLocation] = [:]
+    @State private var initialRegionSet = false
+
     
     init(eventsViewModel: EventsViewModel,
          locationManager: LocationManager,
@@ -30,8 +31,9 @@ struct MapViewRepresentable: UIViewRepresentable {
          showMenu: Binding<Bool>, 
          didSelectUserAnnotation: Binding<Bool>,
          region: Binding<MKCoordinateRegion>,
-         shouldRecenterMap: Binding<Bool>,
-         initialRegionSet: Binding<Bool>){
+         shouldRecenterMap: Binding<Bool>
+         //initialRegionSet: Binding<Bool>
+        ){
         
         self.eventsViewModel = eventsViewModel
         self.locationManager = locationManager
@@ -44,7 +46,7 @@ struct MapViewRepresentable: UIViewRepresentable {
         self._didSelectUserAnnotation = didSelectUserAnnotation
         self._region = region
         self._shouldRecenterMap = shouldRecenterMap
-        self._initialRegionSet = initialRegionSet
+       // self._initialRegionSet = initialRegionSet
     }
 
     func makeUIView(context: Context) -> MKMapView {
@@ -57,17 +59,40 @@ struct MapViewRepresentable: UIViewRepresentable {
         // Fetch friends' locations initially
         fetchFriendsLocationsIfNeeded()
         
+        locationManager.onFirstLocationUpdate = {
+                if let currentLocation = self.locationManager.currentLocation {
+                    let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                    DispatchQueue.main.async {
+                                    self.mapView.setRegion(region, animated: false)
+                                    self.initialRegionSet = true
+                                    print("[KB] SET CURR REGION")
+                                    
+                                }
+                }
+            }
+        
         if let currentLocation = locationManager.currentLocation {
             let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
             mapView.setRegion(region, animated: false)
+            initialRegionSet = true
         }
-        
+
         return mapView
+        
     }
     
     func updateUIView(_ uiView: MKMapView, context: Context) {
         updateAnnotations(uiView, with: eventsViewModel.filteredEvents)
         fetchFriendsLocationsIfNeeded()
+        
+        if !initialRegionSet, let currentLocation = locationManager.currentLocation {
+                DispatchQueue.main.async {
+                    let region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                    uiView.setRegion(region, animated: false)
+                    initialRegionSet = true
+                    print("[KB] UPDATING INITIAL REGION")
+                }
+            }
         
         if shouldRecenterMap {
                 if let currentLocation = locationManager.currentLocation {
@@ -86,18 +111,18 @@ struct MapViewRepresentable: UIViewRepresentable {
 //                }
 //            }
 
-        if !initialRegionSet {
-                if let currentLocation = locationManager.currentLocation {
-                    print("Curr loc: \(locationManager.currentLocation)")
-                    let initialRegion = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-                    uiView.setRegion(initialRegion, animated: false)
-                    DispatchQueue.main.async {
-                        initialRegionSet = true
-                    }
-                    print("set init region, \(initialRegion)")
-                }
-            }
-        
+//        if !initialRegionSet {
+//                if let currentLocation = locationManager.currentLocation {
+//                    print("Curr loc: \(locationManager.currentLocation)")
+//                    let initialRegion = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+//                    uiView.setRegion(initialRegion, animated: false)
+//                    DispatchQueue.main.async {
+//                        initialRegionSet = true
+//                    }
+//                    print("set init region, \(initialRegion)")
+//                }
+//            }
+//        
         //IMPORTANT FOR ZOOM IN WHEN YOU LOG ON
 //        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
 //                    let region = MKCoordinateRegion(

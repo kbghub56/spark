@@ -57,7 +57,7 @@ struct HomeMapView: View {
     }
     
     
-   // let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()  // 300 seconds equals 5 minutes
+//    let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()  // 300 seconds equals 5 minutes
     
     
     var body: some View {
@@ -73,17 +73,14 @@ struct HomeMapView: View {
                         .environmentObject(userManager)
                         .environmentObject(authViewModel)
                 } else {
-                    if isCurrentLocationAvailable {
-                        
-                        
-                        
-                        MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap, initialRegionSet: $initialRegionSet)
+                  //  if initialRegionSet {
+                        MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap)
                             .edgesIgnoringSafeArea(.all)
                             .environment(\.colorScheme, .dark)
-                            //.onReceive(timer) { _ in
-                              //  eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
-                            //}
-                    }
+//                            .onReceive(timer) { _ in
+//                                eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
+//                            }
+             //       }
                     
                     VStack(spacing: 0) {
                         HStack {
@@ -239,22 +236,24 @@ struct HomeMapView: View {
             .onAppear {
                 // This might be redundant if you're already setting the user in UserManager's init
                 userManager.getCurrentUser { _ in }
-                locationManager.requestLocationPermission()
+//                locationManager.requestLocationPermission()
+//                
+//                // Wait for the current location to be available
+//                locationManager.$currentLocation
+//                    .sink { location in
+//                        if location != nil {
+//                            isCurrentLocationAvailable = true
+//                        }
+//                    }
+//                    .store(in: &cancellables)
                 
-                // Wait for the current location to be available
-                locationManager.$currentLocation
-                    .sink { location in
-                        if location != nil {
-                            isCurrentLocationAvailable = true
-                        }
-                    }
-                    .store(in: &cancellables)
+//                if let currentLocation = locationManager.currentLocation {
+//                    region = MKCoordinateRegion(center: currentLocation.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+//                    initialRegionSet = true
+//                    print("set init region")
+//                }
                 
-                if let currentLocation = locationManager.currentLocation {
-                    region = MKCoordinateRegion(center: currentLocation.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
-                    initialRegionSet = true
-                    print("set init region")
-                }
+                
             }
             .onReceive(userManager.$currentUser) { user in
                 if let uniqueUserID = user?.uniqueUserID {

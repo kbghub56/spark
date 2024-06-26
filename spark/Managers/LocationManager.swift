@@ -20,6 +20,7 @@ class LocationManager: NSObject, ObservableObject {
     private var lastIdentificationTime: Date?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var isLocationNoAuth: Bool = false
+    var onFirstLocationUpdate: (() -> Void)?
 
     init(userManager: UserManager) {
         self.userManager = userManager
@@ -29,6 +30,7 @@ class LocationManager: NSObject, ObservableObject {
         authorizationStatus = locationManager.authorizationStatus
         requestLocationPermission()
         checkLocationAuthorizationStatus()
+        print("loc mana init")
     }
     
     func requestLocationPermission() {
@@ -66,8 +68,15 @@ class LocationManager: NSObject, ObservableObject {
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        self.currentLocation = location
-        print("user loc set")
+        DispatchQueue.main.async {
+            let isFirstUpdate = self.currentLocation == nil
+            self.currentLocation = location
+            print("user loc set")
+            if isFirstUpdate {
+                self.onFirstLocationUpdate?()
+            }
+        }
+        
         updateCurrentUserLocation(location: location)
         
         if shouldIdentifyPlace() {

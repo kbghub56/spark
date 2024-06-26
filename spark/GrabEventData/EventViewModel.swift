@@ -187,6 +187,7 @@ class EventsViewModel: ObservableObject {
                 self.allEvents = newEvents
                 self.filterEvents(forFriendsAndMutuals: self.forFriendsAndMutualsState)
                 self.fetchEventsForYou() // Call fetchEventsForYou here
+                print("ALL EVENTS: \(newEvents)")
             }
         })
     }

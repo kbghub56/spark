@@ -9,6 +9,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Configure Firebase
+        application.registerForRemoteNotifications() //Crucial for enabling notifications
         FirebaseApp.configure()
         GMSServices.provideAPIKey("AIzaSyCTECbYPrMRighcsTJ-2on5jU7pckO6mnE")
         
@@ -19,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("getting apns token")
         Messaging.messaging().apnsToken = deviceToken
     }
     

@@ -78,7 +78,7 @@ struct SignUpView: View {
                             print("Navigate to login screen")
                         }) {
                             Text("Already have an account?")
-                                .font(.system(size: 17))
+                                .font(.system(size: 20))
                                 .underline()
                                 .foregroundColor(.white)
                                 .padding(40)

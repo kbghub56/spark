@@ -3,7 +3,7 @@ import Firebase
 import FirebaseDatabase
 import CoreLocation
 import FirebaseAuth
-
+// DateFormatter extension remains unchanged
 extension DateFormatter {
     static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -12,6 +12,7 @@ extension DateFormatter {
         return formatter
     }()
 }
+
 
 struct AddEvents: View {
     @State private var eventName: String = ""
@@ -28,7 +29,7 @@ struct AddEvents: View {
     @State private var isShowingSetTimePopup = false
     @State private var errorMessage: String?
     @State private var isLocationSelected: Bool = false
-    @State private var isFormValid: Bool = false
+        @State private var isFormValid: Bool = false
     
     @Environment(\.presentationMode) var presentationMode
     
@@ -59,14 +60,14 @@ struct AddEvents: View {
                     .background(Color.gray)
                     .cornerRadius(10)
                     .foregroundColor(.white)
-                    .onChange(of: eventName, perform: { _ in validateForm() })
+      //                     .onChange(of: eventName, perform: { _ in validateForm() })
                 
                 TextField("Theme, description, etc!", text: $eventDescription)
                     .padding()
                     .background(Color.gray)
                     .cornerRadius(10)
                     .foregroundColor(.white)
-                    .onChange(of: eventDescription, perform: { _ in validateForm() })
+        //                   .onChange(of: eventName, perform: { _ in validateForm() })
                 
                 locationSearchView().zIndex(1)
                 
@@ -112,7 +113,7 @@ struct AddEvents: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             everyoneText = "Everyone"
                         }
-                        validateForm()
+    //                    validateForm()
                     }) {
                         HStack {
                             Image(systemName: selection == "Everyone" ? "largecircle.fill.circle" : "circle")
@@ -132,7 +133,7 @@ struct AddEvents: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             friendsAndMutualsText = "Friends and Mutuals Only"
                         }
-                        validateForm()
+//                            validateForm()
                     }) {
                         HStack {
                             Image(systemName: selection == "Friends and Mutuals Only" ? "largecircle.fill.circle" : "circle")
@@ -152,7 +153,7 @@ struct AddEvents: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             friendsOnlyText = "Friends Only"
                         }
-                        validateForm()
+//                        validateForm()
                     }) {
                         HStack {
                             Image(systemName: selection == "Friends Only" ? "largecircle.fill.circle" : "circle")
@@ -173,14 +174,15 @@ struct AddEvents: View {
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
-                        .background(isFormValid ? Color.white : Color.gray)
+                        .background(Color.white)
                         .cornerRadius(40)
+          //                          .disabled(!isFormValid)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 25)
-                .disabled(!isFormValid)
             }
             .padding(.horizontal, 16)
+            
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -201,9 +203,9 @@ struct AddEvents: View {
                 }
             }
         )
-        .onTapGesture {
-            UIApplication.shared.endEditing()
-        }
+  //     .onTapGesture{
+     //          UIApplication.shared.endEditing()
+    //         }
     }
     
     @ViewBuilder
@@ -233,7 +235,7 @@ struct AddEvents: View {
                                         self.locationSubtitle = result.subtitle
                                         isLocationSelected = true
                                         print("TAPPED")
-                                        validateForm()
+          //                           validateForm()
                                     }
                             }
                         }
@@ -250,7 +252,7 @@ struct AddEvents: View {
             alignment: .topLeading
         )
     }
-    
+    //click on block button on friend prof
     private func addEvent() {
         print("[KB]: ", self.location, ":", self.locationTitle, ":", self.locationSubtitle)
         geocodeAddress(address: location) { coordinate, error in
@@ -282,6 +284,7 @@ struct AddEvents: View {
                     "locationTitle": locationTitle,
                     "locationSubtitle": locationSubtitle,
                 ]
+                
                 let ref = Database.database().reference()
                 let eventRef = ref.child("events").childByAutoId()
                 eventRef.setValue(eventData) { error, _ in
@@ -328,6 +331,7 @@ struct AddEvents: View {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                    let results = json["results"] as? [[String: Any]] {
                     
+                    // Filter the results to find the one with 'street_number'
                     let specificResult = results.first { result in
                         if let addressComponents = result["address_components"] as? [[String: Any]] {
                             return addressComponents.contains { component in
@@ -340,6 +344,7 @@ struct AddEvents: View {
                         return false
                     }
                     
+                    // Use the specific result if found, otherwise fallback to the first result
                     let resultToUse = specificResult ?? results.first
                     
                     if let geometry = resultToUse?["geometry"] as? [String: Any],
@@ -362,9 +367,10 @@ struct AddEvents: View {
         task.resume()
     }
     
-    private func validateForm() {
-        isFormValid = !eventName.isEmpty && !eventDescription.isEmpty && !location.isEmpty && viewModel.timeHasBeenSet && selection != nil
-    }
+    
+//    private func validateForm() {
+//        isFormValid = !eventName.isEmpty && !eventDescription.isEmpty && !location.isEmpty && viewModel.timeHasBeenSet && selection != nil
+//    }
 }
 
 struct AddEvents_Previews: PreviewProvider {

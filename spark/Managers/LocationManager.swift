@@ -74,6 +74,7 @@ extension LocationManager: CLLocationManagerDelegate {
             print("user loc set")
             if isFirstUpdate {
                 self.onFirstLocationUpdate?()
+                self.onFirstLocationUpdate = nil 
             }
         }
         

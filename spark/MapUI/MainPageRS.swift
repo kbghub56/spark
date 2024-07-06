@@ -48,6 +48,9 @@ struct HomeMapView: View {
     @State private var showEmojis = true
     @State private var initialRegionSet = false
     @State private var cancellables = Set<AnyCancellable>()
+    @State private var isLocationFound = false
+
+
     
     private func handleFollowRequestVisibility() {
         if followRequests.isEmpty {
@@ -73,125 +76,129 @@ struct HomeMapView: View {
                         .environmentObject(userManager)
                         .environmentObject(authViewModel)
                 } else {
-                  //  if initialRegionSet {
+                    //  if initialRegionSet {
+                    if !isLocationFound {
+                        LandingPage()
+                    } else {
                         MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap)
                             .edgesIgnoringSafeArea(.all)
                             .environment(\.colorScheme, .dark)
-//                            .onReceive(timer) { _ in
-//                                eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
-//                            }
-             //       }
-                    
-                    VStack(spacing: 0) {
-                        HStack {
-                            Spacer(minLength: 0)
-                            circleButton
-                        }.padding(.horizontal, 16)
-                            .padding(.bottom, 25)
+                        //                            .onReceive(timer) { _ in
+                        //                                eventsViewModel.fetchEvents()  // Call fetchEvents every 5 minutes
+                        //                            }
+                        //       }
                         
-                        HStack {
-                            Spacer(minLength: 0)
-                            toggleSection
-                        }.padding(.horizontal, 16)
-                            .padding(.bottom, 25)
-                        
-                        HStack {
-                            Spacer(minLength: 0)
-                            // Spacer()
-                            recenterButton
-                        }.padding(.horizontal, 16)
-                        
-                        Spacer(minLength: 0)
-                    }.padding(.bottom, 90)
-                        .padding(.top, 16)
-                    
-                    VStack(){
-                        Spacer()
-                        if showExpandedBlackScreen {
-                        } else /*if !showMenu */{
-                            let swipeUpThreshold: CGFloat = -50
+                        VStack(spacing: 0) {
+                            HStack {
+                                Spacer(minLength: 0)
+                                circleButton
+                            }.padding(.horizontal, 16)
+                                .padding(.bottom, 25)
                             
-                            RoundedRectangle(cornerRadius: 35)
-                                .fill(Color.black)
-                                .frame(height: (UIScreen.main.bounds.height / 7.5))
-                                .edgesIgnoringSafeArea(.bottom)
-                                .overlay(
-                                    VStack(){
-                                        RoundedRectangle(cornerRadius: 2.5)
-                                            .frame(width: 40, height: 5, alignment: .center)
-                                            .padding(.top, 11)
-                                            .foregroundColor(Color(white:0.8))
-                                        Spacer()
-                                    }
-                                )
-                            //  .animation(.easeOut(duration: 1), value: showMenu)
-                                .gesture(
-                                    DragGesture()
-                                        .onChanged { gesture in
-                                            if gesture.translation.height < swipeUpThreshold {
-                                                //     withAnimation {
-                                                showExpandedBlackScreen = true
-                                                showEmojis = false
-                                                //       }
-                                            }
-                                        }
-                                )
-                                .onTapGesture {
-                                    //        withAnimation {
-                                    showExpandedBlackScreen = true
-                                    showEmojis = false
-                                    //        }
-                                }
-                        }
-                    }.edgesIgnoringSafeArea(.all)
-                    
-                    GeometryReader { _ in
-                        VStack {
+                            HStack {
+                                Spacer(minLength: 0)
+                                toggleSection
+                            }.padding(.horizontal, 16)
+                                .padding(.bottom, 25)
+                            
+                            HStack {
+                                Spacer(minLength: 0)
+                                // Spacer()
+                                recenterButton
+                            }.padding(.horizontal, 16)
+                            
+                            Spacer(minLength: 0)
+                        }.padding(.bottom, 90)
+                            .padding(.top, 16)
+                        
+                        VStack(){
                             Spacer()
-                            if showExpandedBlackScreen{
-                                ZStack{
-                                    mapModal
+                            if showExpandedBlackScreen {
+                            } else /*if !showMenu */{
+                                let swipeUpThreshold: CGFloat = -50
+                                
+                                RoundedRectangle(cornerRadius: 35)
+                                    .fill(Color.black)
+                                    .frame(height: (UIScreen.main.bounds.height / 7.5))
+                                    .edgesIgnoringSafeArea(.bottom)
+                                    .overlay(
+                                        VStack(){
+                                            RoundedRectangle(cornerRadius: 2.5)
+                                                .frame(width: 40, height: 5, alignment: .center)
+                                                .padding(.top, 11)
+                                                .foregroundColor(Color(white:0.8))
+                                            Spacer()
+                                        }
+                                    )
+                                //  .animation(.easeOut(duration: 1), value: showMenu)
+                                    .gesture(
+                                        DragGesture()
+                                            .onChanged { gesture in
+                                                if gesture.translation.height < swipeUpThreshold {
+                                                    //     withAnimation {
+                                                    showExpandedBlackScreen = true
+                                                    showEmojis = false
+                                                    //       }
+                                                }
+                                            }
+                                    )
+                                    .onTapGesture {
+                                        //        withAnimation {
+                                        showExpandedBlackScreen = true
+                                        showEmojis = false
+                                        //        }
+                                    }
+                            }
+                        }.edgesIgnoringSafeArea(.all)
+                        
+                        GeometryReader { _ in
+                            VStack {
+                                Spacer()
+                                if showExpandedBlackScreen{
+                                    ZStack{
+                                        mapModal
+                                    }
+                                } else {
+                                    RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y:400).onTapGesture{withAnimation{showExpandedBlackScreen = true}}
                                 }
-                            } else {
-                                RoundedRectangle(cornerRadius: 50).fill(Color.black).frame(height: UIScreen.main.bounds.height / 8).offset(y:400).onTapGesture{withAnimation{showExpandedBlackScreen = true}}
+                                //  mapModal
+                            }.padding(.horizontal, 0)
+                        }.ignoresSafeArea(.all)
+                        
+                        //   if showMenu {
+                        SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
+                            // Dismiss the side menu
+                            withAnimation {
+                                showMenu = false
                             }
-                            //  mapModal
-                        }.padding(.horizontal, 0)
-                    }.ignoresSafeArea(.all)
-                    
-                    //   if showMenu {
-                    SideMenu(showMenu: $showMenu, isSwitchOn: $isSwitchOn, showingLocationOffView: $showingLocationOffView, didSelectUserAnnotation: $didSelectUserAnnotation, locationManager: locationManager, namespace: animationNamespace, dismiss: {
-                        // Dismiss the side menu
-                        withAnimation {
-                            showMenu = false
+                        })
+                        //   .transition(.move(edge: .trailing))
+                        .environmentObject(userManager)
+                        .environmentObject(authViewModel)
+                        .animation(.easeInOut, value: showMenu)
+                        .offset(x: showMenu ? 0 : UIScreen.main.bounds.width)
+                        //   .matchedGeometryEffect(id: "circle", in: namespace)
+                        //   }
+                        
+                        // Usage in HomeMapView
+                        if showingFollowRequestPopup && !followRequests.isEmpty {
+                            let request = followRequests[currentRequestIndex]
+                            FollowRequestPopup(
+                                request: followRequests[currentRequestIndex],
+                                onAccept: {
+                                    userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: true)
+                                    moveToNextOrDismiss()
+                                },
+                                onReject: {
+                                    userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: false)
+                                    moveToNextOrDismiss()
+                                }
+                            )
                         }
-                    })
-                    //   .transition(.move(edge: .trailing))
-                    .environmentObject(userManager)
-                    .environmentObject(authViewModel)
-                    .animation(.easeInOut, value: showMenu)
-                    .offset(x: showMenu ? 0 : UIScreen.main.bounds.width)
-                    //   .matchedGeometryEffect(id: "circle", in: namespace)
-                    //   }
-                    
-                    // Usage in HomeMapView
-                    if showingFollowRequestPopup && !followRequests.isEmpty {
-                        let request = followRequests[currentRequestIndex]
-                        FollowRequestPopup(
-                            request: followRequests[currentRequestIndex],
-                            onAccept: {
-                                userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: true)
-                                moveToNextOrDismiss()
-                            },
-                            onReject: {
-                                userManager.handleFollowRequest(request.id, from: request.fromUserID, to: request.toUserID, approved: false)
-                                moveToNextOrDismiss()
-                            }
-                        )
+                        
+                        
+                        
                     }
-                    
-                    
-                    
                 }
             }
             .overlay(
@@ -236,6 +243,7 @@ struct HomeMapView: View {
             .onAppear {
                 // This might be redundant if you're already setting the user in UserManager's init
                 userManager.getCurrentUser { _ in }
+                startLocationTracking()
 //                locationManager.requestLocationPermission()
 //                
 //                // Wait for the current location to be available
@@ -303,6 +311,17 @@ struct HomeMapView: View {
                 currentRequestIndex = 0 // Reset for the next time requests are shown
             }
         }
+    }
+    private func startLocationTracking() {
+        locationManager.onFirstLocationUpdate = {
+            DispatchQueue.main.async {
+                self.isLocationFound = true
+                if let currentLocation = self.locationManager.currentLocation {
+                    self.region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
+                }
+            }
+        }
+        locationManager.requestLocationPermission()
     }
 
     var mapModal: some View {
@@ -452,7 +471,7 @@ struct HomeMapView: View {
 //            }.offset(x: isForYouSelected ? -130 - 17.5 : -160 + 57.5, y: -375 - 5)
 //        }
 //    }
-//
+
     var circleButton: some View {
         Button(action: {
             withAnimation {

@@ -126,8 +126,8 @@
             filePath = "spark/Managers/LocationManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "161"
-            endingLineNumber = "161"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
             landmarkName = "identifyNearbyPlace(for:)"
             landmarkType = "7">
          </BreakpointContent>

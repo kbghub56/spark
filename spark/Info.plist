@@ -9,6 +9,10 @@
 		<key>Scene Configuration</key>
 		<dict/>
 	</dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.kbcodes.spark</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

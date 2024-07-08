@@ -52,7 +52,6 @@ struct AddFriends: View {
         return generateDarkModeQRCode(from: urlString)
     }
     var body: some View {
-        NavigationView {
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
                 
@@ -151,7 +150,6 @@ struct AddFriends: View {
                 }
                 .padding(.horizontal, 32)
             }
-        }
         .sheet(isPresented: $isShowingAddFrTwo) {
             AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingAddFrTwo)
                 .onDisappear {

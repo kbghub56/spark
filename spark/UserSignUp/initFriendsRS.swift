@@ -19,7 +19,6 @@ struct InitFriends: View {
     
     
     var body: some View {
-        NavigationView {
             ZStack {
                 VStack(alignment: .leading, spacing: 32.5) {
                     HStack {
@@ -134,7 +133,6 @@ struct InitFriends: View {
             .padding(16)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.black)
-        }
         .onChange(of: isShowingSheet) { newValue in
             if newValue {
                 if let user = foundUser {

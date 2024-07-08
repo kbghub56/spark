@@ -18,7 +18,6 @@ struct LoginView: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        NavigationView {
             GeometryReader { geometry in
                 ZStack {
                     VStack(spacing: 40) {
@@ -88,7 +87,6 @@ struct LoginView: View {
                 }
             }
             .ignoresSafeArea()
-        }
     }
     
     func loginUser(email: String, password: String) {

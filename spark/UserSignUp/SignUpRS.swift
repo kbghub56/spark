@@ -14,7 +14,6 @@ struct SignUpView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     
     var body: some View {
-        NavigationView {
             GeometryReader { geometry in
                 ZStack {
                     VStack(spacing: 40) {
@@ -107,7 +106,6 @@ struct SignUpView: View {
                 }
             }
             .ignoresSafeArea()
-        }
     }
     
     func signUp() {

@@ -49,6 +49,7 @@ struct HomeMapView: View {
     @State private var initialRegionSet = false
     @State private var cancellables = Set<AnyCancellable>()
     @State private var isLocationFound = false
+    @State private var locationTimeout = false
 
 
     
@@ -77,7 +78,7 @@ struct HomeMapView: View {
                         .environmentObject(authViewModel)
                 } else {
                     //  if initialRegionSet {
-                    if !isLocationFound {
+                    if !isLocationFound && !locationTimeout {
                         LandingPage()
                     } else {
                         MapViewRepresentable(eventsViewModel: eventsViewModel, locationManager: locationManager, mapState: mapState, authViewModel: authViewModel, userManager: userManager, selectedEvent: $selectedEvent, selectedFriend: $selectedFriend, showMenu: $showMenu, didSelectUserAnnotation: $didSelectUserAnnotation, region: $region, shouldRecenterMap: $shouldRecenterMap)
@@ -244,6 +245,11 @@ struct HomeMapView: View {
                 // This might be redundant if you're already setting the user in UserManager's init
                 userManager.getCurrentUser { _ in }
                 startLocationTracking()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { // 5 seconds timeout
+                        if !isLocationFound {
+                            self.locationTimeout = true
+                        }
+                    }
 //                locationManager.requestLocationPermission()
 //                
 //                // Wait for the current location to be available
@@ -316,6 +322,7 @@ struct HomeMapView: View {
         locationManager.onFirstLocationUpdate = {
             DispatchQueue.main.async {
                 self.isLocationFound = true
+                self.locationTimeout = true
                 if let currentLocation = self.locationManager.currentLocation {
                     self.region = MKCoordinateRegion(center: currentLocation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
                 }

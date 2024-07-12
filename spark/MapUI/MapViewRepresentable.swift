@@ -59,7 +59,7 @@ struct MapViewRepresentable: UIViewRepresentable {
  //           initialRegionSet = true
             mapView.userTrackingMode = .follow
         }
-       // mapView.userTrackingMode = .follow
+        //mapView.userTrackingMode = .follow
         mapView.delegate = context.coordinator
         mapView.isRotateEnabled = false
         mapView.showsUserLocation = true

@@ -27,7 +27,7 @@ struct FriendPopup: View {
             
             VStack {
                 Spacer()
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 12) {
                     profileSection
                     collagesSection
                     removeFriendButton
@@ -84,19 +84,19 @@ struct FriendPopup: View {
                             }
                         }
                     }
-                }
+                }.offset(y: +10)
                
                 VStack(alignment: .leading) {
                     if let username = friend.userName {
                         Text(username).font(.system(size: 28).bold()).foregroundColor(.white)
                             .font(.system(size: 20).bold())
                             .foregroundColor(.white)
-                            .padding(.top, 10)
+               //             .padding(.top, 10)
                     } else {
                         Text("Unknown User").font(.system(size: 28).bold()).foregroundColor(.white)
                             .font(.system(size: 20).bold())
                             .foregroundColor(.white)
-                            .padding(.top, 10)
+               //             .padding(.top, 10)
                     }
                     
                     Text(friend.nearbyPlace ?? "Unknown Place")
@@ -120,12 +120,12 @@ struct FriendPopup: View {
                 Spacer()
                 Image("PNG image 1")
                     .resizable()
-                    .frame(width: 75, height: 75)
+                    .frame(width: 100, height: 100)
                     .cornerRadius(15)
                     .blur(radius: 1.5)
                 Image("PNG image 2")
                     .resizable()
-                    .frame(width: 75, height: 75)
+                    .frame(width: 100, height: 100)
                     .cornerRadius(15)
                     .blur(radius: 1.5)
                 Spacer()
@@ -134,12 +134,12 @@ struct FriendPopup: View {
                 Spacer()
                 Image("PNG image 3")
                     .resizable()
-                    .frame(width: 75, height: 75)
+                    .frame(width: 100, height: 100)
                     .cornerRadius(15)
                     .blur(radius: 1.5)
                 Image("PNG image")
                     .resizable()
-                    .frame(width: 75, height: 75)
+                    .frame(width: 100, height: 100)
                     .cornerRadius(15)
                     .blur(radius: 1.5)
                 Spacer()
@@ -150,12 +150,12 @@ struct FriendPopup: View {
                 Image(systemName: "lock.fill")
                     .font(.title)
                     .foregroundColor(.white)
-                    .scaleEffect(0.75)
+                    .scaleEffect(1)
                 Text("coming soon ...")
                     .font(.subheadline)
                     .foregroundColor(.white)
-                    .scaleEffect(0.75)
-            }
+                    .scaleEffect(1)
+            }.offset(y: 25)
         ).frame(maxWidth: .infinity)
     }
     var removeFriendButton: some View {
@@ -169,13 +169,13 @@ struct FriendPopup: View {
 //                }
 //                userManager.removeAsFriend(currentUserUniqueID: currentUserUniqueID, friendID: friend.title!)
             }
-            .font(.headline)
+            .font(.system(size: 15))
             .foregroundColor(.white)
-            .padding(10)
-            .padding(.bottom)
-            .padding(.horizontal, 5)
+        //    .padding(10)
+       //     .padding(.bottom)
+       //     .padding(.horizontal, 5)
             .background(Color.black)
-            .cornerRadius(50)
+     //       .cornerRadius(50)
         }.frame(maxWidth: .infinity)
     }
     
@@ -184,12 +184,14 @@ struct FriendPopup: View {
                 Button("Block User") {
                     showBlockFriendPopup = true
                 }
-                .font(.headline)
-                .foregroundColor(.red) // Set the text color to red
-                .padding(10)
-                .padding(.horizontal, 5)
+                .font(.system(size: 15))
+                .foregroundColor(.white)
+
+         //       .foregroundColor(.red) // Set the text color to red
+           //     .padding(10)
+                .padding(.bottom, 15)
                 .background(Color.black)
-                .cornerRadius(50)
+          //      .cornerRadius(50)
             }.frame(maxWidth: .infinity)
         }
 }

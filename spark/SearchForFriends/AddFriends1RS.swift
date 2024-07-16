@@ -60,7 +60,7 @@ struct AddFriends: View {
                         HStack {
                             let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
                             let urlString = "http://www.sparkapps.org/users/" + uniqueUserID
-                            Text("Spark link: \(urlString)")
+                            Text("Your Link: \(urlString)")
                                 .font(.system(size: 17))
                                 .foregroundColor(.white) // Set the text color to white
                                 .tint(.white)
@@ -74,7 +74,7 @@ struct AddFriends: View {
                             
                             ZStack {
                                 VStack {
-                                    ShareLink(item: "Add me on Spark: \(urlString)\n\nSent from SparkRice⚡") {
+                                    ShareLink(item: "Add me: \(urlString)\n\nSent from SparkRice⚡") {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.system(size: 24))
                                             .foregroundColor(.white)
@@ -94,7 +94,7 @@ struct AddFriends: View {
                             
                             ZStack {
                                 VStack {
-                                    ShareLink(item: "Add my SparkID: \(userManager.currentUser?.uniqueUserID ?? "")\n\nSent from SparkRice⚡") {
+                                    ShareLink(item: "Add me: \(userManager.currentUser?.uniqueUserID ?? "")\n\nSent from SparkRice⚡") {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.system(size: 24))
                                             .foregroundColor(.white)
@@ -163,7 +163,7 @@ struct AddFriends: View {
             print("No Spark ID available")
             return
         }
-        let shareContent = "Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"
+        let shareContent = "Add me: \(sparkID)\n\nSent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
         
         // Presenting the share sheet
@@ -182,7 +182,7 @@ struct AddFriends: View {
             return
         }
         let sparkLink = "https://www.sparkapps.org/users/\(sparkID)"
-        let shareContent = "Add me on Spark: \(sparkLink)\n\nSent from SparkRice⚡"
+        let shareContent = "Add me: \(sparkLink)\n\nSent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
         
         // Presenting the share sheet

@@ -803,7 +803,7 @@ struct SideMenu: View {
                     .font(.subheadline)
                     .foregroundColor(.white)
                     .scaleEffect(0.75)
-            }
+            }.offset(y:15)
         ).frame(maxWidth: .infinity)
     }
     var signOutButton: some View {
@@ -818,8 +818,9 @@ struct SideMenu: View {
             .padding(.horizontal, 5)
             .background(Color.black)
             .cornerRadius(50)
+            .offset(y:3)
 
-            Spacer().frame(height: 5) // Add a spacer with a fixed height
+      //      Spacer().frame(height: 5) // Add a spacer with a fixed height
 
         }.frame(maxWidth: .infinity)
 
@@ -835,6 +836,8 @@ struct SideMenu: View {
             .foregroundColor(.white)
             .padding(10)
             .padding(.horizontal, 5)
+            .offset(y:-12)
+//            .padding(.bottom, 25)
             .background(Color.black)
             .cornerRadius(50)
 
@@ -862,7 +865,7 @@ struct SideMenu: View {
         guard let sparkID = userManager.currentUser?.uniqueUserID else {
             return "SparkID not found"
         }
-        return "Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"
+        return "Add me: \(sparkID)\n\nSent from SparkRice⚡"
     }
 
 //    func shareSparkID() {

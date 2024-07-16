@@ -63,7 +63,7 @@ struct LoginView: View {
                             authViewModel.logInThroughLogin = false
                         }) {
                             Text("Don't have an account?")
-                                .font(.system(size: 22))
+                                .font(.system(size: 17))
                                 .underline()
                                 .foregroundColor(.white)
                         }

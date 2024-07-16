@@ -55,7 +55,7 @@ struct InitFriends: View {
                         
                         ZStack {
                             VStack {
-                                ShareLink(item: "Add me on Spark: \(urlString)\n\nSent from SparkRice⚡") {
+                                ShareLink(item: "Add me: \(urlString)\n\nSent from SparkRice⚡") {
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.system(size: 24))
                                         .foregroundColor(.white)
@@ -184,7 +184,7 @@ struct InitFriends: View {
                 print("No Spark ID available")
                 return
             }
-            let shareContent = "Add my SparkID: \(sparkID)\n\nSent from SparkRice⚡"
+            let shareContent = "Add me: \(sparkID)\n\nSent from SparkRice⚡"
             let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
 
             // Presenting the share sheet
@@ -203,7 +203,7 @@ struct InitFriends: View {
                 return
             }
             let sparkLink = "https://www.sparkapps.org/users/\(sparkID)"
-            let shareContent = "Add me on Spark: \(sparkLink)\n\nSent from SparkRice⚡"
+            let shareContent = "Add me: \(sparkLink)\n\nSent from SparkRice⚡"
             let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
 
             // Presenting the share sheet

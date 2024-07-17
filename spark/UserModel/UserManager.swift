@@ -23,7 +23,8 @@ class UserManager: ObservableObject {
             getCurrentUser { [weak self] user in
                 DispatchQueue.main.async {
                     self?.currentUser = user
-            }
+                }
+                print("[KB] \(self?.currentUser?.userName)")
                 
         }
 

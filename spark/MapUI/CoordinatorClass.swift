@@ -111,6 +111,7 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
                         DispatchQueue.main.async {
                             view.image = image
                             self.updateScaleFactorFor(view: view, at: self.zoomLevel)
+                            view.alpha = self.calculateOpacityForFriend(friendAnnotation)
 
                         }
                     }.resume()
@@ -411,6 +412,21 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
             return 0.75 // 75% opacity
         } else {
             return 1.0 // 100% opacity
+        }
+    }
+    
+    func calculateOpacityForFriend(_ friend: FriendAnnotation) -> CGFloat {
+        guard let lastUpdated = friend.locationLastUpdated else {
+            return 0.65 // Default to 60% if no update time is available
+        }
+        
+        let twelveHours: TimeInterval = 12 * 60 * 60
+        let timeSinceLastUpdate = Date().timeIntervalSince(lastUpdated)
+        
+        if timeSinceLastUpdate > twelveHours {
+            return 0.65// 60% opacity if last update was more than 12 hours ago
+        } else {
+            return 1.0 // 100% opacity if last update was within 12 hours
         }
     }
     

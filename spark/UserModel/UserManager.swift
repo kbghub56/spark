@@ -11,6 +11,7 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 import Combine
+import Mixpanel
 import MapKit
 
 class UserManager: ObservableObject {
@@ -23,8 +24,12 @@ class UserManager: ObservableObject {
             getCurrentUser { [weak self] user in
                 DispatchQueue.main.async {
                     self?.currentUser = user
-                }
-                print("[KB] \(self?.currentUser?.userName)")
+            }
+                Mixpanel.mainInstance().identify(distinctId: self?.currentUser?.uniqueUserID ?? "dummyname")
+                 
+                Mixpanel.mainInstance().people.set(properties: [ "$name":self?.currentUser?.userName,
+                                                                 "$email":self?.currentUser?.email,
+                                                                 "$friends":self?.currentUser?.friends])
                 
         }
 

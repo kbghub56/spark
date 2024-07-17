@@ -4,6 +4,7 @@ import SCSDKLoginKit
 import GoogleMaps
 import UserNotifications
 import FirebaseMessaging
+import Mixpanel
 
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     
@@ -15,6 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
         
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
+        
+        Mixpanel.initialize(token: "46ab200e52f2109a8017f3c541c50eb6", trackAutomaticEvents: false)
         
         return true
     }

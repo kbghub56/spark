@@ -1,3 +1,4 @@
 ${PODS_ROOT}/Target Support Files/Pods-spark/Pods-spark-frameworks.sh
+${BUILT_PRODUCTS_DIR}/Mixpanel-swift/Mixpanel.framework
 ${PODS_XCFRAMEWORKS_BUILD_DIR}/SnapSDK/SCSDKCoreKit/SCSDKCoreKit.framework/SCSDKCoreKit
 ${PODS_XCFRAMEWORKS_BUILD_DIR}/SnapSDK/SCSDKLoginKit/SCSDKLoginKit.framework/SCSDKLoginKit

@@ -6,5 +6,7 @@ target 'spark' do
   use_frameworks!
 
   pod 'SnapSDK', '2.5.0', :subspecs => ['SCSDKLoginKit']
+  
+  pod 'Mixpanel-swift'
 
 end

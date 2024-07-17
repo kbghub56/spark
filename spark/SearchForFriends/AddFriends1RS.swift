@@ -48,7 +48,7 @@ struct AddFriends: View {
     var userID: String = "UserUniqueIdentifier"
     var qrCodeImage: UIImage {
         let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
-        let urlString = "https://www.sparkapps.org/users/\(uniqueUserID)"
+        let urlString = "www.sparkapps.org/users/\(uniqueUserID)"
         return generateDarkModeQRCode(from: urlString)
     }
     var body: some View {
@@ -59,7 +59,7 @@ struct AddFriends: View {
                     VStack(spacing: 8) {
                         HStack {
                             let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
-                            let urlString = "http://www.sparkapps.org/users/" + uniqueUserID
+                            let urlString = "www.sparkapps.org/users/" + uniqueUserID
                             Text("Your Link: \(urlString)")
                                 .font(.system(size: 17))
                                 .foregroundColor(.white) // Set the text color to white
@@ -181,7 +181,7 @@ struct AddFriends: View {
             print("No Spark ID available")
             return
         }
-        let sparkLink = "https://www.sparkapps.org/users/\(sparkID)"
+        let sparkLink = "www.sparkapps.org/users/\(sparkID)"
         let shareContent = "Add me: \(sparkLink)\n\nSent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
         

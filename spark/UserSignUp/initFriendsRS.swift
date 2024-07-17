@@ -38,7 +38,7 @@ struct InitFriends: View {
                         .multilineTextAlignment(.leading)
                     
                     let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
-                    let urlString = "http://www.sparkapps.org/users/" + uniqueUserID
+                    let urlString = "www.sparkapps.org/users/" + uniqueUserID
                     
                     Text("Your link:")
                         .font(.system(size: 17))
@@ -202,7 +202,7 @@ struct InitFriends: View {
                 print("No Spark ID available")
                 return
             }
-            let sparkLink = "https://www.sparkapps.org/users/\(sparkID)"
+            let sparkLink = "www.sparkapps.org/users/\(sparkID)"
             let shareContent = "Add me: \(sparkLink)\n\nSent from SparkRice⚡"
             let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
 

@@ -10,7 +10,7 @@ import Foundation
 
 struct User: Codable {
     var docID: String?  // Optional property for the Firebase document ID
-    var userName: String?
+    var userName: String
     var email: String
     var uniqueUserID: String
     var friends: [String]
@@ -32,7 +32,7 @@ struct User: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         docID = try container.decodeIfPresent(String.self, forKey: .docID)  // Decode the docID if present
-        userName = try container.decodeIfPresent(String.self, forKey: .userName)
+        userName = try container.decode(String.self, forKey: .userName)
         email = try container.decode(String.self, forKey: .email)
         uniqueUserID = try container.decode(String.self, forKey: .uniqueUserID)
         friends = try container.decode([String].self, forKey: .friends)
@@ -53,6 +53,11 @@ struct User: Codable {
         try container.encodeIfPresent(longitude, forKey: .longitude)
         try container.encodeIfPresent(locationLastUpdated, forKey: .locationLastUpdated)
     }
+    
+    func isFullyLoaded() -> Bool {
+            // Check if all necessary properties are non-nil and non-empty
+            return !uniqueUserID.isEmpty && !userName.isEmpty // Add more checks as needed
+        }
 
     // Add any other initializers if necessary
 }

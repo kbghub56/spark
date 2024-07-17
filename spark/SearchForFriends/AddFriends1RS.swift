@@ -210,9 +210,15 @@ struct AddFriends: View {
         userManager.searchForUser(by: searchUserID) { result in
             switch result {
             case .success(let user):
-                foundUser = user
-                errorMessage = nil
-                isShowingAddFrTwo = true // Present AddFrTwo using a sheet
+                if user.isFullyLoaded() {
+                                    foundUser = user
+                                    errorMessage = nil
+                                    isShowingAddFrTwo = true
+                                } else {
+                                    // User found but details not fully loaded
+                                    errorMessage = "We had trouble finding your friend, please try again."
+                                    foundUser = nil
+                                }
             case .failure(let error):
                 errorMessage = error.localizedDescription
                 foundUser = nil

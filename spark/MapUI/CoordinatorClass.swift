@@ -160,6 +160,7 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
                 self.updateScaleFactorFor(view: view, at: self.zoomLevel)
             }
             
+            view.alpha = calculateOpacity(for: eventAnnotation)
             
             self.eventAnnotationView = view
             view.canShowCallout = false
@@ -398,6 +399,20 @@ class Coordinator: NSObject, MKMapViewDelegate, UIGestureRecognizerDelegate {
         }
     }
     
+    func calculateOpacity(for event: EventAnnotation) -> CGFloat {
+        let now = Date()
+        let timeUntilEvent = event.startDate.timeIntervalSince(now)
+        let threeDays: TimeInterval = 3 * 24 * 60 * 60
+        let oneDay: TimeInterval = 24 * 60 * 60
+
+        if timeUntilEvent > threeDays {
+            return 0.5 // 50% opacity
+        } else if timeUntilEvent > oneDay {
+            return 0.75 // 75% opacity
+        } else {
+            return 1.0 // 100% opacity
+        }
+    }
     
 }
 

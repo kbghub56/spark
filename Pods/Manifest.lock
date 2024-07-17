@@ -1,18 +1,24 @@
 PODS:
+  - Mixpanel-swift (4.2.7):
+    - Mixpanel-swift/Complete (= 4.2.7)
+  - Mixpanel-swift/Complete (4.2.7)
   - SnapSDK/SCSDKCoreKit (2.5.0)
   - SnapSDK/SCSDKLoginKit (2.5.0):
     - SnapSDK/SCSDKCoreKit
 
 DEPENDENCIES:
+  - Mixpanel-swift
   - SnapSDK/SCSDKLoginKit (= 2.5.0)
 
 SPEC REPOS:
   trunk:
+    - Mixpanel-swift
     - SnapSDK
 
 SPEC CHECKSUMS:
+  Mixpanel-swift: 7f5b749dbda2708033d67ff3d7a91710468d4a38
   SnapSDK: 7f9cff455207306ba63588026cbf7ed1a1a505c2
 
-PODFILE CHECKSUM: f2f713bd3ba4ed3fd7ef2544ba8084dc9442c1d6
+PODFILE CHECKSUM: e1070bb95e9bffa0fa8210e14ac56ca4ce927f16
 
 COCOAPODS: 1.15.2

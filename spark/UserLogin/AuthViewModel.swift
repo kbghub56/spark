@@ -9,6 +9,7 @@ import SwiftUI
 import Firebase
 import FirebaseAuth
 import FirebaseFirestoreSwift
+import Mixpanel
 import FirebaseFirestore
 import FirebaseMessaging
 
@@ -173,6 +174,10 @@ extension AuthViewModel {
                 completion(success)
             }
         }
+        Mixpanel.mainInstance().track(event:"Sign Up", properties: [
+            "User": username,
+            "Email": email
+        ])
     }
     
     func completeSignUp() {

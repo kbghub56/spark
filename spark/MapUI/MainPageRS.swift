@@ -251,7 +251,7 @@ struct HomeMapView: View {
                         }
                     }
 //                locationManager.requestLocationPermission()
-//                
+//
 //                // Wait for the current location to be available
 //                locationManager.$currentLocation
 //                    .sink { location in

@@ -134,6 +134,7 @@ extension LocationManager: CLLocationManagerDelegate {
             requestLocationPermission()
         case .authorizedWhenInUse:
             requestAlwaysPermission()
+            manager.startUpdatingLocation()
         case .authorizedAlways:
             manager.startUpdatingLocation()
         case .restricted, .denied:

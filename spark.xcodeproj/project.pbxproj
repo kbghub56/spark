@@ -79,6 +79,7 @@
 		99BBD61B2C1005B50051C3F0 /* EdgesBottomDrawer in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */; };
 		99BBD61E2C17D3E10051C3F0 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61D2C17D3E10051C3F0 /* GoogleMaps */; };
 		99BBD6202C1E0A370051C3F0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 99BBD61F2C1E0A370051C3F0 /* FirebaseMessaging */; };
+		99ECF0502C4A3D9A004542C9 /* FoundUserDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ECF04F2C4A3D9A004542C9 /* FoundUserDataClass.swift */; };
 		99FFE2CF2B96064000070686 /* initFriendsRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2CE2B96064000070686 /* initFriendsRS.swift */; };
 		99FFE2D12B96093C00070686 /* FriendRequestRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D02B96093C00070686 /* FriendRequestRS.swift */; };
 		99FFE2D32B99824000070686 /* LoginRS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFE2D22B99824000070686 /* LoginRS.swift */; };
@@ -154,6 +155,7 @@
 		9993E3ED2B8DC9C2007443BE /* SetTimeRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetTimeRS.swift; sourceTree = "<group>"; };
 		9993E3EF2B8DD44E007443BE /* addEventsGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addEventsGPT.swift; sourceTree = "<group>"; };
 		99BBD6172C0FFC790051C3F0 /* bottomDrawerForModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bottomDrawerForModal.swift; sourceTree = "<group>"; };
+		99ECF04F2C4A3D9A004542C9 /* FoundUserDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundUserDataClass.swift; sourceTree = "<group>"; };
 		99FFE2CE2B96064000070686 /* initFriendsRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = initFriendsRS.swift; sourceTree = "<group>"; };
 		99FFE2D02B96093C00070686 /* FriendRequestRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestRS.swift; sourceTree = "<group>"; };
 		99FFE2D22B99824000070686 /* LoginRS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRS.swift; sourceTree = "<group>"; };
@@ -219,6 +221,7 @@
 			children = (
 				B74F75412BD03346006DE27D /* spark.entitlements */,
 				9914F8FF2BD1001900F33482 /* Launch Screen.storyboard */,
+				99ECF04F2C4A3D9A004542C9 /* FoundUserDataClass.swift */,
 				9914F8C82BBEC0AD00F33482 /* UserSignUp */,
 				9914F8C32BB533EF00F33482 /* ViewEventData */,
 				9993E3DC2B87506B007443BE /* FollowRequestView */,
@@ -599,6 +602,7 @@
 				9914F9022BD20B0B00F33482 /* blockFriendPopup.swift in Sources */,
 				99FFE2D12B96093C00070686 /* FriendRequestRS.swift in Sources */,
 				9935AB212B8EF402003994AE /* MainPageRS.swift in Sources */,
+				99ECF0502C4A3D9A004542C9 /* FoundUserDataClass.swift in Sources */,
 				99086FCD2B7B548600FC00B2 /* LocationResultCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

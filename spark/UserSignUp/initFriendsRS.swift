@@ -10,7 +10,7 @@ import SwiftUI
 struct InitFriends: View {
     @State private var isPressed = false // State to handle button press animation
     @State private var userInput = ""
-    @State private var foundUser: User?
+    @StateObject private var foundUserData = FoundUserData()
     @State private var errorMessage: String?
     @State private var isShowingSheet = false
     @EnvironmentObject var userManager: UserManager
@@ -135,7 +135,7 @@ struct InitFriends: View {
             .background(.black)
         .onChange(of: isShowingSheet) { newValue in
             if newValue {
-                if let user = foundUser {
+                if let user = foundUserData.user {
                     print("Showing sheet with found user: \(user)")
                 } else {
                     print("foundUser is nil, not showing sheet")
@@ -143,7 +143,7 @@ struct InitFriends: View {
             }
         }
         .sheet(isPresented: $isShowingSheet) {
-            if let user = foundUser {
+            if let user = foundUserData.user {
                 AddFrTwo(foundUser: user, userManager: userManager, isPresented: $isShowingSheet)
                     .onDisappear {
                         presentationMode.wrappedValue.dismiss()
@@ -160,7 +160,7 @@ struct InitFriends: View {
         // Check if the userInput is the same as the current user's uniqueUserID
         if let currentUserID = userManager.currentUser?.uniqueUserID, currentUserID == userInput {
             errorMessage = "Cannot add this Spark ID"
-            foundUser = nil
+            foundUserData.user = nil
             isShowingSheet = false
             return
         }
@@ -168,19 +168,21 @@ struct InitFriends: View {
         userManager.searchForUser(by: userInput) { result in
             switch result {
             case .success(let user):
-                foundUser = user
-                errorMessage = nil
-                isShowingSheet = true // Show sheet only when user is found
-                print("USERNAME: \(foundUser?.userName)")
+                self.foundUserData.user = user
+                self.errorMessage = nil
+                self.isShowingSheet = true
+                print("USERNAME: \(user.userName)")
             case .failure(let error):
-                errorMessage = "Not a valid Spark ID. Please retry."
-                isShowingSheet = false
-                foundUser = nil
+                self.errorMessage = "Not a valid Spark ID. Please retry."
+                self.isShowingSheet = false
+                self.foundUserData.user = nil
             }
+            
         }
     }
+    
     func shareSparkID() {
-            guard let sparkID = userManager.currentUser?.uniqueUserID else {
+        guard let sparkID = userManager.currentUser?.uniqueUserID else {
                 print("No Spark ID available")
                 return
             }

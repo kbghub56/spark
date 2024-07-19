@@ -31,13 +31,13 @@ extension CIImage {
     }
 }
 
-
 struct AddFriends: View {
     @EnvironmentObject var userManager: UserManager
     @State private var searchUserID = ""
-    @State private var foundUser: User?
+    //@State private var foundUser: User?
+    @StateObject private var foundUserData = FoundUserData()
     @State private var errorMessage: String?
-    @State private var isShowingResults = false
+    //@State private var isShowingResults = false
     @State private var shouldNavigate = false
     @ObservedObject private var keyboard = KeyboardResponder()
     @State private var sparkID: String = ""
@@ -150,12 +150,14 @@ struct AddFriends: View {
                 }
                 .padding(.horizontal, 32)
             }
-        .sheet(isPresented: $isShowingAddFrTwo) {
-            AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingAddFrTwo)
-                .onDisappear {
-                    presentationMode.wrappedValue.dismiss()
+            .sheet(isPresented: $isShowingAddFrTwo) {
+                if let foundUser = foundUserData.user {
+                    AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingAddFrTwo)
+                        .onDisappear {
+                            presentationMode.wrappedValue.dismiss()
+                        }
                 }
-        }
+            }
     }
     
     func shareSparkID() {
@@ -196,35 +198,34 @@ struct AddFriends: View {
     }
     
     func searchForUser() {
-        shouldNavigate = false
-        isShowingResults = false
+        //shouldNavigate = false
+        //isShowingResults = false
         
         // Check if the searchUserID is the same as the current user's uniqueUserID
         if let currentUserID = userManager.currentUser?.uniqueUserID, currentUserID == searchUserID {
             errorMessage = "Cannot add this Spark ID"
-            foundUser = nil
-            isShowingResults = true
+            //foundUser = nil
+            //isShowingResults = true
             return
         }
         
         userManager.searchForUser(by: searchUserID) { result in
-            switch result {
-            case .success(let user):
-                if user.isFullyLoaded() {
-                                    foundUser = user
-                                    errorMessage = nil
-                                    isShowingAddFrTwo = true
-                                    
-                                } else {
-                                    // User found but details not fully loaded
-                                    errorMessage = "We had trouble finding your friend, please try again."
-                                    foundUser = nil
-                                }
-            case .failure(let error):
-                errorMessage = error.localizedDescription
-                foundUser = nil
-            }
-            isShowingResults = true
-        }
+                  //  DispatchQueue.main.async {
+                        switch result {
+                        case .success(let user):
+                            if user.isFullyLoaded() {
+                                self.foundUserData.user = user
+                                self.errorMessage = nil
+                                self.isShowingAddFrTwo = true
+                            } else {
+                                self.errorMessage = "We had trouble finding your friend, please try again."
+                                self.foundUserData.user = nil
+                            }
+                        case .failure(let error):
+                            self.errorMessage = error.localizedDescription
+                            self.foundUserData.user = nil
+                        }
+                   // }
+                }
     }
 }

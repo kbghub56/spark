@@ -214,6 +214,7 @@ struct AddFriends: View {
                                     foundUser = user
                                     errorMessage = nil
                                     isShowingAddFrTwo = true
+                                    
                                 } else {
                                     // User found but details not fully loaded
                                     errorMessage = "We had trouble finding your friend, please try again."

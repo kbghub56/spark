@@ -61,22 +61,35 @@ class UserManager: ObservableObject {
     
     func searchForUser(by userID: String, completion: @escaping (Result<User, Error>) -> Void) {
         let db = Firestore.firestore()
-        print("Searching for userID: \(userID)")  // Debugging line
-        db.collection("users").whereField("uniqueUserID", isEqualTo: userID).getDocuments { snapshot, error in
+        let query = db.collection("users").whereField("uniqueUserID", isEqualTo: userID)
+        
+        query.getDocuments(source: .server) { snapshot, error in
             if let error = error {
-                print("Error searching for user: \(error.localizedDescription)")  // Debugging line
                 completion(.failure(error))
             } else if let document = snapshot?.documents.first {
-                print("User document found: \(document.data())")  // Debugging line
-                if let foundUser = try? document.data(as: User.self) {
-                    completion(.success(foundUser))
-                } else {
-                    print("Failed to decode user document")  // Debugging line
-                    let decodeError = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode user document"])
-                    completion(.failure(decodeError))
+                do {
+                    var foundUser = try document.data(as: User.self)
+                    foundUser.docID = document.documentID  // Ensure docID is set
+                    
+                    // Double-check that userName is loaded
+                    if foundUser.userName.isEmpty {
+                        if let userName = document.data()["userName"] as? String, !userName.isEmpty {
+                            foundUser.userName = userName
+                        } else {
+                            foundUser.userName = "Unknown User"
+                        }
+                    }
+                    
+                    if foundUser.isFullyLoaded() {
+                        completion(.success(foundUser))
+                    } else {
+                        let incompleteDataError = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Incomplete user data"])
+                        completion(.failure(incompleteDataError))
+                    }
+                } catch {
+                    completion(.failure(error))
                 }
             } else {
-                print("No user found with ID \(userID)")  // Debugging line
                 let noUserError = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "No user found with ID \(userID)"])
                 completion(.failure(noUserError))
             }

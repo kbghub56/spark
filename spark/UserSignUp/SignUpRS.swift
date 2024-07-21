@@ -33,7 +33,7 @@ struct SignUpView: View {
                             }
                             
                             HStack {
-                                TextField("Email", text: $email)
+                                TextField("Rice Email", text: $email)
                                     .foregroundColor(.black)
                                     .autocapitalization(.none)
                                     .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))

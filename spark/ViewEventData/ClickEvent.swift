@@ -199,7 +199,7 @@ struct ClickEvent: View {
         "\(event.visibility ?? "Invite Status") invited\n" +
         "@ \(event.locTitle ?? "Location Title")\n" +
         "\(event.locSub ?? "Additional Location Info")\n" +
-        "\(event.subtitle ?? "Description")\n\n" + "Sent from SparkRice⚡"
+        "\(event.subtitle ?? "Description")\n\n" + "sent from SparkRice⚡"
         
         return eventDetails
     }

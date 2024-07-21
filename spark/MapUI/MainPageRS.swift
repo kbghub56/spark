@@ -514,7 +514,7 @@ struct HomeMapView: View {
         Button(action: {
             recenterMap()
         }) {
-            Image(systemName: "paperplane.circle")
+            Image(systemName: "scope")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 44 - 3 * 2, height: 44 - 3 * 2)
@@ -865,7 +865,7 @@ struct SideMenu: View {
         guard let sparkID = userManager.currentUser?.uniqueUserID else {
             return "SparkID not found"
         }
-        return "Add me: \(sparkID)\n\nSent from SparkRice⚡"
+        return "add me: \(sparkID)\n\nsent from SparkRice⚡"
     }
 
 //    func shareSparkID() {
@@ -1076,7 +1076,7 @@ struct RankedEventsListView: View {
                                               "\(event.visibility ?? "Invite Status") [invited]\n" +
                                               "@ \(event.locTitle ?? "Location Title")\n" +
                                               "\(event.locSubtitle ?? "Additional Location Info")\n" +
-                                              "\(event.description ?? "Description")\n\n" + "Sent from SparkRice⚡") {
+                                              "\(event.description ?? "Description")\n\n" + "sent from SparkRice⚡") {
                                         Image(systemName: "square.and.arrow.up")
                                             .font(.title)
                                             .foregroundColor(.white)
@@ -1199,7 +1199,7 @@ struct RankedEventsListView: View {
         "\(event.visibility ?? "Invite Status") [invited]\n" +
         "@ \(event.locTitle ?? "Location Title")\n" +
         "\(event.locSubtitle ?? "Additional Location Info")\n" +
-        "\(event.description ?? "Description")\n\n" + "Sent from SparkRice⚡"
+        "\(event.description ?? "Description")\n\n" + "sent from SparkRice⚡"
 
    
         let activityViewController = UIActivityViewController(activityItems: [eventDetails], applicationActivities: nil)

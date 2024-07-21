@@ -1,13 +1,7 @@
-//
-//  AddFriends1RS.swift
-//  spark
-//
-//  Created by Kabir Borle on 2/28/24.
-//
-
 import SwiftUI
 import UIKit
 import CoreImage.CIFilterBuiltins
+
 // Utility function to generate a QR code suitable for dark mode by inverting colors
 func generateDarkModeQRCode(from string: String) -> UIImage {
     let context = CIContext()
@@ -45,119 +39,136 @@ struct AddFriends: View {
     @State private var isShowingAddFrTwo = false
     @Environment(\.presentationMode) var presentationMode
     
+    @State private var keyboardHeight: CGFloat = 0
+
     var userID: String = "UserUniqueIdentifier"
     var qrCodeImage: UIImage {
         let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
         let urlString = "www.sparkapps.org/users/\(uniqueUserID)"
         return generateDarkModeQRCode(from: urlString)
     }
+    
     var body: some View {
-            ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
-                
-                VStack(spacing: 30) {
-                    VStack(spacing: 8) {
-                        HStack {
-                            let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
-                            let urlString = "www.sparkapps.org/users/" + uniqueUserID
-                            Text("Your Link: \(urlString)")
-                                .font(.system(size: 17))
-                                .foregroundColor(.white) // Set the text color to white
-                                .tint(.white)
-                                .textSelection(.enabled) //disables directly clicking on own link
-                            // .lineLimit(1) // Limit the text to a single line
-                                .textContentType(.none) // Treat the text as plain text, not as a link
-                                .multilineTextAlignment(.leading)
-                                .padding(.trailing, 60)
-                            
-                            Spacer()
-                            
-                            ZStack {
-                                VStack {
-                                    ShareLink(item: "Add me: \(urlString)\n\nSent from SparkRice⚡") {
-                                        Image(systemName: "square.and.arrow.up")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                            }
-                        }
-                        HStack {
-                            Text("Spark-ID: \(userManager.currentUser?.uniqueUserID ?? "")")
-                                .font(.system(size: 17))
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.leading)
-                                .textSelection(.enabled)
-                                .padding(.trailing, 60)
-                            
-                            Spacer()
-                            
-                            ZStack {
-                                VStack {
-                                    ShareLink(item: "Add me: \(userManager.currentUser?.uniqueUserID ?? "")\n\nSent from SparkRice⚡") {
-                                        Image(systemName: "square.and.arrow.up")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    
-                    Image(uiImage: qrCodeImage)
-                        .resizable()
-                        .interpolation(.none)
-                        .scaledToFit()
-                        .cornerRadius(50)
-                        .padding(.horizontal, 16)
-                        .frame(maxWidth: .infinity)
-                    
-                    Text("Add Friend:")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    VStack {
-                        TextField("Spark-ID", text: $searchUserID)
-                            .padding(.horizontal, 32)
-                            .frame(height: 50)
-                            .background(Color.white)
-                            .cornerRadius(50)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 32)
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 30) {
+                VStack(spacing: 8) {
+                    HStack {
+                        let uniqueUserID = userManager.currentUser?.uniqueUserID ?? ""
+                        let urlString = "www.sparkapps.org/users/" + uniqueUserID
+                        Text("Your Link: \(urlString)")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white) // Set the text color to white
+                            .tint(.white)
+                            .textSelection(.enabled) //disables directly clicking on own link
+                        // .lineLimit(1) // Limit the text to a single line
+                            .textContentType(.none) // Treat the text as plain text, not as a link
+                            .multilineTextAlignment(.leading)
+                            .padding(.trailing, 60)
                         
-                        if let errorMessage = errorMessage {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                                .font(.caption)
-                                .padding(.top, 4)
+                        Spacer()
+                        
+                        ZStack {
+                            VStack {
+                                ShareLink(item: "add me: \(urlString)\n\nsent from SparkRice⚡") {
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(.white)
+                                }
+                            }
                         }
                     }
-                    
-                    Button(action: {
-                        searchForUser()
-                    }) {
-                        Text("Continue")
-                            .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(.black)
+                    HStack {
+                        Text("Spark-ID: \(userManager.currentUser?.uniqueUserID ?? "")")
+                            .font(.system(size: 17))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.leading)
+                            .textSelection(.enabled)
+                            .padding(.trailing, 60)
+                        
+                        Spacer()
+                        
+                        ZStack {
+                            VStack {
+                                ShareLink(item: "add me: \(userManager.currentUser?.uniqueUserID ?? "")\n\nsent from SparkRice⚡") {
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(.white)
+                                }
+                            }
+                        }
                     }
+                }
+                .padding(.horizontal, 16)
+                
+                Image(uiImage: qrCodeImage)
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFit()
+                    .cornerRadius(50)
+                    .padding(.horizontal, 16)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
-                    .background(.white)
-                    .cornerRadius(25)
-                    .padding(.horizontal, 32)
-                    .padding(.top, 25)
+                
+                Text("Add Friend:")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+                
+                VStack {
+                    TextField("Spark-ID", text: $searchUserID)
+                        .padding(.horizontal, 32)
+                        .frame(height: 50)
+                        .background(Color.white)
+                        .cornerRadius(50)
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 32)
+                    
+                    if let errorMessage = errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                            .padding(.top, 4)
+                    }
                 }
+                
+                Button(action: {
+                    searchForUser()
+                }) {
+                    Text("Continue")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(.black)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 15)
+                .background(.white)
+                .cornerRadius(25)
                 .padding(.horizontal, 32)
+                .padding(.top, 25)
             }
-            .sheet(isPresented: $isShowingAddFrTwo) {
-                if let foundUser = foundUserData.user {
-                    AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingAddFrTwo)
-                        .onDisappear {
-                            presentationMode.wrappedValue.dismiss()
-                        }
+            .padding(.horizontal, 32)
+            .padding(.bottom, keyboardHeight)
+            .onTapGesture {
+                self.hideKeyboard()
+            }
+            .onAppear {
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { (notification) in
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        self.keyboardHeight = keyboardFrame.height
+                    }
+                }
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { (notification) in
+                    self.keyboardHeight = 0
                 }
             }
+        }
+        .sheet(isPresented: $isShowingAddFrTwo) {
+            if let foundUser = foundUserData.user {
+                AddFrTwo(foundUser: foundUser, userManager: userManager, isPresented: $isShowingAddFrTwo)
+                    .onDisappear {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+            }
+        }
     }
     
     func shareSparkID() {
@@ -165,9 +176,9 @@ struct AddFriends: View {
             print("No Spark ID available")
             return
         }
-        let shareContent = "Add me: \(sparkID)\n\nSent from SparkRice⚡"
+        let shareContent = "add me: \(sparkID)\n\nsent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
-        
+
         // Presenting the share sheet
         if let keyWindow = UIApplication.shared.keyWindow {
             if let presentedViewController = keyWindow.rootViewController?.presentedViewController {
@@ -184,9 +195,9 @@ struct AddFriends: View {
             return
         }
         let sparkLink = "www.sparkapps.org/users/\(sparkID)"
-        let shareContent = "Add me: \(sparkLink)\n\nSent from SparkRice⚡"
+        let shareContent = "add me: \(sparkLink)\n\nsent from SparkRice⚡"
         let activityViewController = UIActivityViewController(activityItems: [shareContent], applicationActivities: nil)
-        
+
         // Presenting the share sheet
         if let keyWindow = UIApplication.shared.keyWindow {
             if let presentedViewController = keyWindow.rootViewController?.presentedViewController {
@@ -210,22 +221,26 @@ struct AddFriends: View {
         }
         
         userManager.searchForUser(by: searchUserID) { result in
-                  //  DispatchQueue.main.async {
-                        switch result {
-                        case .success(let user):
-                            if user.isFullyLoaded() {
-                                self.foundUserData.user = user
-                                self.errorMessage = nil
-                                self.isShowingAddFrTwo = true
-                            } else {
-                                self.errorMessage = "We had trouble finding your friend, please try again."
-                                self.foundUserData.user = nil
-                            }
-                        case .failure(let error):
-                            self.errorMessage = error.localizedDescription
-                            self.foundUserData.user = nil
-                        }
-                   // }
+            //  DispatchQueue.main.async {
+            switch result {
+            case .success(let user):
+                if user.isFullyLoaded() {
+                    self.foundUserData.user = user
+                    self.errorMessage = nil
+                    self.isShowingAddFrTwo = true
+                } else {
+                    self.errorMessage = "We had trouble finding your friend, please try again."
+                    self.foundUserData.user = nil
                 }
+            case .failure(let error):
+                self.errorMessage = error.localizedDescription
+                self.foundUserData.user = nil
+            }
+            // }
+        }
+    }
+
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

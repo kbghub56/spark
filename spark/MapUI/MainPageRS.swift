@@ -106,7 +106,7 @@ struct HomeMapView: View {
                                 Spacer(minLength: 0)
                                 // Spacer()
                                 recenterButton
-                            }.padding(.horizontal, 16)
+                            }.padding(.horizontal, 20)
                             
                             Spacer(minLength: 0)
                         }.padding(.bottom, 90)

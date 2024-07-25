@@ -137,13 +137,14 @@ struct AddFriends: View {
                     Text("Continue")
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(.white)
+                        .cornerRadius(25)
+                        .padding(.horizontal, 32)
+                        .padding(.top, 25)
+
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(.white)
-                .cornerRadius(25)
-                .padding(.horizontal, 32)
-                .padding(.top, 25)
             }
             .padding(.horizontal, 32)
             .padding(.bottom, keyboardHeight)

@@ -51,14 +51,14 @@ struct SnapAvatar2: View {
                         Text("Continue")
                             .font(.system(size: 17, weight: .bold))
                             .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 15)
+                            .background(.white)
+                            .cornerRadius(40)
+                            .padding(.top, 25)
+                            .padding(.horizontal, 32)
+                            .offset(y:-20)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
-                    .background(.white)
-                    .cornerRadius(40)
-                    .padding(.top, 25)
-                    .padding(.horizontal, 32)
-                    .offset(y:-20)
                     
                     
                 }

@@ -38,7 +38,7 @@ struct SetTime: View {
                         DatePicker(
                             "End:",
                             selection: $viewModel.endTime,
-                            in: viewModel.startTime...,
+                            in: Date()..., //viewModel.startTime...,
                             displayedComponents: [.date, .hourAndMinute]
                         )
                         .datePickerStyle(DefaultDatePickerStyle())

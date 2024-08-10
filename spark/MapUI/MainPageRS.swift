@@ -455,7 +455,7 @@ struct HomeMapView: View {
                 withAnimation {
                     isForYouSelected.toggle()
                     eventsViewModel.filterEvents(forFriendsAndMutuals: isForYouSelected)
-                    if isForYouSelected && eventsViewModel.filteredEvents.isEmpty {
+                    if isForYouSelected && eventsViewModel.eventsForYou.isEmpty {
                                             showNoEventsAlert = true
                                         }
                 }

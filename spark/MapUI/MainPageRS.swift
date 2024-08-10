@@ -50,6 +50,7 @@ struct HomeMapView: View {
     @State private var cancellables = Set<AnyCancellable>()
     @State private var isLocationFound = false
     @State private var locationTimeout = false
+    @State private var showNoEventsAlert: Bool = false
 
 
     
@@ -101,6 +102,13 @@ struct HomeMapView: View {
                                 toggleSection
                             }.padding(.horizontal, 16)
                                 .padding(.bottom, 25)
+                                .alert(isPresented: $showNoEventsAlert) {
+                                            Alert(
+                                                title: Text("No Events"),
+                                                message: Text("Your friends haven't added any events yet, check back soon"),
+                                                dismissButton: .default(Text("OK"))
+                                            )
+                                        }
                             
                             HStack {
                                 Spacer(minLength: 0)
@@ -447,6 +455,9 @@ struct HomeMapView: View {
                 withAnimation {
                     isForYouSelected.toggle()
                     eventsViewModel.filterEvents(forFriendsAndMutuals: isForYouSelected)
+                    if isForYouSelected && eventsViewModel.filteredEvents.isEmpty {
+                                            showNoEventsAlert = true
+                                        }
                 }
             }, label: {
                 ZStack {
@@ -984,214 +995,231 @@ struct RankedEventsListView: View {
 
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(eventsViewModel.sortedEventsByLikesFromFriends, id: \.id) { event in
-                    VStack {
-                        HStack {
-                            if event.visibility == "Everyone" {
-                                Text("🎉")
-                                    .font(.system(size: 50))
-                                    .padding(.leading, 10)
-                            } else if event.visibility == "Friends and Mutuals Only" {
-                                Text("🤗")
-                                    .font(.system(size: 50))
-                                    .padding(.leading, 10)
-                            } else if event.visibility == "Friends Only" {
-                                Text("😁")
-                                    .font(.system(size: 50))
-                                    .padding(.leading, 10)
-                            } else {
-                                Circle()
-                                    .strokeBorder(Color.white, lineWidth: 2)
-                                    .background(Circle().fill(Color.gray.opacity(0.3)))
-                                    .frame(width: 60, height: 60)
-                                    .padding(.leading, 10)
-                            }
-
-
-                            VStack(alignment: .leading, spacing: 4) {
-
-                                Text(event.title)
-                                    .bold()
-                                    .font(.title3)
-                                    .foregroundColor(.white)
-                                    .offset(y:-9)
-
-
-
-
-                                Text(truncateLocation(event.locTitle, event.locSubtitle))
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.white)
-                                    .offset(y: -9)
-                                Text(calculateDistanceToEvent(event: event))
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.white)
-                                    .offset(y: -9)
-                                HStack {
-                                    Spacer()
-
-                                    Button(action: {
-                                        self.selectedEvent = EventAnnotation(event: event)
-                                        self.showClickEvent = true
-                                    }) {
-                                        Text("See More")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(Color.blue)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                    .overlay(Rectangle().frame(height: 2).foregroundColor(Color.blue), alignment: .bottom)
-
-                                    Spacer()
+        if eventsViewModel.sortedEventsByLikesFromFriends.isEmpty {
+            ScrollView {
+                VStack {
+                    Text("When new events are posted, they'll show up here")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 20)
+                        .padding(.horizontal, 30)
+                    
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.black.opacity(0.7))
+            }
+        } else {
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(eventsViewModel.sortedEventsByLikesFromFriends, id: \.id) { event in
+                        VStack {
+                            HStack {
+                                if event.visibility == "Everyone" {
+                                    Text("🎉")
+                                        .font(.system(size: 50))
+                                        .padding(.leading, 10)
+                                } else if event.visibility == "Friends and Mutuals Only" {
+                                    Text("🤗")
+                                        .font(.system(size: 50))
+                                        .padding(.leading, 10)
+                                } else if event.visibility == "Friends Only" {
+                                    Text("😁")
+                                        .font(.system(size: 50))
+                                        .padding(.leading, 10)
+                                } else {
+                                    Circle()
+                                        .strokeBorder(Color.white, lineWidth: 2)
+                                        .background(Circle().fill(Color.gray.opacity(0.3)))
+                                        .frame(width: 60, height: 60)
+                                        .padding(.leading, 10)
                                 }
-                            }
-                            .padding(.leading, 10)
-
-
-                            Spacer()
-
-                            VStack{
-                                HStack(spacing: 12) {
-                                    Button(action: {
-                                        let currentUserID = self.authViewModel.currentUserID ?? ""
-                                        let isLiked = event.likedBy.contains(currentUserID)
-
-                                        if isLiked {
-                                            eventsViewModel.unlikeEvent(eventID: event.id, currentUserID: currentUserID)
-                                        } else {
-                                            // Call likeEvent if the event is not currently liked
-                                            eventsViewModel.likeEvent(eventID: event.id, currentUserID: currentUserID, isLiked: true)
+                                
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    
+                                    Text(event.title)
+                                        .bold()
+                                        .font(.title3)
+                                        .foregroundColor(.white)
+                                        .offset(y:-9)
+                                    
+                                    
+                                    
+                                    
+                                    Text(truncateLocation(event.locTitle, event.locSubtitle))
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.white)
+                                        .offset(y: -9)
+                                    Text(calculateDistanceToEvent(event: event))
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.white)
+                                        .offset(y: -9)
+                                    HStack {
+                                        Spacer()
+                                        
+                                        Button(action: {
+                                            self.selectedEvent = EventAnnotation(event: event)
+                                            self.showClickEvent = true
+                                        }) {
+                                            Text("See More")
+                                                .font(.system(size: 14))
+                                                .foregroundColor(Color.blue)
                                         }
-                                    }) {
-                                        Image(systemName: event.likedBy.contains(authViewModel.currentUserID ?? "") ? "heart.fill" : "heart")
-                                            .font(.title)
-                                            .foregroundColor(event.likedBy.contains(authViewModel.currentUserID ?? "") ? .red : Color(.sRGB, red: 1, green: 1, blue: 1, opacity: 1.0)) // Red if liked, translucent if not
+                                        .buttonStyle(PlainButtonStyle())
+                                        .overlay(Rectangle().frame(height: 2).foregroundColor(Color.blue), alignment: .bottom)
+                                        
+                                        Spacer()
                                     }
-                                    .padding(.top, 4)
-                                    .offset(y: -9)
-
-                                    // Share button
-                                    ShareLink(item: "\(event.title ?? "Event Title")\n" +
-                                              "\(event.visibility ?? "Invite Status") [invited]\n" +
-                                              "@ \(event.locTitle ?? "Location Title")\n" +
-                                              "\(event.locSubtitle ?? "Additional Location Info")\n" +
-                                              "\(event.description ?? "Description")\n\n" + "sent from SparkRice⚡") {
-                                        Image(systemName: "square.and.arrow.up")
-                                            .font(.title)
-                                            .foregroundColor(.white)
-                                    }
-                                    .padding(.trailing, 15) // Add padding to the right of the share button
-                                    .padding(.top, 1)
-                                    .offset(y: -11)
-//                                    Button(action: {
-//                                        self.shareEvent(event: event)
-//                                    }) {
-//                                        Image(systemName: "square.and.arrow.up")
-//                                            .font(.title)
-//                                            .foregroundColor(.white) // Adjust color as needed
-//                                    }
-//                                    .padding(.trailing, 15) // Add padding to the right of the share button
-//                                    .padding(.top, 1)
-//                                    .offset(y: -11)
                                 }
-                                Spacer() // Pushes the content to the top of the VStack
-                                // Likes count text
-                                // HStack for Bitmojis of friends who liked the event
-                                if !event.likedBy.filter({ eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }).isEmpty {
-
-                                    HStack(spacing: 0){
-                                        //
-                                        //                                    Text("liked")//.padding(.trailing, 25)
-                                        //                                        .font(.system(size: 12))
-                                        //                                        .padding(.trailing, 3)
-
-                                        Image(systemName: "heart.fill")
-                                            .foregroundColor(.red) // Set the color to red
-                                            .font(.system(size: 12)) // Adjust the size as needed
-                                        // .padding(.trailing, 4) // Add some space between the heart and the Bitmojis
-                                        HStack(spacing: -10) {
-
-                                            ForEach(event.likedBy.filter { eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }, id: \.self) { userId in
-                                                if let bitmojiUrl = authViewModel.friendsBitmojiUrls[userId], let url = URL(string: bitmojiUrl) {
-                                                    AsyncImage(url: url) { phase in
-                                                        switch phase {
-                                                        case .success(let image):
-                                                            image.resizable()
-                                                                .aspectRatio(contentMode: .fill)
-                                                                .frame(width: 27, height: 27)
-                                                                .clipShape(Circle())
-                                                        case .failure(_):
-                                                            Circle().fill(Color.gray).frame(width: 27, height: 27)
-                                                        case .empty:
-                                                            ProgressView()
-                                                        @unknown default:
-                                                            EmptyView()
+                                .padding(.leading, 10)
+                                
+                                
+                                Spacer()
+                                
+                                VStack{
+                                    HStack(spacing: 12) {
+                                        Button(action: {
+                                            let currentUserID = self.authViewModel.currentUserID ?? ""
+                                            let isLiked = event.likedBy.contains(currentUserID)
+                                            
+                                            if isLiked {
+                                                eventsViewModel.unlikeEvent(eventID: event.id, currentUserID: currentUserID)
+                                            } else {
+                                                // Call likeEvent if the event is not currently liked
+                                                eventsViewModel.likeEvent(eventID: event.id, currentUserID: currentUserID, isLiked: true)
+                                            }
+                                        }) {
+                                            Image(systemName: event.likedBy.contains(authViewModel.currentUserID ?? "") ? "heart.fill" : "heart")
+                                                .font(.title)
+                                                .foregroundColor(event.likedBy.contains(authViewModel.currentUserID ?? "") ? .red : Color(.sRGB, red: 1, green: 1, blue: 1, opacity: 1.0)) // Red if liked, translucent if not
+                                        }
+                                        .padding(.top, 4)
+                                        .offset(y: -9)
+                                        
+                                        // Share button
+                                        ShareLink(item: "\(event.title ?? "Event Title")\n" +
+                                                  "\(event.visibility ?? "Invite Status") [invited]\n" +
+                                                  "@ \(event.locTitle ?? "Location Title")\n" +
+                                                  "\(event.locSubtitle ?? "Additional Location Info")\n" +
+                                                  "\(event.description ?? "Description")\n\n" + "sent from SparkRice⚡") {
+                                            Image(systemName: "square.and.arrow.up")
+                                                .font(.title)
+                                                .foregroundColor(.white)
+                                        }
+                                                  .padding(.trailing, 15) // Add padding to the right of the share button
+                                                  .padding(.top, 1)
+                                                  .offset(y: -11)
+                                        //                                    Button(action: {
+                                        //                                        self.shareEvent(event: event)
+                                        //                                    }) {
+                                        //                                        Image(systemName: "square.and.arrow.up")
+                                        //                                            .font(.title)
+                                        //                                            .foregroundColor(.white) // Adjust color as needed
+                                        //                                    }
+                                        //                                    .padding(.trailing, 15) // Add padding to the right of the share button
+                                        //                                    .padding(.top, 1)
+                                        //                                    .offset(y: -11)
+                                    }
+                                    Spacer() // Pushes the content to the top of the VStack
+                                    // Likes count text
+                                    // HStack for Bitmojis of friends who liked the event
+                                    if !event.likedBy.filter({ eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }).isEmpty {
+                                        
+                                        HStack(spacing: 0){
+                                            //
+                                            //                                    Text("liked")//.padding(.trailing, 25)
+                                            //                                        .font(.system(size: 12))
+                                            //                                        .padding(.trailing, 3)
+                                            
+                                            Image(systemName: "heart.fill")
+                                                .foregroundColor(.red) // Set the color to red
+                                                .font(.system(size: 12)) // Adjust the size as needed
+                                            // .padding(.trailing, 4) // Add some space between the heart and the Bitmojis
+                                            HStack(spacing: -10) {
+                                                
+                                                ForEach(event.likedBy.filter { eventsViewModel.friendsList.contains($0) && authViewModel.friendsBitmojiUrls.keys.contains($0) }, id: \.self) { userId in
+                                                    if let bitmojiUrl = authViewModel.friendsBitmojiUrls[userId], let url = URL(string: bitmojiUrl) {
+                                                        AsyncImage(url: url) { phase in
+                                                            switch phase {
+                                                            case .success(let image):
+                                                                image.resizable()
+                                                                    .aspectRatio(contentMode: .fill)
+                                                                    .frame(width: 27, height: 27)
+                                                                    .clipShape(Circle())
+                                                            case .failure(_):
+                                                                Circle().fill(Color.gray).frame(width: 27, height: 27)
+                                                            case .empty:
+                                                                ProgressView()
+                                                            @unknown default:
+                                                                EmptyView()
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                        }//.padding(.leading, 17)
-                                        Text("&more")
-                                            .font(.system(size: 12))
-                                        // Adjust padding as needed to align with your design
-                                            .padding(.leading, 4)
-
+                                            }//.padding(.leading, 17)
+                                            Text("&more")
+                                                .font(.system(size: 12))
+                                            // Adjust padding as needed to align with your design
+                                                .padding(.leading, 4)
+                                            
+                                        }
                                     }
                                 }
+                                
+                                
                             }
-
-
+                            .padding(.vertical, 10)
+                            
+                            
+                            
+                            // Light rectangular border below each event
+                            Rectangle()
+                                .fill(Color.white.opacity(0.2)) // Light-colored line
+                                .frame(height: 1) // Just one pixel high to act as a line
+                                .edgesIgnoringSafeArea(.horizontal) // Extend to the screen edges if needed
+                                .padding(.bottom, 10)
                         }
-                        .padding(.vertical, 10)
-
-
-
-                        // Light rectangular border below each event
-                        Rectangle()
-                            .fill(Color.white.opacity(0.2)) // Light-colored line
-                            .frame(height: 1) // Just one pixel high to act as a line
-                            .edgesIgnoringSafeArea(.horizontal) // Extend to the screen edges if needed
-                            .padding(.bottom, 10)
                     }
                 }
             }
-        }
-        .frame(maxHeight: .infinity)
-        .background(Color.black.opacity(0.7))
-        .cornerRadius(30)
-        .padding(.horizontal, 15)
-        .overlay(
-                    Group {
-                        if showClickEvent && selectedEvent != nil {
-                            Color.black.opacity(0.4)
-                                .edgesIgnoringSafeArea(.all)
-                                .onTapGesture {
-                                    withAnimation {
-                                        showClickEvent = false
-                                        selectedEvent = nil
-                                    }
+            .frame(maxHeight: .infinity)
+            .background(Color.black.opacity(0.7))
+            .cornerRadius(30)
+            .padding(.horizontal, 15)
+            .overlay(
+                Group {
+                    if showClickEvent && selectedEvent != nil {
+                        Color.black.opacity(0.4)
+                            .edgesIgnoringSafeArea(.all)
+                            .onTapGesture {
+                                withAnimation {
+                                    showClickEvent = false
+                                    selectedEvent = nil
                                 }
-                            VStack {
-                               // Spacer()
-                                ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
-                                    self.selectedEvent = nil
-                                }
-                                .frame(width: 385, height: 450)
-                                .background(.black)
-                                .cornerRadius(50)
-                                .shadow(radius: 20)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 50)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
-                                .transition(.scale)
-                                .scaleEffect(0.9)
-                          //      Spacer()
                             }
+                        VStack {
+                            // Spacer()
+                            ClickEvent(isPresented: $showClickEvent, event: selectedEvent!) {
+                                self.selectedEvent = nil
+                            }
+                            .frame(width: 385, height: 450)
+                            .background(.black)
+                            .cornerRadius(50)
+                            .shadow(radius: 20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 50)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                            .transition(.scale)
+                            .scaleEffect(0.9)
+                            //      Spacer()
                         }
                     }
-                )
+                }
+            )
+        }
     }
 
     func shareEvent(event: Event) {

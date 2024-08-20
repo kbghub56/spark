@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
         
-        Mixpanel.initialize(token: "46ab200e52f2109a8017f3c541c50eb6", trackAutomaticEvents: false)
+        Mixpanel.initialize(token: "8db55af84357d1371a5fc0fa2e743481", trackAutomaticEvents: false)
         
         return true
     }

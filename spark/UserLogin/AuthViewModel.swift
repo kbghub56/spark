@@ -170,6 +170,11 @@ extension AuthViewModel {
 
               //      self.navigateToLocationQuestion = true
                    // self.navigateToSnapAvatar1 = true  // Set navigateToSnapAvatar1 to true
+                    Mixpanel.mainInstance().track(event: "Sign Up", properties: [
+                                        "User": username,
+                                        "Email": email,
+                                        "UserID": user.uid  // Add any additional properties you want to track
+                                    ])
                 }
                 completion(success)
             }

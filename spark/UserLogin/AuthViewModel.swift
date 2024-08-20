@@ -179,10 +179,6 @@ extension AuthViewModel {
                 completion(success)
             }
         }
-        Mixpanel.mainInstance().track(event:"Sign Up", properties: [
-            "User": username,
-            "Email": email
-        ])
     }
     
     func completeSignUp() {

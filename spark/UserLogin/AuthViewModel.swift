@@ -54,6 +54,21 @@ class AuthViewModel: ObservableObject {
         self.currentUserID = currentUser?.uid  // Update the current user ID
         if isUserAuthenticated {
             // Fetch the Bitmoji URL if the user is authenticated
+            print("ANALYTICS LOG IN")
+            print(currentUser?.email)
+//            AnalyticsManager.shared.logUserLogin(userID: currentUser!.uid, email: currentUser?.email)
+            
+            Mixpanel.mainInstance().identify(distinctId: currentUser?.email ?? "dummyname")
+             
+            Mixpanel.mainInstance().people.set(properties: [ "$doc_id":currentUser!.uid,
+                                                             "$email":currentUser?.email])
+            
+            Mixpanel.mainInstance().track(event: "Log in", properties: [
+                                "Email": currentUser?.email,
+                                "UserID": currentUser!.uid  // Add any additional properties you want to track
+                            ])
+            
+            
             fetchUserDetails()
         } else {
             // Reset the Bitmoji URL if the user is not authenticated
@@ -61,6 +76,8 @@ class AuthViewModel: ObservableObject {
             self.friendsBitmojiUrls = [:]  // Reset on logout
 
         }
+        
+        
         print("Current user at init: \(currentUser?.email ?? "none")")
         print("Auth state changed: now \(currentUser != nil ? "signed in as \(currentUser?.email ?? "")" : "not signed in")")
     }
@@ -326,6 +343,7 @@ extension AuthViewModel {
                     print("Document does not exist or error fetching document: \(error?.localizedDescription ?? "Unknown error")")
                 }
             }
+        
         }
     
     func fetchFriendsBitmojiUrls(friendsIds: [String]) {

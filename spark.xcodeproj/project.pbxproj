@@ -62,6 +62,8 @@
 		9959E5CD2B8EDFEC00D2A9DE /* InputEventsGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9959E5CC2B8EDFEC00D2A9DE /* InputEventsGPT.swift */; };
 		9959E5CF2B8EE04D00D2A9DE /* GrabEventDataGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9959E5CE2B8EE04D00D2A9DE /* GrabEventDataGPT.swift */; };
 		9959E5D12B8EE08400D2A9DE /* MapUIGPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9959E5D02B8EE08400D2A9DE /* MapUIGPT.swift */; };
+		9964D9B42C76AEC500F44A94 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9964D9B32C76AEC500F44A94 /* FirebaseAnalyticsSwift */; };
+		9964D9B72C76C25E00F44A94 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9964D9B62C76C25E00F44A94 /* AnalyticsManager.swift */; };
 		998817102BB160BF00DD44F8 /* SnapchatLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9988170F2BB160BF00DD44F8 /* SnapchatLoginView.swift */; };
 		9993E3D22B81E84D007443BE /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D12B81E84D007443BE /* UserModel.swift */; };
 		9993E3D42B85C2AB007443BE /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9993E3D32B85C2AB007443BE /* UserManager.swift */; };
@@ -139,6 +141,7 @@
 		9959E5CC2B8EDFEC00D2A9DE /* InputEventsGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEventsGPT.swift; sourceTree = "<group>"; };
 		9959E5CE2B8EE04D00D2A9DE /* GrabEventDataGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrabEventDataGPT.swift; sourceTree = "<group>"; };
 		9959E5D02B8EE08400D2A9DE /* MapUIGPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapUIGPT.swift; sourceTree = "<group>"; };
+		9964D9B62C76C25E00F44A94 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
 		9988170F2BB160BF00DD44F8 /* SnapchatLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatLoginView.swift; sourceTree = "<group>"; };
 		998912602BAEA0E60012439E /* SCSDKLoginKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SCSDKLoginKit.xcframework; path = Pods/SnapSDK/SCSDKLoginKit.xcframework; sourceTree = "<group>"; };
 		998912642BAEA0F00012439E /* SCSDKCoreKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SCSDKCoreKit.xcframework; path = Pods/SnapSDK/SCSDKCoreKit.xcframework; sourceTree = "<group>"; };
@@ -172,6 +175,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9964D9B42C76AEC500F44A94 /* FirebaseAnalyticsSwift in Frameworks */,
 				99086FB42B79E8DE00FC00B2 /* FirebaseDatabaseSwift in Frameworks */,
 				99086FB22B79E8D800FC00B2 /* FirebaseDatabase in Frameworks */,
 				99BBD61E2C17D3E10051C3F0 /* GoogleMaps in Frameworks */,
@@ -219,6 +223,7 @@
 		99086F932B76E3BA00FC00B2 /* spark */ = {
 			isa = PBXGroup;
 			children = (
+				9964D9B52C76B65F00F44A94 /* Analytics */,
 				B74F75412BD03346006DE27D /* spark.entitlements */,
 				9914F8FF2BD1001900F33482 /* Launch Screen.storyboard */,
 				99ECF04F2C4A3D9A004542C9 /* FoundUserDataClass.swift */,
@@ -364,6 +369,14 @@
 			path = UserSignUp;
 			sourceTree = "<group>";
 		};
+		9964D9B52C76B65F00F44A94 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				9964D9B62C76C25E00F44A94 /* AnalyticsManager.swift */,
+			);
+			path = Analytics;
+			sourceTree = "<group>";
+		};
 		9993E3D02B81E82B007443BE /* UserModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -436,6 +449,7 @@
 				99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */,
 				99BBD61D2C17D3E10051C3F0 /* GoogleMaps */,
 				99BBD61F2C1E0A370051C3F0 /* FirebaseMessaging */,
+				9964D9B32C76AEC500F44A94 /* FirebaseAnalyticsSwift */,
 			);
 			productName = spark;
 			productReference = 99086F912B76E3BA00FC00B2 /* spark.app */;
@@ -567,6 +581,7 @@
 				9914F8C52BB5345F00F33482 /* ClickEvent.swift in Sources */,
 				9993E3E82B8B2D9D007443BE /* CoordinatorClass.swift in Sources */,
 				9914F8E22BC5BFA000F33482 /* SnapViewTEST.swift in Sources */,
+				9964D9B72C76C25E00F44A94 /* AnalyticsManager.swift in Sources */,
 				9993E3D72B86FC5F007443BE /* SearchFriendView.swift in Sources */,
 				99086FC82B7A23EF00FC00B2 /* SearchCompleterDelegate.swift in Sources */,
 				99FFE2D32B99824000070686 /* LoginRS.swift in Sources */,
@@ -885,6 +900,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99086FA92B78065B00FC00B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		9964D9B32C76AEC500F44A94 /* FirebaseAnalyticsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99086FA92B78065B00FC00B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsSwift;
 		};
 		99BBD61A2C1005B50051C3F0 /* EdgesBottomDrawer */ = {
 			isa = XCSwiftPackageProductDependency;

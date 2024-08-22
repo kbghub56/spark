@@ -15,6 +15,7 @@ import SwiftUI
 import UIKit
 import MapKit
 import Combine
+import Mixpanel
 
 struct HomeMapView: View {
     @EnvironmentObject var eventsViewModel: EventsViewModel
@@ -293,6 +294,7 @@ struct HomeMapView: View {
                     if let currentLocation = locationManager.currentLocation {
                         userManager.updateFriendsDistances(currentLocation: currentLocation)
                     }
+                    trackModalOpen()
                 }
             }
             
@@ -525,7 +527,7 @@ struct HomeMapView: View {
         Button(action: {
             recenterMap()
         }) {
-            Image(systemName: "scope")
+            Image(systemName: "paperplane.circle")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 44 - 3 * 2, height: 44 - 3 * 2)
@@ -539,6 +541,14 @@ struct HomeMapView: View {
             shouldRecenterMap = true
         }
     }
+    
+    func trackModalOpen() {
+        Mixpanel.mainInstance().track(event: "Map Modal Opened", properties: [
+            "UserID": userManager.currentUser?.docID ?? "",
+            "Email": userManager.currentUser?.email ?? ""
+        ])
+    }
+    
 }
 
 
